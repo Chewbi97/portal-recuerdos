@@ -1,0 +1,833 @@
+/* TimeLine.css */
+
+.timeline-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 40px; /* ← de 20px a 40px */
+  box-sizing: border-box;
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px; /* Reducimos el espacio con las fotos */
+  padding: 10px 20px; /* Reducimos el padding vertical */
+  background: rgba(253, 246, 227, 0.4);
+  border-radius: 15px;
+  border-bottom: 1px solid rgba(45, 90, 39, 0.1);
+  user-select: none;
+  caret-color: transparent;
+}
+
+.btn-nuevo-recuerdo {
+  background-color: #2d5a27;
+  color: #fdf6e3;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 50px; /* Forma de píldora como en la referencia */
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  white-space: nowrap; /* Evita que el texto del botón se rompa */
+  margin-left: 20px; /* SEPARACIÓN MÍNIMA del título */
+}
+
+.btn-nuevo-recuerdo:hover {
+  transform: translateY(-2px);
+  background-color: #3d7a35;
+  box-shadow: 0 6px 20px rgba(45, 90, 39, 0.3);
+}
+
+.btn-nuevo-recuerdo:active {
+  transform: translateY(0);
+}
+
+/* Estilo cuando el formulario está abierto (Botón Cancelar) */
+.btn-nuevo-recuerdo.btn-cancelar {
+  background-color: #7d2e2e; /* Rojo vino suave */
+  box-shadow: 0 4px 15px rgba(125, 46, 46, 0.2);
+}
+
+.btn-nuevo-recuerdo.btn-cancelar:hover {
+  background-color: #a03d3d;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+  .timeline-header {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+}
+
+.timeline-header h1 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.8rem; /* Tamaño optimizado */
+  color: #2d5a27;
+  margin: 0;
+}
+
+.loading-msg {
+  padding: 100px;
+  text-align: center;
+  font-family: "EB Garamond", serif;
+  font-size: 1.5rem;
+  color: #2d5a27;
+}
+
+/* GRID DE RECUERDOS */
+.recuerdos-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ← fijo en 4 */
+  gap: 25px;
+}
+
+@media (max-width: 1100px) {
+  .recuerdos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .recuerdos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .recuerdos-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TARJETA POLAROID */
+.polaroid-card {
+  position: relative;
+  height: 450px;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #2c2c2c;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+  cursor: pointer;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.polaroid-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.polaroid-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  will-change: transform;
+}
+
+.polaroid-image img,
+.no-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7); /* Ligeramente más oscuro para leer mejor */
+}
+
+/* CAPA DE SOMBRA */
+.polaroid-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* AJUSTE 2: CONTENIDO CON MÁRGENES CORRECTOS */
+.polaroid-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 25px; /* Margen interno para que el texto no toque bordes */
+  z-index: 3;
+  color: #ffffff;
+  box-sizing: border-box; /* Crucial para que el padding no desborde el ancho */
+}
+
+.moment-date {
+  font-family: "Special Elite", cursive;
+  font-size: 0.85rem;
+  color: #ffda79;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.polaroid-content h3 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.2rem;
+  margin: 5px 0;
+  color: #fdf6e3;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Recorte de texto para la vista previa */
+.description-clamped {
+  font-family: "EB Garamond", serif;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  margin: 10px 0 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3; /* ← agregar */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MODAL DE ZOOM ( lightbox ) */
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.zoom-content {
+  background: #fdf6e3;
+  max-width: 500px;
+  width: 100%;
+  max-height: 92vh;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  animation: zoomIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* BASE (desktop) */
+.zoom-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  background: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.zoom-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.zoom-card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.zoom-text {
+  padding: 40px;
+  color: #2d5a27;
+}
+
+.zoom-text h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 3.5rem;
+  margin: 15px 0;
+}
+
+.zoom-text {
+  padding: 20px 24px;
+  color: #2d5a27;
+  position: relative;
+}
+
+.close-zoom {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ... (manten tus estilos de formulario igual) ... */
+
+.delete-moment {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.polaroid-card:hover .delete-moment {
+  opacity: 1;
+}
+
+/* ESTO CORRIGE LA VISUALIZACIÓN EN CELULAR */
+@media (max-width: 768px) {
+  .zoom-content {
+    width: 100%;
+    border-radius: 15px;
+    margin-top: 20px; /* Espacio para que el botón cerrar no se pierda */
+  }
+
+  .zoom-text {
+    padding: 20px; /* Reducimos el padding exagerado de 40px */
+  }
+
+  .zoom-text h2 {
+    font-size: 2.2rem; /* Título más pequeño para que no ocupe 3 líneas */
+    margin: 10px 0;
+  }
+
+  .zoom-text p {
+    font-size: 1.1rem; /* Texto legible pero compacto */
+    line-height: 1.5;
+  }
+
+  /* Hacemos el botón de cerrar más accesible y visible */
+  .close-zoom {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: rgba(45, 90, 39, 0.9); /* Usamos tu verde para que resalte */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* GRID DE RECUERDOS EN MÓVIL */
+@media (max-width: 480px) {
+  .recuerdos-grid {
+    grid-template-columns: 1fr; /* Una sola columna en celulares pequeños */
+    gap: 15px;
+  }
+
+  .polaroid-card {
+    height: 380px; /* Tarjetas un poco más bajas para ver más de una a la vez */
+  }
+
+  .polaroid-content h3 {
+    font-size: 1.8rem;
+  }
+}
+.zoom-text .moment-date {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.zoom-descripcion {
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #3d2b1f;
+  margin: 0;
+  cursor: pointer;
+  white-space: pre-wrap;
+}
+
+.zoom-ver-mas {
+  background: none;
+  border: none;
+  color: #7f8c8d;
+  font-family: "EB Garamond", serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px 0 0;
+  font-style: italic;
+}
+
+/* MÓVIL — sobreescribe la altura */
+@media (max-width: 600px) {
+  .zoom-img-wrapper {
+    height: 300px;
+  }
+
+  .zoom-text h2 {
+    font-size: 2rem;
+  }
+}
+
+/* --- NUEVO SISTEMA DE OPCIONES (TRES PUNTOS) --- */
+
+.options-container {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 100;
+}
+
+.btn-options {
+  background: rgba(0, 0, 0, 0.4);
+  color: #fdf6e3;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-options:hover {
+  background: rgba(45, 90, 39, 0.9); /* Verde Marbey al hacer hover */
+  transform: scale(1.1);
+}
+
+.options-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: rgba(253, 246, 227, 0.98); /* Fondo color papel */
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  overflow: hidden;
+  animation: fadeInMenu 0.2s ease-out;
+  border: 1px solid #d2b48c;
+}
+
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.options-menu button {
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  text-align: left;
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #2d5a27;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.options-menu button:hover {
+  background: rgba(45, 90, 39, 0.1);
+}
+
+/* Opción de eliminar en rojo */
+.options-menu button.delete-opt {
+  color: #7d2e2e;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.options-menu button.delete-opt:hover {
+  background: rgba(125, 46, 46, 0.1);
+}
+
+/* AJUSTE PARA MÓVILES (Botones más grandes para dedos) */
+@media (max-width: 768px) {
+  .btn-options {
+    width: 42px;
+    height: 42px;
+    background: rgba(0, 0, 0, 0.6); /* Más oscuro en móvil para que resalte */
+  }
+
+  .options-menu {
+    min-width: 160px;
+  }
+
+  .options-menu button {
+    padding: 15px 20px;
+    font-size: 1.2rem;
+  }
+}
+
+/* ELIMINAR ESTO: Ya no usamos el botón viejo */
+.delete-moment {
+  display: none;
+}
+
+.form-recuerdo-vintage h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2rem;
+  color: #2d5a27;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.btn-elegir-foto {
+  background: transparent;
+  border: 1px solid rgba(45, 90, 39, 0.4);
+  color: #2d5a27;
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  padding: 10px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-elegir-foto:hover {
+  background: rgba(45, 90, 39, 0.1);
+  transform: scale(1.02);
+}
+
+.no-photo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: rgba(45, 90, 39, 0.1);
+  color: #2d5a27;
+}
+
+.no-photo-zoom {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.input-date-vintage {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(45, 90, 39, 0.4);
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #2d5a27;
+  padding: 10px 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.input-date-vintage:focus {
+  border-bottom: 2px solid #2d5a27;
+  background: rgba(45, 90, 39, 0.05);
+}
+
+/* Esto estiliza el ícono del calendario en Chrome/Edge */
+.input-date-vintage::-webkit-calendar-picker-indicator {
+  filter: invert(27%) sepia(51%) saturate(500%) hue-rotate(90deg);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.input-date-vintage::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.buscador-container {
+  display: flex;
+  gap: 15px;
+  margin: 0 auto 25px auto;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.input-buscador {
+  width: 100%;
+  padding: 12px 20px 12px 38px; /* ← espacio para la lupa */
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  border-radius: 50px;
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: #7f8c8d;
+  pointer-events: none; /* ← el click pasa directo al input */
+}
+
+.input-search-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-buscador:focus {
+  border-color: #2d5a27;
+  box-shadow: 0 0 10px rgba(45, 90, 39, 0.15);
+}
+
+.select-periodo {
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  border-radius: 50px;
+  padding: 12px 40px 12px 20px; /* ← más padding a la derecha para la flecha */
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  appearance: none; /* ← quita la flecha nativa del navegador */
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232d5a27' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+.select-periodo:focus {
+  border-color: #2d5a27;
+}
+
+/* ANIMACIÓN DE PÁGINA */
+.pagina-entrando {
+  animation: entrarPagina 0.3s ease-out;
+}
+
+.pagina-saliendo {
+  animation: salirPagina 0.3s ease-in;
+}
+
+@keyframes entrarPagina {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes salirPagina {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+/* PAGINACIÓN */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-pagina {
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  color: #2d5a27;
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  padding: 8px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pagina:hover:not(:disabled) {
+  background: rgba(45, 90, 39, 0.15);
+  transform: scale(1.05);
+}
+
+.btn-pagina-activa {
+  background: #2d5a27;
+  color: #fdf6e3;
+  border-color: #2d5a27;
+}
+
+.btn-pagina:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .timeline-container {
+    padding: 0 16px; /* ← alinea todo al mismo margen */
+  }
+
+  .buscador-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-buscador,
+  .select-periodo {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .btn-nuevo-recuerdo {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
+.zoom-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(45, 90, 39, 0.85);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.zoom-nav:hover {
+  background: rgba(45, 90, 39, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.zoom-nav-left {
+  left: 10px;
+}
+.zoom-nav-right {
+  right: 10px;
+}
+
+.zoom-contador {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-family: "EB Garamond", serif;
+  font-size: 0.9rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .zoom-content {
+    margin: 0; /* ← sin margen en móvil */
+  }
+
+  .zoom-nav {
+    top: calc(
+      50vw
+    ); /* ← centrado en la foto que en móvil ocupa ~50vw de alto */
+    transform: translateY(-50%);
+  }
+
+  .zoom-nav-left {
+    left: 8px;
+  }
+  .zoom-nav-right {
+    right: 8px;
+  }
+}

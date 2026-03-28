@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=EB+Garamond:ital@1&display=swap');
+
+.dia-especial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.heart-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.close-dia-especial {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 255, 100, 0.15);
+  border: 1px solid rgba(0, 255, 100, 0.4);
+  color: rgba(0, 255, 100, 0.8);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.3s ease;
+}
+
+.close-dia-especial:hover {
+  background: rgba(0, 255, 100, 0.3);
+  transform: scale(1.1);
+}
+
+.dia-especial-content {
+  position: relative;
+  z-index: 10000;
+  text-align: center;
+  max-width: 600px;
+  padding: 40px;
+  animation: aparecerPoema 1.5s ease-in-out;
+}
+
+@keyframes aparecerPoema {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dia-especial-titulo {
+  font-family: "Great Vibes", cursive;
+  font-size: 4rem;
+  color: #00ff64;
+  text-shadow: 0 0 20px rgba(0, 255, 100, 0.8), 0 0 40px rgba(0, 255, 100, 0.4);
+  margin-bottom: 30px;
+}
+
+.dia-especial-poema {
+  font-family: "EB Garamond", serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 2;
+  white-space: pre-line;
+  text-shadow: 0 0 10px rgba(0, 255, 100, 0.3);
+  margin-bottom: 30px;
+}
+
+.dia-especial-firma {
+  font-family: "Great Vibes", cursive;
+  font-size: 2rem;
+  color: rgba(0, 255, 100, 0.7);
+  text-shadow: 0 0 15px rgba(0, 255, 100, 0.5);
+}
+
+@media (max-width: 768px) {
+  .dia-especial-titulo {
+    font-size: 2.8rem;
+  }
+  .dia-especial-poema {
+    font-size: 1.1rem;
+  }
+  .dia-especial-content {
+    padding: 20px;
+  }
+}

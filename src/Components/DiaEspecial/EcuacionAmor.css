@@ -1,0 +1,126 @@
+.ecuacion-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.ecuacion-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ecuacion-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.ecuacion-close:hover {
+  background: rgba(180, 50, 50, 0.6);
+}
+
+/* ECUACIÓN ABAJO */
+.ecuacion-formula {
+  position: fixed;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: rgba(200, 50, 50, 0.95);
+  font-family: "EB Garamond", serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-style: italic;
+  z-index: 1300;
+  animation: aparecerSuave 1.5s ease forwards;
+  white-space: nowrap;
+  text-shadow: 0 0 20px rgba(200, 50, 50, 0.5);
+  letter-spacing: 0.02em;
+}
+
+.ecuacion-formula p {
+  margin: 6px 0;
+}
+
+/* TEXTO STAR WARS */
+.ecuacion-texto-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 650px;
+  height: 60vh;
+  overflow: hidden;
+  z-index: 1300;
+  mask-image: linear-gradient(to top, black 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 50%, transparent 100%);
+}
+
+@keyframes scrollStarWars {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-120%); }
+}
+
+.ecuacion-poema {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  line-height: 2.2;
+  white-space: pre-line;
+  margin: 0 0 40px;
+}
+
+/* FIRMA */
+.ecuacion-firma {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  animation: aparecerSuave 2s ease forwards;
+}
+
+.ecuacion-firma p {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: #ffffff;
+  text-shadow: 0 0 30px rgba(180, 50, 50, 0.8);
+  text-align: center;
+}
+
+@keyframes aparecerSuave {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ecuacion-firma-inline {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: rgba(255, 255, 255, 0.95); /* ← blanco como el poema */
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  margin-top: 20px;
+}
+
+.ecuacion-texto-scroll {
+  padding-top: 65vh; /* ← más padding para que el texto empiece abajo */
+  padding-bottom: 20vh;
+}

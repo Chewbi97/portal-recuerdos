@@ -1,0 +1,228 @@
+.galeria-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  animation: galeria-fade-in 0.4s ease;
+}
+
+@keyframes galeria-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.galeria-container {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 50px 40px 40px;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
+  animation: galeria-slide-in 0.4s ease;
+}
+
+@keyframes galeria-slide-in {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.galeria-container::-webkit-scrollbar {
+  width: 4px;
+}
+.galeria-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.galeria-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.galeria-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.galeria-close:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.galeria-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.galeria-titulo {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #ffffff;
+  margin: 0 0 10px;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.galeria-subtitulo {
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  font-style: italic;
+}
+
+.galeria-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.momento-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 22px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.momento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  filter: brightness(1.15);
+}
+
+.momento-emoji {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  width: 52px;
+  text-align: center;
+}
+
+.momento-info {
+  flex: 1;
+}
+
+.momento-nombre {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.momento-fecha {
+  font-family: "EB Garamond", serif;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.momento-desc {
+  font-family: "EB Garamond", serif;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.momento-play {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.momento-card:hover .momento-play {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.momento-play span {
+  font-family: "EB Garamond", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 600px) {
+  .galeria-container {
+    padding: 45px 20px 30px;
+    width: 95%;
+  }
+  .momento-card {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+  .momento-nombre {
+    font-size: 1.5rem;
+  }
+  .momento-desc {
+    display: none;
+  }
+}
+
+.galeria-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.galeria-empty {
+  text-align: center;
+  padding: 40px;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  font-style: italic;
+}

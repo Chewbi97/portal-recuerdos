@@ -1,0 +1,539 @@
+/* PoemsPortal.css */
+
+.poems-portal-container {
+  width: 100%;
+  max-width: 100%;
+  margin: -20px auto 50px auto;
+  padding: 0 40px;
+  font-family: "EB Garamond", serif;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .poems-portal-container {
+    padding: 0 16px;
+  }
+
+  .buscador-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-buscador,
+  .select-periodo {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .header-portal {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .header-portal .btn-redactar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* NUEVO: grid de 3 columnas para poemas */
+.poem-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  align-items: stretch; /* ← esto hace que todas las tarjetas de una fila tengan la misma altura */
+}
+
+@media (max-width: 900px) {
+  .poem-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .poem-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.header-portal {
+  display: flex;
+  justify-content: space-between; /* Empuja el título a la izquierda y el botón a la derecha */
+  align-items: center; /* Los alinea perfectamente al centro verticalmente */
+  background: transparent !important;
+  padding: 10px 0;
+  margin-bottom: 30px;
+  width: 100%; /* Asegura que use todo el espacio para poder separarlos */
+  user-select: none;
+  caret-color: transparent;
+}
+
+/* TÍTULO A LA IZQUIERDA */
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-family: "Great Vibes", cursive;
+  color: #2d5a27;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.header-portal span {
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+  opacity: 0.5;
+  margin-left: 10px;
+}
+
+/* FUERZA LA FORMA DE PÍLDORA Y EL TAMAÑO CONTENIDO */
+.header-portal .btn-redactar {
+  background-color: #2d5a27;
+  color: #ffffff;
+  border: none;
+  padding: 10px 25px; /* Proporción ideal para elipse */
+  border-radius: 100px; /* Valor alto para asegurar extremos redondos */
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; /* Cambiado de flex a inline-flex */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  /* ESTAS TRES LÍNEAS SON CRUCIALES PARA QUE NO SEA ANCHO */
+  width: auto !important;
+  min-width: 180px;
+  max-width: fit-content;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+}
+
+/* Efecto al pasar el mouse */
+.header-portal .btn-redactar:hover {
+  transform: translateY(-2px) scale(1.02);
+  background-color: #3d7a35;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Estado cuando el formulario está abierto */
+.header-portal .btn-redactar.btn-cancelar {
+  background-color: #7d2e2e;
+}
+
+/* CARTAS DE POEMAS CON MÁRGENES INTERNOS CORRECTOS */
+.poem-card {
+  background-color: #fdf6e3;
+  padding: 40px;
+  border: 1px solid #dcd0c0;
+  border-radius: 15px;
+  position: relative;
+  margin-bottom: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  /* ← sacar el height: 100% y reemplazar por esto */
+  min-height: 300px;
+}
+
+.poem-card:hover {
+  transform: translateY(-5px);
+}
+
+.poem-card h3 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.5rem;
+  color: #2d5a27;
+  margin: 0 0 15px 0;
+}
+
+.poem-content {
+  font-size: 1.35rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  color: #3d2b1f;
+  text-align: left;
+  margin-top: 20px;
+  /* NUEVO: limita altura y difumina */
+  max-height: 120px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+}
+
+/* ... (restantes estilos de formulario y iconos se mantienen igual) ... */
+
+@media (max-width: 768px) {
+  .header-portal {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  .btn-redactar {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.poem-content-full {
+  font-family: "EB Garamond", serif;
+  font-size: 1.3rem;
+  line-height: 1.9;
+  white-space: pre-wrap; /* ← cambiá pre-line por pre-wrap */
+  color: #3d2b1f;
+  margin-top: 25px;
+  text-align: left;
+  word-break: break-word;
+}
+
+/* CONTENEDOR DE OPCIONES */
+.options-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.three-dots-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--verde-marbey);
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.three-dots-btn:hover {
+  background: rgba(45, 90, 39, 0.1);
+}
+
+/* EL MENÚ DROPDOWN (Mini Menú) */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  border: 1px solid var(--lineas-papel);
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: 12px 15px;
+  text-align: left;
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-menu button:hover {
+  background: #fdf6e3;
+}
+
+.dropdown-menu button.delete-opt {
+  color: #7d2e2e;
+  border-top: 1px solid #eee;
+}
+
+/* --- FORMULARIO VINTAGE REGENERADO --- */
+.form-container-vintage {
+  background-color: #fdf6e3; /* Color papel antiguo */
+  background-image: linear-gradient(#dcd0c0 1px, transparent 1px);
+  background-size: 100% 2.5rem; /* Simula renglones de libreta */
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #dcd0c0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin: 20px auto 40px auto;
+  max-width: 800px; /* Centrado y con buen ancho */
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.form-container-vintage h2 {
+  font-family: "Great Vibes", cursive;
+  font-size: 2.5rem;
+  color: #3d2b1f;
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #2d5a27;
+  display: inline-block;
+  width: 100%;
+}
+
+.form-vintage {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Inputs con estilo de escritura a mano */
+.input-vintage,
+.textarea-vintage {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(45, 90, 39, 0.3);
+  font-family: "EB Garamond", serif;
+  font-size: 1.2rem;
+  color: #3d2b1f;
+  padding: 10px 5px;
+  transition: all 0.3s ease;
+}
+
+.textarea-vintage {
+  line-height: 2.5rem; /* Alineado con los renglones del fondo */
+  resize: none;
+  min-height: 250px;
+}
+
+.input-vintage:focus,
+.textarea-vintage:focus {
+  outline: none;
+  border-bottom: 2px solid #2d5a27;
+  background: rgba(45, 90, 39, 0.05);
+}
+
+/* Botón de publicación elegante */
+.btn-guardar-vintage {
+  background-color: #2d5a27;
+  color: #fdf6e3;
+  padding: 15px 40px;
+  border-radius: 50px;
+  border: none;
+  font-family: "EB Garamond", serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(45, 90, 39, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-guardar-vintage:hover {
+  transform: translateY(-3px);
+  background-color: #3d7a35;
+  box-shadow: 0 6px 20px rgba(45, 90, 39, 0.3);
+}
+
+.btn-guardar-vintage:disabled {
+  background-color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ajuste para que el contador no se vea feo */
+.header-portal h1 span {
+  font-size: 1.2rem;
+  vertical-align: middle;
+  opacity: 0.6;
+}
+
+.poem-date {
+  margin-top: 20px;
+  text-align: right;
+  font-family: "EB Garamond", serif;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.no-poems-message {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.8rem;
+  color: #3d2b1f;
+  text-align: center;
+  opacity: 0.6;
+  margin-top: 40px;
+}
+
+.loading-msg {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.5rem;
+  color: #2d5a27;
+  text-align: center;
+  margin-top: 60px;
+}
+
+.buscador-container {
+  display: flex;
+  gap: 15px;
+  margin: 0 auto 25px auto;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.input-buscador {
+  width: 100%;
+  padding: 12px 20px 12px 38px; /* ← espacio para la lupa */
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  border-radius: 50px;
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-search-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: #7f8c8d;
+  pointer-events: none; /* ← el click pasa directo al input */
+}
+
+.input-buscador:focus {
+  border-color: #2d5a27;
+  box-shadow: 0 0 10px rgba(45, 90, 39, 0.15);
+}
+
+.select-periodo {
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  border-radius: 50px;
+  padding: 12px 40px 12px 20px; /* ← más padding a la derecha para la flecha */
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  color: #3d2b1f;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  appearance: none; /* ← quita la flecha nativa del navegador */
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232d5a27' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+}
+
+.select-periodo:focus {
+  border-color: #2d5a27;
+}
+
+/* ANIMACIÓN DE PÁGINA */
+.pagina-entrando {
+  animation: entrarPagina 0.3s ease-out;
+}
+
+.pagina-saliendo {
+  animation: salirPagina 0.3s ease-in;
+}
+
+@keyframes entrarPagina {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes salirPagina {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+/* PAGINACIÓN */
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-pagina {
+  background: rgba(253, 246, 227, 0.8);
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  color: #2d5a27;
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  padding: 8px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pagina:hover:not(:disabled) {
+  background: rgba(45, 90, 39, 0.15);
+  transform: scale(1.05);
+}
+
+.btn-pagina-activa {
+  background: #2d5a27;
+  color: #fdf6e3;
+  border-color: #2d5a27;
+}
+
+.btn-pagina:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .buscador-container {
+    flex-direction: column;
+  }
+  .input-buscador,
+  .select-periodo {
+    width: 100%;
+  }
+}
+
+.zoom-content.zoom-poema {
+  overflow-y: auto; /* ← permite scroll */
+  max-height: 90vh;
+}

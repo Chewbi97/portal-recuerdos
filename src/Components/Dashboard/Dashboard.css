@@ -1,0 +1,265 @@
+.portal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh; /* ← min-height en vez de height */
+  width: 100vw;
+  background-image:
+    linear-gradient(rgba(253, 246, 227, 0.7), rgba(253, 246, 227, 0.7)),
+    url("../../Assets/fondo-dashboard.png");
+  background-color: #f4ecd8;
+  background-attachment: fixed; /* ← el fondo se queda fijo mientras scrolleás */
+  overflow: visible; /* ← ya no hidden */
+  margin: 0;
+  padding: 0;
+}
+
+.portal-header {
+  flex-shrink: 0; /* Evita que el título se encoja cuando hay mucho texto abajo */
+  padding: 20px 0;
+  text-align: center;
+  user-select: none;
+  cursor: default;
+}
+
+.portal-main-title {
+  font-family: "Great Vibes", cursive;
+  font-size: 5.5rem;
+  color: #2d5a27;
+  margin: 0;
+  cursor: pointer;
+  transition: text-shadow 0.3s ease;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.portal-main-title:hover {
+  /* Un brillo muy sutil */
+  text-shadow: 2px 2px 10px rgba(45, 90, 39, 0.2);
+}
+
+.portal-tagline {
+  font-family:
+    "Great Vibes", cursive; /* Usando la fuente del título principal */
+  font-size: 1.8rem;
+  color: #3d2b1f; /* Café oscuro para legibilidad */
+  text-align: center;
+  margin: 10px auto 30px auto; /* Centrado con margen inferior para separar de los botones */
+  line-height: 1.5; /* Espacio entre los dos renglones */
+  max-width: 550px; /* Evita que los renglones sean demasiado largos */
+  font-style: italic;
+  opacity: 0.9;
+  user-select: none;
+  cursor: pointer; /* ya tiene onClick para navegar */
+  caret-color: transparent;
+}
+
+.portal-nav {
+  margin-top: 25px;
+  display: flex;
+  gap: 50px; /* Más espacio entre ellos para que respiren */
+  justify-content: center;
+}
+
+.portal-content {
+  flex-grow: 1;
+  width: 100%;
+  overflow-y: visible; /* ← ya no auto, el scroll es de la página */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #2d5a27 transparent;
+}
+
+.portal-footer {
+  flex-shrink: 0;
+  padding-bottom: 20px;
+}
+
+/* El botón de cerrar sesión ahora se verá más integrado */
+.btn-logout-minimal {
+  background: transparent;
+  border: none;
+  color: #8d6e63;
+  font-family: "EB Garamond", serif;
+  text-decoration: underline;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+  display: flex; /* ← agregar */
+  align-items: center; /* ← agregar */
+  gap: 6px; /* ← agregar */
+}
+
+.btn-logout-minimal:hover {
+  opacity: 1;
+  color: #7d2e2e;
+}
+
+.nav-link {
+  position: relative;
+  text-decoration: none !important;
+  font-family: "Great Vibes", cursive; /* Misma fuente del título */
+  font-size: 2.5rem; /* Grande pero menor al título principal */
+  color: #3d2b1f; /* Café oscuro elegante */
+  margin: 0 30px;
+  transition: all 0.4s ease;
+  opacity: 0.7;
+  border: none !important; /* Quitamos cualquier recuadro */
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2d5a27; /* Verde marbey sutil en la línea */
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  opacity: 1;
+  color: #2d5a27; /* Verde marbey */
+  transform: scale(1.05);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.home-message {
+  font-family: "EB Garamond", serif;
+  font-size: 1.8rem;
+  font-style: italic;
+  color: #5d4037;
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.4;
+  /* Animación de aparición suave */
+  animation: fadeIn 2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .portal-main-title {
+    font-size: clamp(2.5rem, 12vw, 3.5rem); /* ← responsivo */
+    padding: 0 16px;
+  }
+
+  .portal-tagline {
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    padding: 0 24px; /* ← evita que llegue al borde */
+    margin-bottom: 15px;
+  }
+
+  .nav-link {
+    font-size: 1.8rem;
+    margin: 0 15px;
+  }
+
+  .portal-content {
+    padding: 20px 16px; /* ← padding lateral en móvil */
+  }
+}
+
+.btn-flotante-dia {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(45, 90, 39, 0.9);
+  border: 2px solid rgba(126, 217, 87, 0.6);
+  font-size: 1.8rem;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(45, 90, 39, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulsar 2s infinite;
+}
+
+.btn-flotante-dia:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(45, 90, 39, 0.6);
+}
+
+@keyframes pulsar {
+  0%,
+  100% {
+    box-shadow: 0 4px 20px rgba(45, 90, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(126, 217, 87, 0.8);
+  }
+}
+
+.btn-flotante-wrapper {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Quitale el position fixed al botón ya que ahora lo maneja el wrapper */
+.btn-flotante-dia {
+  position: relative;
+  bottom: auto;
+  right: auto;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(45, 90, 39, 0.9);
+  border: 2px solid rgba(126, 217, 87, 0.6);
+  font-size: 1.8rem;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(45, 90, 39, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulsar 2s infinite;
+}
+
+.btn-flotante-tooltip {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: rgba(10, 10, 10, 0.85);
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "EB Garamond", serif;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(126, 217, 87, 0.3);
+}
+
+.btn-flotante-wrapper:hover .btn-flotante-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}

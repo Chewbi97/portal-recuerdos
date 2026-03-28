@@ -1,0 +1,97 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.despedida-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: despedidaFondo 3.5s ease forwards;
+  pointer-events: all; /* bloquea clicks durante la animación */
+}
+
+@keyframes despedidaFondo {
+  0% {
+    background: rgba(0, 0, 0, 0);
+  }
+  30% {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  70% {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  100% {
+    background: rgba(0, 0, 0, 1);
+  }
+}
+
+.despedida-texto {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: #ffffff;
+  text-shadow:
+    0 0 30px rgba(126, 217, 87, 0.8),
+    0 0 60px rgba(126, 217, 87, 0.4);
+  text-align: center;
+  padding: 0 20px;
+  opacity: 0;
+  animation: despedidaTexto 3.5s ease forwards;
+}
+
+@keyframes despedidaTexto {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}

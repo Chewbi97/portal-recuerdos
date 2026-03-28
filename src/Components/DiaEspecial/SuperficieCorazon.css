@@ -1,0 +1,146 @@
+/* SuperficieCorazon.css */
+
+.corazon3d-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.corazon3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* TÍTULO INTRO */
+.corazon3d-titulo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  animation: aparecerSuave 2s ease forwards;
+}
+
+.corazon3d-titulo p {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: rgba(80, 200, 100, 0.95);
+  text-shadow: 0 0 40px rgba(45, 180, 70, 0.7), 0 0 80px rgba(30, 140, 50, 0.3);
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* ECUACIÓN — elegante, abajo centrada */
+.corazon3d-formula {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1300;
+  animation: aparecerSuave 1.5s ease forwards;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(60, 180, 80, 0.25);
+  border-radius: 50px;
+  padding: 10px 28px;
+  backdrop-filter: blur(4px);
+}
+
+.formula-eq {
+  font-family: "EB Garamond", serif;
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  font-style: italic;
+  color: rgba(80, 220, 100, 0.9);
+  text-shadow: 0 0 12px rgba(45, 180, 70, 0.5);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.formula-eq sup, .formula-eq sub {
+  font-size: 0.7em;
+  line-height: 0;
+}
+
+/* TEXTO STAR WARS */
+.corazon3d-texto-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 650px;
+  height: 65vh;
+  overflow: hidden;
+  z-index: 1300;
+  mask-image: linear-gradient(to top, black 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%);
+}
+
+.corazon3d-texto-scroll {
+  padding-top: 70vh;
+  padding-bottom: 20vh;
+}
+
+.corazon3d-poema {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  line-height: 2.2;
+  white-space: pre-line;
+  margin: 0 0 40px;
+}
+
+.corazon3d-firma-inline {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: rgba(80, 220, 100, 0.95);
+  text-align: center;
+  text-shadow: 0 0 20px rgba(45, 180, 70, 0.5);
+  margin-top: 20px;
+}
+
+/* FIRMA OUTRO */
+.corazon3d-firma-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  transition: opacity 0.5s ease;
+}
+
+.corazon3d-firma-overlay p {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: #ffffff;
+  text-shadow: 0 0 30px rgba(45, 180, 70, 0.9), 0 0 60px rgba(30, 140, 50, 0.4);
+  text-align: center;
+}
+
+@keyframes aparecerSuave {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .formula-eq {
+    font-size: 0.75rem;
+    white-space: normal;
+  }
+  .corazon3d-formula {
+    width: 90%;
+    bottom: 100px;
+    border-radius: 20px;
+  }
+  .corazon3d-texto-wrapper {
+    height: 60vh;
+    width: 92%;
+  }
+}
