@@ -6,6 +6,7 @@ import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
 import EcuacionAmor from "../DiaEspecial/EcuacionAmor"  
 import SuperficieCorazon from "../DiaEspecial/Superficiecorazon";
+import LuciernagasPoema from "../DiaEspecial/GalaxiasFusion";
 import { SignOut, Envelope } from "@phosphor-icons/react";
 import "./Dashboard.css";
 import { solicitarPermisoNotificaciones } from "../../firebase";
@@ -20,6 +21,7 @@ const COMPONENTES_DIAS = {
   diaMujer: DiaMujer,
   ecuacionDelAmor: EcuacionAmor,
   superficieCorazon: SuperficieCorazon,
+  luciernagaspoema: LuciernagasPoema
   // sanValentin: DiaValentin,  // futuro
 };
 

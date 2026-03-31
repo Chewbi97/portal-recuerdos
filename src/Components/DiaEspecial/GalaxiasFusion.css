@@ -1,0 +1,218 @@
+/* ═══════════════════════════════════════════════════════════════
+   GalaxiasFusion.css
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Pinyon+Script&display=swap");
+
+:root {
+  --verde-gal: #2ed264;
+  --azul-gal: #3282e6;
+  --fusion-teal: #20c3a0;
+  --fusion-glow: rgba(32, 195, 160, 0.72);
+  --cosmos: #02040e;
+  --blanco: rgba(225, 255, 248, 0.93);
+}
+
+.galaxias-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--cosmos);
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.galaxias-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Intro ────────────────────────────────────────────────────── */
+.galaxias-intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+  gap: 18px;
+  animation: gAparecer 2.4s ease forwards;
+}
+
+.galaxias-titulo-texto {
+  font-family: "Pinyon Script", cursive;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  color: #ffffff;
+  text-shadow:
+    0 0 28px var(--fusion-glow),
+    0 0 65px rgba(32, 195, 160, 0.38),
+    0 0 120px rgba(32, 195, 160, 0.14);
+  text-align: center;
+  padding: 0 24px;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.galaxias-subtitulo {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(32, 195, 160, 0.72);
+  letter-spacing: 0.14em;
+  text-align: center;
+  padding: 0 32px;
+}
+
+/* ── Labels órbita ────────────────────────────────────────────── */
+.galaxias-labels {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 7vw 20vh;
+  z-index: 1300;
+  pointer-events: none;
+  animation: gAparecer 1s ease forwards;
+}
+
+.label-verde {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--verde-gal);
+  text-shadow: 0 0 22px rgba(46, 210, 100, 0.8);
+}
+
+.label-azul {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: var(--azul-gal);
+  text-shadow: 0 0 22px rgba(50, 130, 230, 0.8);
+}
+
+/* ── Poema ────────────────────────────────────────────────────── */
+.galaxias-poema-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 650px;
+  height: 65vh;
+  overflow: hidden;
+  z-index: 1300;
+  mask-image: linear-gradient(to top, black 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 55%, transparent 100%);
+}
+
+.galaxias-poema-scroll {
+  padding-top: 75vh;
+  padding-bottom: 30vh;
+}
+
+.galaxias-poema {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.2rem, 2.8vw, 1.72rem);
+  font-weight: 300;
+  color: var(--blanco);
+  text-align: center;
+  line-height: 2.1;
+  white-space: pre-line;
+  margin: 0;
+  letter-spacing: 0.025em;
+  text-shadow:
+    0 0 22px rgba(32, 195, 160, 0.28),
+    0 1px 4px rgba(0, 0, 0, 0.95);
+}
+
+.galaxias-cursor {
+  display: inline-block;
+  color: var(--fusion-teal);
+  animation: pCursor 0.85s step-end infinite;
+  text-shadow: 0 0 16px var(--fusion-glow);
+  margin-left: 2px;
+}
+
+/* ── Firma ────────────────────────────────────────────────────── */
+.galaxias-firma-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 1300;
+  transition: opacity 0.7s ease;
+}
+
+.galaxias-firma-texto {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(3.5rem, 10vw, 7rem);  /* más grande */
+  color: #ffffff;
+  text-shadow: 
+    0 0 30px rgba(110, 245, 215, 1),
+    0 0 60px rgba(32, 195, 160, 0.8),
+    0 0 100px rgba(32, 195, 160, 0.4);  /* más brillo */
+  text-align: center;
+}
+
+.galaxias-firma-linea {
+  width: 140px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--fusion-teal),
+    transparent
+  );
+  box-shadow: 0 0 14px var(--fusion-glow);
+}
+
+/* ── Keyframes ────────────────────────────────────────────────── */
+@keyframes gAparecer {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pCursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .galaxias-poema-wrapper {
+    top: 10vh;
+    bottom: 100px;
+    width: 93vw;
+  }
+  .galaxias-poema {
+    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
+    line-height: 1.9;
+  }
+  .galaxias-labels {
+    padding: 0 6vw 16vh;
+  }
+  .galaxias-titulo-texto {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+}
