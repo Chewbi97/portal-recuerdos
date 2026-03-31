@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import fondoImagen from "./../../Assets/imagen-fondo.png";
 
-const SECRET_PHRASE = "tubebe";
+const SECRET_PHRASE = process.env.REACT_APP_SECRET_PHRASE;
 
 function Login({ onLoginSuccess }) {
   const navigate = useNavigate();
