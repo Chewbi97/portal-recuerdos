@@ -375,6 +375,7 @@ function EcuacionAmor({ diaEspecial, onClose }) {
         onPausa={handlePausa}
         onBarra={handleBarra}
         onClose={handleClose}
+        videoUrl={diaEspecial.videoUrl}
       />
     </div>
   );

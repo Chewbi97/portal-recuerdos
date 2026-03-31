@@ -5,7 +5,7 @@
   width: 100%;
   z-index: 1400;
   padding: 12px 20px 20px;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,8 +16,8 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   width: 40px;
   height: 40px;
@@ -31,7 +31,7 @@
 }
 
 .controles-close:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .controles-barra-wrapper {
@@ -61,7 +61,7 @@
 .controles-tiempo {
   font-family: "EB Garamond", serif;
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -71,7 +71,7 @@
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -104,4 +104,26 @@
   .controles-tiempo {
     font-size: 0.75rem;
   }
+}
+
+.controles-descargar {
+  position: absolute;
+  top: 12px;
+  left: 12px; /* ← esquina opuesta al botón cerrar */
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.controles-descargar:hover {
+  background: rgba(45, 90, 39, 0.8);
 }
