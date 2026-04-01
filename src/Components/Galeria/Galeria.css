@@ -1,6 +1,6 @@
 /* Galeria.css */
 
-.galeria-container {
+.galeriafotos-container {
   width: 100%;
   max-width: 100%;
   padding: 0 40px;
@@ -732,4 +732,31 @@
   .btn-accion-header { font-size: 0.9rem; padding: 8px 14px; }
   .galerias-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .fotos-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+}
+
+.barra-seleccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-seleccion-modo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  color: #2d5a27;
+  padding: 7px 16px;
+  border-radius: 50px;
+  font-family: "EB Garamond", serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-seleccion-modo:hover {
+  background: rgba(45, 90, 39, 0.08);
 }

@@ -11,7 +11,12 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 import { swalPortal } from "../../sweetalertConfig";
 import {
   DotsThreeVertical,
@@ -36,13 +41,25 @@ function Galeria() {
   const [loading, setLoading] = useState(true);
   const [filtroAño, setFiltroAño] = useState("todos");
   const [filtroMes, setFiltroMes] = useState("todos");
+  const [collages, setCollages] = useState([]);
   const añoActual = new Date().getFullYear();
-  const años = Array.from({ length: añoActual - 2023 }, (_, i) => añoActual - i);
+  const años = Array.from(
+    { length: añoActual - 2023 },
+    (_, i) => añoActual - i,
+  );
   const meses = [
-    { v: "01", l: "Enero" }, { v: "02", l: "Febrero" }, { v: "03", l: "Marzo" },
-    { v: "04", l: "Abril" }, { v: "05", l: "Mayo" }, { v: "06", l: "Junio" },
-    { v: "07", l: "Julio" }, { v: "08", l: "Agosto" }, { v: "09", l: "Septiembre" },
-    { v: "10", l: "Octubre" }, { v: "11", l: "Noviembre" }, { v: "12", l: "Diciembre" },
+    { v: "01", l: "Enero" },
+    { v: "02", l: "Febrero" },
+    { v: "03", l: "Marzo" },
+    { v: "04", l: "Abril" },
+    { v: "05", l: "Mayo" },
+    { v: "06", l: "Junio" },
+    { v: "07", l: "Julio" },
+    { v: "08", l: "Agosto" },
+    { v: "09", l: "Septiembre" },
+    { v: "10", l: "Octubre" },
+    { v: "11", l: "Noviembre" },
+    { v: "12", l: "Diciembre" },
   ];
   const [menuAbierto, setMenuAbierto] = useState(null);
   const [menuGaleriaAbierto, setMenuGaleriaAbierto] = useState(null);
@@ -55,16 +72,29 @@ function Galeria() {
   const [modoCollage, setModoCollage] = useState(false);
   const [fotosSeleccionadas, setFotosSeleccionadas] = useState([]);
   const [showGenerador, setShowGenerador] = useState(false);
-
+  const [modoSeleccion, setModoSeleccion] = useState(false);
+  const [fotosSeleccionadasAccion, setFotosSeleccionadasAccion] = useState([]);
+  const [showMoverMultiple, setShowMoverMultiple] = useState(false);
   const fetchGalerias = async () => {
-    const snap = await getDocs(query(collection(db, "galerias"), orderBy("fechaCreacion", "desc")));
+    const snap = await getDocs(
+      query(collection(db, "galerias"), orderBy("fechaCreacion", "desc")),
+    );
     setGalerias(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  };
+
+  const fetchCollages = async () => {
+    const snap = await getDocs(
+      query(collection(db, "collages"), orderBy("fechaCreacion", "desc")),
+    );
+    setCollages(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   };
 
   const fetchFotos = async () => {
     setLoading(true);
     try {
-      const snap = await getDocs(query(collection(db, "fotos"), orderBy("fechaSubida", "desc")));
+      const snap = await getDocs(
+        query(collection(db, "fotos"), orderBy("fechaSubida", "desc")),
+      );
       setFotos(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     } catch (e) {
       console.error(e);
@@ -76,15 +106,17 @@ function Galeria() {
   useEffect(() => {
     fetchGalerias();
     fetchFotos();
+    fetchCollages();
   }, []);
 
   const fotosFiltradas = fotos.filter((f) => {
     const fecha = f.fechaSubida?.toDate ? f.fechaSubida.toDate() : null;
-    const galeriaOk = galeriaActual === null
-      ? !f.galeriaId
-      : galeriaActual.id === "__sin_galeria__"
+    const galeriaOk =
+      galeriaActual === null
         ? !f.galeriaId
-        : f.galeriaId === galeriaActual.id;
+        : galeriaActual.id === "__sin_galeria__"
+          ? !f.galeriaId
+          : f.galeriaId === galeriaActual.id;
     if (!fecha) return galeriaOk;
     const año = fecha.getFullYear().toString();
     const mes = String(fecha.getMonth() + 1).padStart(2, "0");
@@ -105,7 +137,10 @@ function Galeria() {
         await addDoc(collection(db, "fotos"), {
           imageUrl: url,
           storagePath: snap.ref.fullPath,
-          galeriaId: (galeriaActual && galeriaActual.id !== "__sin_galeria__") ? galeriaActual.id : null,
+          galeriaId:
+            galeriaActual && galeriaActual.id !== "__sin_galeria__"
+              ? galeriaActual.id
+              : null,
           fechaSubida: serverTimestamp(),
           subidoPor: "portal",
         });
@@ -132,12 +167,16 @@ function Galeria() {
       if (foto.storagePath) await deleteObject(ref(storage, foto.storagePath));
       await deleteDoc(doc(db, "fotos", foto.id));
       await fetchFotos();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
     setMenuAbierto(null);
   };
 
   const handleMoverFoto = async (fotoId, nuevaGaleriaId) => {
-    await updateDoc(doc(db, "fotos", fotoId), { galeriaId: nuevaGaleriaId || null });
+    await updateDoc(doc(db, "fotos", fotoId), {
+      galeriaId: nuevaGaleriaId || null,
+    });
     await fetchFotos();
     setShowMoverFoto(null);
     setMenuAbierto(null);
@@ -146,14 +185,59 @@ function Galeria() {
   const handleCrearGaleria = async () => {
     if (!nombreNuevaGaleria.trim()) return;
     if (editandoGaleria) {
-      await updateDoc(doc(db, "galerias", editandoGaleria.id), { nombre: nombreNuevaGaleria.trim() });
+      await updateDoc(doc(db, "galerias", editandoGaleria.id), {
+        nombre: nombreNuevaGaleria.trim(),
+      });
     } else {
-      await addDoc(collection(db, "galerias"), { nombre: nombreNuevaGaleria.trim(), fechaCreacion: serverTimestamp() });
+      await addDoc(collection(db, "galerias"), {
+        nombre: nombreNuevaGaleria.trim(),
+        fechaCreacion: serverTimestamp(),
+      });
     }
     setNombreNuevaGaleria("");
     setShowNuevaGaleria(false);
     setEditandoGaleria(null);
     await fetchGalerias();
+  };
+
+  const toggleSeleccionAccion = (fotoId) => {
+    setFotosSeleccionadasAccion((prev) =>
+      prev.includes(fotoId)
+        ? prev.filter((id) => id !== fotoId)
+        : [...prev, fotoId],
+    );
+  };
+
+  const handleEliminarMultiple = async () => {
+    const result = await swalPortal.fire({
+      title: `¿Eliminar ${fotosSeleccionadasAccion.length} fotos?`,
+      text: "Esta acción no se puede deshacer 📸",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+    if (!result.isConfirmed) return;
+    for (const fotoId of fotosSeleccionadasAccion) {
+      const foto = fotos.find((f) => f.id === fotoId);
+      if (foto?.storagePath)
+        await deleteObject(ref(storage, foto.storagePath)).catch(() => {});
+      await deleteDoc(doc(db, "fotos", fotoId));
+    }
+    setFotosSeleccionadasAccion([]);
+    setModoSeleccion(false);
+    await fetchFotos();
+  };
+
+  const handleMoverMultiple = async (nuevaGaleriaId) => {
+    for (const fotoId of fotosSeleccionadasAccion) {
+      await updateDoc(doc(db, "fotos", fotoId), {
+        galeriaId: nuevaGaleriaId || null,
+      });
+    }
+    setFotosSeleccionadasAccion([]);
+    setModoSeleccion(false);
+    setShowMoverMultiple(false);
+    await fetchFotos();
   };
 
   const handleEliminarGaleria = async (galeria) => {
@@ -170,7 +254,8 @@ function Galeria() {
     const fotosGaleria = fotos.filter((f) => f.galeriaId === galeria.id);
     if (result.isConfirmed) {
       for (const foto of fotosGaleria) {
-        if (foto.storagePath) await deleteObject(ref(storage, foto.storagePath)).catch(() => {});
+        if (foto.storagePath)
+          await deleteObject(ref(storage, foto.storagePath)).catch(() => {});
         await deleteDoc(doc(db, "fotos", foto.id));
       }
     } else if (result.isDenied) {
@@ -186,110 +271,259 @@ function Galeria() {
 
   const toggleSeleccion = (fotoId) => {
     setFotosSeleccionadas((prev) =>
-      prev.includes(fotoId) ? prev.filter((id) => id !== fotoId) : [...prev, fotoId]
+      prev.includes(fotoId)
+        ? prev.filter((id) => id !== fotoId)
+        : [...prev, fotoId],
     );
   };
 
-  const portadaGaleria = (galeriaId) => fotos.find((f) => f.galeriaId === galeriaId)?.imageUrl || null;
-  const conteoFotos = (galeriaId) => fotos.filter((f) => f.galeriaId === galeriaId).length;
+  const portadaGaleria = (galeriaId) =>
+    fotos.find((f) => f.galeriaId === galeriaId)?.imageUrl || null;
+  const conteoFotos = (galeriaId) =>
+    fotos.filter((f) => f.galeriaId === galeriaId).length;
   const fotosSinGaleria = fotos.filter((f) => !f.galeriaId);
-  const fotosParaCollage = fotos.filter((f) => fotosSeleccionadas.includes(f.id));
+  const fotosParaCollage = fotos.filter((f) =>
+    fotosSeleccionadas.includes(f.id),
+  );
 
   return (
-    <div className="galeria-container" onClick={() => { setMenuAbierto(null); setMenuGaleriaAbierto(null); }}>
-
+    <div
+      className="galeriafotos-container"
+      onClick={() => {
+        setMenuAbierto(null);
+        setMenuGaleriaAbierto(null);
+      }}
+    >
       {/* HEADER */}
       <div className="galeria-header">
         <div className="galeria-header-left">
           {galeriaActual && (
-            <button className="btn-volver" onClick={() => { setGaleriaActual(null); setModoCollage(false); setFotosSeleccionadas([]); }}>
+            <button
+              className="btn-volver"
+              onClick={() => {
+                setGaleriaActual(null);
+                setModoCollage(false);
+                setFotosSeleccionadas([]);
+              }}
+            >
               <ArrowLeft size={18} weight="light" />
             </button>
           )}
-          <h1>{galeriaActual ? galeriaActual.nombre : <>Nosotros <span>💚</span></>}</h1>
+          <h1>
+            {galeriaActual ? (
+              galeriaActual.nombre
+            ) : (
+              <>
+                Nosotros <span>💚</span>
+              </>
+            )}
+          </h1>
         </div>
         <div className="galeria-header-actions">
           {!modoCollage ? (
             <>
-              <button className="btn-accion-header" onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); }}>
+              <button
+                className="btn-accion-header"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current.click();
+                }}
+              >
                 <Camera size={17} weight="light" /> Añadir foto
               </button>
               {!galeriaActual && (
-                <button className="btn-accion-header btn-secundario" onClick={(e) => { e.stopPropagation(); setShowNuevaGaleria(true); }}>
+                <button
+                  className="btn-accion-header btn-secundario"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowNuevaGaleria(true);
+                  }}
+                >
                   <FolderPlus size={17} weight="light" /> Nueva galería
                 </button>
               )}
-              <button className="btn-accion-header btn-collage" onClick={() => setModoCollage(true)}>
+              <button
+                className="btn-accion-header btn-collage"
+                onClick={() => setModoCollage(true)}
+              >
                 <Swatches size={17} weight="light" /> Crear collage
               </button>
             </>
           ) : (
             <>
-              <span className="collage-contador">{fotosSeleccionadas.length} seleccionadas</span>
+              <span className="collage-contador">
+                {fotosSeleccionadas.length} seleccionadas
+              </span>
               {fotosSeleccionadas.length >= 2 && (
-                <button className="btn-accion-header btn-collage" onClick={() => setShowGenerador(true)}>
+                <button
+                  className="btn-accion-header btn-collage"
+                  onClick={() => setShowGenerador(true)}
+                >
                   <Images size={17} weight="light" /> Generar
                 </button>
               )}
-              <button className="btn-accion-header btn-cancelar-collage" onClick={() => { setModoCollage(false); setFotosSeleccionadas([]); }}>
+              <button
+                className="btn-accion-header btn-cancelar-collage"
+                onClick={() => {
+                  setModoCollage(false);
+                  setFotosSeleccionadas([]);
+                }}
+              >
                 <X size={15} weight="bold" /> Cancelar
               </button>
             </>
           )}
         </div>
-        <input type="file" accept="image/*" multiple ref={fileInputRef} style={{ display: "none" }} onChange={handleSubirFoto} />
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleSubirFoto}
+        />
       </div>
 
       {/* FILTROS */}
       <div className="galeria-filtros">
-        <select className="select-filtro" value={filtroAño} onChange={(e) => setFiltroAño(e.target.value)}>
+        <select
+          className="select-filtro"
+          value={filtroAño}
+          onChange={(e) => setFiltroAño(e.target.value)}
+        >
           <option value="todos">Todos los años</option>
-          {años.map((a) => <option key={a} value={a.toString()}>{a}</option>)}
+          {años.map((a) => (
+            <option key={a} value={a.toString()}>
+              {a}
+            </option>
+          ))}
         </select>
-        <select className="select-filtro" value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}>
+        <select
+          className="select-filtro"
+          value={filtroMes}
+          onChange={(e) => setFiltroMes(e.target.value)}
+        >
           <option value="todos">Todos los meses</option>
-          {meses.map((m) => <option key={m.v} value={m.v}>{m.l}</option>)}
+          {meses.map((m) => (
+            <option key={m.v} value={m.v}>
+              {m.l}
+            </option>
+          ))}
         </select>
       </div>
 
       {/* VISTA PRINCIPAL */}
       {!galeriaActual && (
         <>
-          <div className="seccion-sin-galeria" onClick={() => setGaleriaActual({ id: "__sin_galeria__", nombre: "Sin galería" })}>
+          <div
+            className="seccion-sin-galeria"
+            onClick={() =>
+              setGaleriaActual({ id: "__sin_galeria__", nombre: "Sin galería" })
+            }
+          >
             <div className="sin-galeria-preview">
               {fotosSinGaleria.slice(0, 4).map((f, i) => (
-                <img key={f.id} src={f.imageUrl} alt="" className={`preview-mini preview-mini-${i}`} />
+                <img
+                  key={f.id}
+                  src={f.imageUrl}
+                  alt=""
+                  className={`preview-mini preview-mini-${i}`}
+                />
               ))}
-              {fotosSinGaleria.length === 0 && <div className="sin-galeria-vacia"><Camera size={28} weight="thin" /></div>}
+              {fotosSinGaleria.length === 0 && (
+                <div className="sin-galeria-vacia">
+                  <Camera size={28} weight="thin" />
+                </div>
+              )}
             </div>
             <div className="sin-galeria-info">
-              <span className="galeria-card-nombre">Sin galería</span>
-              <span className="galeria-card-conteo">{fotosSinGaleria.length} fotos</span>
+              <span className="galeria-card-nombre">Nuestra galería</span>
+              <span className="galeria-card-conteo">
+                {fotosSinGaleria.length} fotos
+              </span>
             </div>
           </div>
 
           <div className="galerias-grid">
+            {/* Card de Collages */}
+            <div
+              className="galeria-card"
+              onClick={() =>
+                setGaleriaActual({ id: "__collages__", nombre: "Collages 🎨" })
+              }
+            >
+              <div className="galeria-card-portada">
+                {collages.length > 0 ? (
+                  <img src={collages[0].imageUrl} alt="Collages" />
+                ) : (
+                  <div className="galeria-card-vacia">
+                    <Images size={32} weight="thin" />
+                  </div>
+                )}
+              </div>
+              <div className="galeria-card-footer">
+                <span className="galeria-card-nombre">Collages</span>
+                <span className="galeria-card-conteo">
+                  {collages.length} collages
+                </span>
+              </div>
+            </div>
             {galerias.map((g) => (
-              <div key={g.id} className="galeria-card" onClick={() => setGaleriaActual(g)}>
+              <div
+                key={g.id}
+                className="galeria-card"
+                onClick={() => setGaleriaActual(g)}
+              >
                 <div className="galeria-card-portada">
-                  {portadaGaleria(g.id)
-                    ? <img src={portadaGaleria(g.id)} alt={g.nombre} />
-                    : <div className="galeria-card-vacia"><Images size={32} weight="thin" /></div>}
+                  {portadaGaleria(g.id) ? (
+                    <img src={portadaGaleria(g.id)} alt={g.nombre} />
+                  ) : (
+                    <div className="galeria-card-vacia">
+                      <Images size={32} weight="thin" />
+                    </div>
+                  )}
                 </div>
                 <div className="galeria-card-footer">
                   <span className="galeria-card-nombre">{g.nombre}</span>
-                  <span className="galeria-card-conteo">{conteoFotos(g.id)} fotos</span>
+                  <span className="galeria-card-conteo">
+                    {conteoFotos(g.id)} fotos
+                  </span>
                 </div>
-                <div className="options-container" onClick={(e) => e.stopPropagation()}>
-                  <button className="btn-options-galeria" onClick={(e) => { e.stopPropagation(); setMenuGaleriaAbierto(menuGaleriaAbierto === g.id ? null : g.id); }}>
+                <div
+                  className="options-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="btn-options-galeria"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuGaleriaAbierto(
+                        menuGaleriaAbierto === g.id ? null : g.id,
+                      );
+                    }}
+                  >
                     <DotsThreeVertical size={18} weight="bold" />
                   </button>
                   {menuGaleriaAbierto === g.id && (
                     <div className="options-menu">
-                      <button onClick={(e) => { e.stopPropagation(); setEditandoGaleria(g); setNombreNuevaGaleria(g.nombre); setShowNuevaGaleria(true); setMenuGaleriaAbierto(null); }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditandoGaleria(g);
+                          setNombreNuevaGaleria(g.nombre);
+                          setShowNuevaGaleria(true);
+                          setMenuGaleriaAbierto(null);
+                        }}
+                      >
                         <PencilSimple size={14} weight="light" /> Renombrar
                       </button>
-                      <button className="delete-opt" onClick={(e) => { e.stopPropagation(); handleEliminarGaleria(g); }}>
+                      <button
+                        className="delete-opt"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEliminarGaleria(g);
+                        }}
+                      >
                         <Trash size={14} weight="light" /> Eliminar galería
                       </button>
                     </div>
@@ -301,42 +535,166 @@ function Galeria() {
         </>
       )}
 
+      {/* BARRA DE ACCIONES MÚLTIPLES */}
+      {galeriaActual && !modoCollage && (
+        <div className="barra-seleccion">
+          {!modoSeleccion ? (
+            <button
+              className="btn-seleccion-modo"
+              onClick={() => setModoSeleccion(true)}
+            >
+              <CheckSquare size={16} weight="light" /> Seleccionar fotos
+            </button>
+          ) : (
+            <>
+              <span className="collage-contador">
+                {fotosSeleccionadasAccion.length} seleccionadas
+              </span>
+              {fotosSeleccionadasAccion.length > 0 && (
+                <>
+                  <button
+                    className="btn-accion-header btn-secundario"
+                    onClick={() => setShowMoverMultiple(true)}
+                  >
+                    <ArrowsLeftRight size={16} weight="light" /> Mover
+                  </button>
+                  <button
+                    className="btn-accion-header btn-cancelar-collage"
+                    onClick={handleEliminarMultiple}
+                  >
+                    <Trash size={16} weight="light" /> Eliminar
+                  </button>
+                </>
+              )}
+              <button
+                className="btn-accion-header btn-secundario"
+                onClick={() => {
+                  setModoSeleccion(false);
+                  setFotosSeleccionadasAccion([]);
+                }}
+              >
+                <X size={14} weight="bold" /> Cancelar
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {/* GRID DE FOTOS */}
       {loading ? (
         <div className="galeria-loading">Cargando recuerdos...</div>
       ) : (
-        galeriaActual && (
+        galeriaActual &&
+        (galeriaActual.id === "__collages__" ? (
+          <div className="fotos-grid">
+            {collages.map((c) => (
+              <div
+                key={c.id}
+                className="foto-card"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  const a = document.createElement("a");
+                  a.href = c.imageUrl;
+                  a.target = "_blank";
+                  a.click();
+                }}
+              >
+                <img
+                  src={c.imageUrl}
+                  alt={c.titulo || "Collage"}
+                  loading="lazy"
+                />
+                <div className="foto-fecha">
+                  {c.titulo || ""} {c.frase ? `· ${c.frase}` : ""}
+                </div>
+              </div>
+            ))}
+            {collages.length === 0 && (
+              <div className="galeria-vacia">
+                <Images size={48} weight="thin" />
+                <p>Aún no hay collages</p>
+              </div>
+            )}
+          </div>
+        ) : (
           <div className="fotos-grid">
             {fotosFiltradas.map((foto) => (
               <div
                 key={foto.id}
-                className={`foto-card ${modoCollage ? "foto-card-seleccionable" : ""} ${fotosSeleccionadas.includes(foto.id) ? "foto-card-seleccionada" : ""}`}
-                onClick={() => modoCollage && toggleSeleccion(foto.id)}
+                className={`foto-card 
+              ${modoCollage ? "foto-card-seleccionable" : ""} 
+              ${fotosSeleccionadas.includes(foto.id) ? "foto-card-seleccionada" : ""}
+              ${modoSeleccion ? "foto-card-seleccionable" : ""}
+              ${fotosSeleccionadasAccion.includes(foto.id) ? "foto-card-seleccionada" : ""}
+            `}
+                onClick={() => {
+                  if (modoCollage) toggleSeleccion(foto.id);
+                  else if (modoSeleccion) toggleSeleccionAccion(foto.id);
+                }}
               >
                 <img src={foto.imageUrl} alt="" loading="lazy" />
                 {modoCollage && (
                   <div className="foto-check">
-                    {fotosSeleccionadas.includes(foto.id)
-                      ? <CheckSquare size={24} weight="fill" color="#2d5a27" />
-                      : <Square size={24} weight="light" color="white" />}
+                    {fotosSeleccionadas.includes(foto.id) ? (
+                      <CheckSquare size={24} weight="fill" color="#2d5a27" />
+                    ) : (
+                      <Square size={24} weight="light" color="white" />
+                    )}
+                  </div>
+                )}
+                {modoSeleccion && (
+                  <div className="foto-check">
+                    {fotosSeleccionadasAccion.includes(foto.id) ? (
+                      <CheckSquare size={24} weight="fill" color="#2d5a27" />
+                    ) : (
+                      <Square size={24} weight="light" color="white" />
+                    )}
                   </div>
                 )}
                 <div className="foto-fecha">
                   {foto.fechaSubida?.toDate
-                    ? foto.fechaSubida.toDate().toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })
+                    ? foto.fechaSubida.toDate().toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
                     : ""}
                 </div>
-                {!modoCollage && (
-                  <div className="options-container foto-options" onClick={(e) => e.stopPropagation()}>
-                    <button className="btn-options-foto" onClick={(e) => { e.stopPropagation(); setMenuAbierto(menuAbierto === foto.id ? null : foto.id); }}>
+                {!modoCollage && !modoSeleccion && (
+                  <div
+                    className="options-container foto-options"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      className="btn-options-foto"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuAbierto(
+                          menuAbierto === foto.id ? null : foto.id,
+                        );
+                      }}
+                    >
                       <DotsThreeVertical size={18} weight="bold" />
                     </button>
                     {menuAbierto === foto.id && (
                       <div className="options-menu">
-                        <button onClick={(e) => { e.stopPropagation(); setShowMoverFoto(foto.id); setMenuAbierto(null); }}>
-                          <ArrowsLeftRight size={14} weight="light" /> Mover a...
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMoverFoto(foto.id);
+                            setMenuAbierto(null);
+                          }}
+                        >
+                          <ArrowsLeftRight size={14} weight="light" /> Mover
+                          a...
                         </button>
-                        <button className="delete-opt" onClick={(e) => { e.stopPropagation(); handleEliminarFoto(foto); }}>
+                        <button
+                          className="delete-opt"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEliminarFoto(foto);
+                          }}
+                        >
                           <Trash size={14} weight="light" /> Eliminar
                         </button>
                       </div>
@@ -352,12 +710,54 @@ function Galeria() {
               </div>
             )}
           </div>
-        )
+        ))
+      )}
+
+      {/* MODAL MOVER MÚLTIPLE */}
+      {showMoverMultiple && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowMoverMultiple(false)}
+        >
+          <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
+            <h2>Mover {fotosSeleccionadasAccion.length} fotos a...</h2>
+            <div className="lista-galerias-mover">
+              <button
+                className="btn-galeria-mover"
+                onClick={() => handleMoverMultiple(null)}
+              >
+                📁 Sin galería
+              </button>
+              {galerias.map((g) => (
+                <button
+                  key={g.id}
+                  className="btn-galeria-mover"
+                  onClick={() => handleMoverMultiple(g.id)}
+                >
+                  📂 {g.nombre}
+                </button>
+              ))}
+            </div>
+            <button
+              className="btn-cancelar-modal"
+              onClick={() => setShowMoverMultiple(false)}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
       )}
 
       {/* MODAL NUEVA/EDITAR GALERÍA */}
       {showNuevaGaleria && (
-        <div className="modal-overlay" onClick={() => { setShowNuevaGaleria(false); setEditandoGaleria(null); setNombreNuevaGaleria(""); }}>
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowNuevaGaleria(false);
+            setEditandoGaleria(null);
+            setNombreNuevaGaleria("");
+          }}
+        >
           <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
             <h2>{editandoGaleria ? "Renombrar galería" : "Nueva galería"}</h2>
             <input
@@ -370,10 +770,20 @@ function Galeria() {
               autoFocus
             />
             <div className="modal-botones">
-              <button className="btn-guardar-vintage" onClick={handleCrearGaleria}>
+              <button
+                className="btn-guardar-vintage"
+                onClick={handleCrearGaleria}
+              >
                 {editandoGaleria ? "Guardar" : "Crear"}
               </button>
-              <button className="btn-cancelar-modal" onClick={() => { setShowNuevaGaleria(false); setEditandoGaleria(null); setNombreNuevaGaleria(""); }}>
+              <button
+                className="btn-cancelar-modal"
+                onClick={() => {
+                  setShowNuevaGaleria(false);
+                  setEditandoGaleria(null);
+                  setNombreNuevaGaleria("");
+                }}
+              >
                 Cancelar
               </button>
             </div>
@@ -387,16 +797,28 @@ function Galeria() {
           <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
             <h2>Mover foto a...</h2>
             <div className="lista-galerias-mover">
-              <button className="btn-galeria-mover" onClick={() => handleMoverFoto(showMoverFoto, null)}>
+              <button
+                className="btn-galeria-mover"
+                onClick={() => handleMoverFoto(showMoverFoto, null)}
+              >
                 📁 Sin galería
               </button>
               {galerias.map((g) => (
-                <button key={g.id} className="btn-galeria-mover" onClick={() => handleMoverFoto(showMoverFoto, g.id)}>
+                <button
+                  key={g.id}
+                  className="btn-galeria-mover"
+                  onClick={() => handleMoverFoto(showMoverFoto, g.id)}
+                >
                   📂 {g.nombre}
                 </button>
               ))}
             </div>
-            <button className="btn-cancelar-modal" onClick={() => setShowMoverFoto(null)}>Cancelar</button>
+            <button
+              className="btn-cancelar-modal"
+              onClick={() => setShowMoverFoto(null)}
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       )}
@@ -405,7 +827,11 @@ function Galeria() {
       {showGenerador && (
         <GeneradorCollage
           fotos={fotosParaCollage}
-          onClose={() => { setShowGenerador(false); setModoCollage(false); setFotosSeleccionadas([]); }}
+          onClose={() => {
+            setShowGenerador(false);
+            setModoCollage(false);
+            setFotosSeleccionadas([]);
+          }}
         />
       )}
 
@@ -446,19 +872,29 @@ function GeneradorCollage({ fotos, onClose }) {
     ctx.fillStyle = "#fdf6e3";
     ctx.fillRect(0, 0, 1080, 1080);
 
-    const imgs = await Promise.all(
-      fotos.map((f) => new Promise((res) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => res(img);
-        img.onerror = () => res(null);
-        img.src = f.imageUrl;
-      }))
-    );
+    const cargarImagen = (url) =>
+      new Promise((res) => {
+        fetch(url)
+          .then((r) => r.blob())
+          .then((blob) => {
+            const objectUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+              URL.revokeObjectURL(objectUrl);
+              res(img);
+            };
+            img.onerror = () => res(null);
+            img.src = objectUrl;
+          })
+          .catch(() => res(null));
+      });
+
+    const imgs = await Promise.all(fotos.map((f) => cargarImagen(f.imageUrl)));
     const validas = imgs.filter(Boolean);
 
     if (estilo === "cuadricula") dibujarCuadricula(ctx, validas, titulo, frase);
-    else if (estilo === "polaroids") dibujarPolaroids(ctx, validas, titulo, frase);
+    else if (estilo === "polaroids")
+      dibujarPolaroids(ctx, validas, titulo, frase);
     else if (estilo === "revista") dibujarRevista(ctx, validas, titulo, frase);
     else if (estilo === "corazon") dibujarCorazon(ctx, validas, titulo, frase);
 
@@ -494,22 +930,44 @@ function GeneradorCollage({ fotos, onClose }) {
   return (
     <div className="generador-overlay">
       <div className="generador-contenido">
-        <button className="generador-close" onClick={onClose}><X size={20} weight="bold" /></button>
+        <button className="generador-close" onClick={onClose}>
+          <X size={20} weight="bold" />
+        </button>
         <h2 className="generador-titulo">Crear Collage</h2>
         {!preview ? (
           <>
             <p className="generador-label">Elige un estilo:</p>
             <div className="estilos-grid">
               {estilos.map((e) => (
-                <button key={e.id} className={`estilo-btn ${estilo === e.id ? "estilo-btn-activo" : ""}`} onClick={() => setEstilo(e.id)}>
+                <button
+                  key={e.id}
+                  className={`estilo-btn ${estilo === e.id ? "estilo-btn-activo" : ""}`}
+                  onClick={() => setEstilo(e.id)}
+                >
                   <span className="estilo-emoji">{e.emoji}</span>
                   <span>{e.label}</span>
                 </button>
               ))}
             </div>
-            <input type="text" className="input-vintage" placeholder="Título del collage (opcional)" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-            <input type="text" className="input-vintage" placeholder="Frase o dedicatoria (opcional)" value={frase} onChange={(e) => setFrase(e.target.value)} />
-            <button className="btn-guardar-vintage" disabled={!estilo || generando} onClick={generarCollage}>
+            <input
+              type="text"
+              className="input-vintage"
+              placeholder="Título del collage (opcional)"
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+            />
+            <input
+              type="text"
+              className="input-vintage"
+              placeholder="Frase o dedicatoria (opcional)"
+              value={frase}
+              onChange={(e) => setFrase(e.target.value)}
+            />
+            <button
+              className="btn-guardar-vintage"
+              disabled={!estilo || generando}
+              onClick={generarCollage}
+            >
               {generando ? "Generando..." : "Generar collage"}
             </button>
           </>
@@ -517,8 +975,18 @@ function GeneradorCollage({ fotos, onClose }) {
           <>
             <img src={preview} alt="Collage" className="collage-preview" />
             <div className="generador-botones">
-              <button className="btn-guardar-vintage" onClick={handleDescargarYGuardar}>⬇️ Descargar y guardar</button>
-              <button className="btn-cancelar-modal" onClick={() => setPreview(null)}>Cambiar estilo</button>
+              <button
+                className="btn-guardar-vintage"
+                onClick={handleDescargarYGuardar}
+              >
+                ⬇️ Descargar y guardar
+              </button>
+              <button
+                className="btn-cancelar-modal"
+                onClick={() => setPreview(null)}
+              >
+                Cambiar estilo
+              </button>
             </div>
           </>
         )}
@@ -549,21 +1017,26 @@ function drawTextoCollage(ctx, titulo, frase, W, H) {
 
 function drawImgCover(ctx, img, x, y, w, h) {
   const scale = Math.max(w / img.width, h / img.height);
-  const sw = img.width * scale, sh = img.height * scale;
-  const sx = x + (w - sw) / 2, sy = y + (h - sh) / 2;
+  const sw = img.width * scale,
+    sh = img.height * scale;
+  const sx = x + (w - sw) / 2,
+    sy = y + (h - sh) / 2;
   ctx.drawImage(img, sx, sy, sw, sh);
 }
 
 function dibujarCuadricula(ctx, imgs, titulo, frase) {
-  const W = 1080, H = 1080;
+  const W = 1080,
+    H = 1080;
   const pad = 12;
   const cols = imgs.length <= 4 ? 2 : 3;
   const filas = cols;
   const cw = (W - pad * (cols + 1)) / cols;
   const ch = (H - pad * (filas + 1) - (titulo || frase ? 100 : 0)) / filas;
   imgs.slice(0, cols * filas).forEach((img, i) => {
-    const col = i % cols, fila = Math.floor(i / cols);
-    const x = pad + col * (cw + pad), y = pad + fila * (ch + pad);
+    const col = i % cols,
+      fila = Math.floor(i / cols);
+    const x = pad + col * (cw + pad),
+      y = pad + fila * (ch + pad);
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(x, y, cw, ch, 8);
@@ -575,16 +1048,22 @@ function dibujarCuadricula(ctx, imgs, titulo, frase) {
 }
 
 function dibujarPolaroids(ctx, imgs, titulo, frase) {
-  const W = 1080, H = 1080;
+  const W = 1080,
+    H = 1080;
   ctx.fillStyle = "#f5e6c8";
   ctx.fillRect(0, 0, W, H);
   const posiciones = [
-    { x: 60, y: 80, rot: -8 }, { x: 420, y: 50, rot: 5 }, { x: 720, y: 90, rot: -4 },
-    { x: 100, y: 480, rot: 6 }, { x: 430, y: 460, rot: -7 }, { x: 740, y: 500, rot: 4 },
+    { x: 60, y: 80, rot: -8 },
+    { x: 420, y: 50, rot: 5 },
+    { x: 720, y: 90, rot: -4 },
+    { x: 100, y: 480, rot: 6 },
+    { x: 430, y: 460, rot: -7 },
+    { x: 740, y: 500, rot: 4 },
   ];
   imgs.slice(0, 6).forEach((img, i) => {
     const { x, y, rot } = posiciones[i] || { x: i * 160, y: 200, rot: 0 };
-    const pw = 280, ph = 320;
+    const pw = 280,
+      ph = 320;
     ctx.save();
     ctx.translate(x + pw / 2, y + ph / 2);
     ctx.rotate((rot * Math.PI) / 180);
@@ -606,7 +1085,8 @@ function dibujarPolaroids(ctx, imgs, titulo, frase) {
 }
 
 function dibujarRevista(ctx, imgs, titulo, frase) {
-  const W = 1080, H = 1080;
+  const W = 1080,
+    H = 1080;
   ctx.fillStyle = "#1a1a2e";
   ctx.fillRect(0, 0, W, H);
   const layout = [
@@ -646,32 +1126,50 @@ function dibujarRevista(ctx, imgs, titulo, frase) {
 }
 
 function dibujarCorazon(ctx, imgs, titulo, frase) {
-  const W = 1080, H = 1080;
+  const W = 1080,
+    H = 1080;
   ctx.fillStyle = "#0d0d1a";
   ctx.fillRect(0, 0, W, H);
-  const cx = W / 2, cy = H / 2 - 40;
+  const cx = W / 2,
+    cy = H / 2 - 40;
   const escala = 420;
   ctx.save();
   ctx.beginPath();
   for (let t = 0; t <= Math.PI * 2; t += 0.01) {
-    const x = cx + escala * 16 * Math.pow(Math.sin(t), 3) / 16;
-    const y = cy - escala * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16;
+    const x = cx + (escala * 16 * Math.pow(Math.sin(t), 3)) / 16;
+    const y =
+      cy -
+      (escala *
+        (13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t))) /
+        16;
     t < 0.02 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   }
   ctx.closePath();
   ctx.clip();
   const grid = Math.ceil(Math.sqrt(imgs.length));
-  const cw = W / grid, ch = H / grid;
+  const cw = W / grid,
+    ch = H / grid;
   imgs.forEach((img, i) => {
-    const col = i % grid, fila = Math.floor(i / grid);
+    const col = i % grid,
+      fila = Math.floor(i / grid);
     drawImgCover(ctx, img, col * cw, fila * ch, cw, ch);
   });
   ctx.restore();
   ctx.save();
   ctx.beginPath();
   for (let t = 0; t <= Math.PI * 2; t += 0.01) {
-    const x = cx + escala * 16 * Math.pow(Math.sin(t), 3) / 16;
-    const y = cy - escala * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) / 16;
+    const x = cx + (escala * 16 * Math.pow(Math.sin(t), 3)) / 16;
+    const y =
+      cy -
+      (escala *
+        (13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t))) /
+        16;
     t < 0.02 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   }
   ctx.strokeStyle = "rgba(46,210,100,0.6)";
