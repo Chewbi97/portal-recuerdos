@@ -134,35 +134,10 @@
   border-color: #2d5a27;
 }
 
-/* ── SIN GALERÍA ─────────────────────────────────────────────────── */
-.seccion-sin-galeria {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: rgba(253, 246, 227, 0.6);
-  border: 1px solid rgba(45, 90, 39, 0.15);
-  border-radius: 14px;
-  padding: 14px 20px;
-  cursor: pointer;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
-}
-
 .seccion-sin-galeria:hover {
   background: rgba(253, 246, 227, 0.9);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-}
-
-.sin-galeria-preview {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  width: 64px;
-  height: 64px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
 }
 
 .sin-galeria-preview img {
@@ -171,60 +146,53 @@
   object-fit: cover;
 }
 
-.sin-galeria-vacia {
-  width: 64px;
-  height: 64px;
-  background: rgba(45, 90, 39, 0.08);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #2d5a27;
-  flex-shrink: 0;
-}
-
-.sin-galeria-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 /* ── GRID DE GALERÍAS ────────────────────────────────────────────── */
 .galerias-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-bottom: 30px;
 }
 
+@media (max-width: 1100px) {
+  .galerias-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
-  .galerias-grid { grid-template-columns: repeat(2, 1fr); }
+  .galerias-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 500px) {
-  .galerias-grid { grid-template-columns: 1fr; }
+  .galerias-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .galeria-card {
   position: relative;
   border-radius: 14px;
   overflow: hidden;
-  background: rgba(253, 246, 227, 0.8);
-  border: 1px solid rgba(45, 90, 39, 0.15);
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  aspect-ratio: 3/4;
+  background: #2c2c2c;
 }
 
 .galeria-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
 .galeria-card-portada {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 4/3;
-  overflow: hidden;
+  height: 100%;
 }
 
 .galeria-card-portada img {
@@ -232,6 +200,7 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
+  filter: brightness(0.75);
 }
 
 .galeria-card:hover .galeria-card-portada img {
@@ -239,26 +208,37 @@
 }
 
 .galeria-card-vacia {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2d5a27;
+  color: rgba(45, 90, 39, 0.4);
   background: rgba(45, 90, 39, 0.05);
 }
 
 .galeria-card-footer {
-  padding: 12px 16px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.galeria-card-nombre {
-  font-family: "Great Vibes", cursive;
-  font-size: 1.6rem;
-  color: #2d5a27;
+.galeria-card-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .galeria-card-conteo {
@@ -275,15 +255,22 @@
 }
 
 @media (max-width: 1000px) {
-  .fotos-grid { grid-template-columns: repeat(3, 1fr); }
+  .fotos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 700px) {
-  .fotos-grid { grid-template-columns: repeat(2, 1fr); }
+  .fotos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 400px) {
-  .fotos-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .fotos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
 }
 
 .foto-card {
@@ -324,7 +311,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 0.85);
   border-radius: 6px;
   padding: 2px;
   display: flex;
@@ -335,8 +322,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-  color: rgba(255,255,255,0.85);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.7rem;
   padding: 12px 8px 6px;
   font-family: "EB Garamond", serif;
@@ -349,7 +336,7 @@
 }
 
 .btn-options-foto {
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   color: white;
   border: none;
   width: 32px;
@@ -364,12 +351,12 @@
 }
 
 .btn-options-foto:hover {
-  background: rgba(45,90,39,0.85);
+  background: rgba(45, 90, 39, 0.85);
 }
 
 /* Tres punticos en galería */
 .btn-options-galeria {
-  background: rgba(253,246,227,0.9);
+  background: rgba(253, 246, 227, 0.9);
   color: #2d5a27;
   border: none;
   width: 30px;
@@ -383,7 +370,7 @@
 }
 
 .btn-options-galeria:hover {
-  background: rgba(45,90,39,0.15);
+  background: rgba(45, 90, 39, 0.15);
 }
 
 /* Menú de opciones */
@@ -400,7 +387,7 @@
   right: 0;
   background: rgba(253, 246, 227, 0.98);
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   min-width: 160px;
@@ -411,8 +398,14 @@
 }
 
 @keyframes fadeInMenu {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .options-menu button {
@@ -431,16 +424,16 @@
 }
 
 .options-menu button:hover {
-  background: rgba(45,90,39,0.08);
+  background: rgba(45, 90, 39, 0.08);
 }
 
 .options-menu button.delete-opt {
   color: #7d2e2e;
-  border-top: 1px solid rgba(0,0,0,0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .options-menu button.delete-opt:hover {
-  background: rgba(125,46,46,0.08);
+  background: rgba(125, 46, 46, 0.08);
 }
 
 /* ── ESTADOS VACÍOS Y CARGA ──────────────────────────────────────── */
@@ -472,7 +465,7 @@
 .subiendo-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -492,7 +485,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -506,7 +499,7 @@
   padding: 32px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .modal-contenido h2 {
@@ -532,8 +525,8 @@
 }
 
 .btn-galeria-mover {
-  background: rgba(45,90,39,0.07);
-  border: 1px solid rgba(45,90,39,0.2);
+  background: rgba(45, 90, 39, 0.07);
+  border: 1px solid rgba(45, 90, 39, 0.2);
   color: #2d5a27;
   padding: 12px 16px;
   border-radius: 10px;
@@ -545,12 +538,12 @@
 }
 
 .btn-galeria-mover:hover {
-  background: rgba(45,90,39,0.15);
+  background: rgba(45, 90, 39, 0.15);
 }
 
 .btn-cancelar-modal {
   background: transparent;
-  border: 1px solid rgba(125,46,46,0.3);
+  border: 1px solid rgba(125, 46, 46, 0.3);
   color: #7d2e2e;
   padding: 10px 24px;
   border-radius: 50px;
@@ -561,14 +554,14 @@
 }
 
 .btn-cancelar-modal:hover {
-  background: rgba(125,46,46,0.08);
+  background: rgba(125, 46, 46, 0.08);
 }
 
 .input-vintage {
   width: 100%;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(45,90,39,0.3);
+  border-bottom: 1px solid rgba(45, 90, 39, 0.3);
   font-family: "EB Garamond", serif;
   font-size: 1.1rem;
   color: #3d2b1f;
@@ -594,7 +587,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(45,90,39,0.2);
+  box-shadow: 0 4px 15px rgba(45, 90, 39, 0.2);
 }
 
 .btn-guardar-vintage:hover {
@@ -612,7 +605,7 @@
 .generador-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -630,14 +623,14 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .generador-close {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
   border: none;
   width: 36px;
   height: 36px;
@@ -651,7 +644,7 @@
 }
 
 .generador-close:hover {
-  background: rgba(125,46,46,0.15);
+  background: rgba(125, 46, 46, 0.15);
 }
 
 .generador-titulo {
@@ -678,8 +671,8 @@
 }
 
 .estilo-btn {
-  background: rgba(45,90,39,0.06);
-  border: 1.5px solid rgba(45,90,39,0.2);
+  background: rgba(45, 90, 39, 0.06);
+  border: 1.5px solid rgba(45, 90, 39, 0.2);
   border-radius: 12px;
   padding: 14px 10px;
   cursor: pointer;
@@ -694,12 +687,12 @@
 }
 
 .estilo-btn:hover {
-  background: rgba(45,90,39,0.12);
+  background: rgba(45, 90, 39, 0.12);
   transform: translateY(-2px);
 }
 
 .estilo-btn-activo {
-  background: rgba(45,90,39,0.18);
+  background: rgba(45, 90, 39, 0.18);
   border-color: #2d5a27;
   color: #2d5a27;
   font-weight: 600;
@@ -713,7 +706,7 @@
   width: 100%;
   border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .generador-botones {
@@ -725,13 +718,31 @@
 
 /* ── MÓVIL ───────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .galeria-container { padding: 0 16px; }
-  .galeria-header { flex-direction: column; align-items: flex-start; }
-  .galeria-header-left h1 { font-size: 2.2rem; }
-  .galeria-header-actions { width: 100%; }
-  .btn-accion-header { font-size: 0.9rem; padding: 8px 14px; }
-  .galerias-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .fotos-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .galeria-container {
+    padding: 0 16px;
+  }
+  .galeria-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .galeria-header-left h1 {
+    font-size: 2.2rem;
+  }
+  .galeria-header-actions {
+    width: 100%;
+  }
+  .btn-accion-header {
+    font-size: 0.9rem;
+    padding: 8px 14px;
+  }
+  .galerias-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .fotos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 }
 
 .barra-seleccion {
@@ -759,4 +770,38 @@
 
 .btn-seleccion-modo:hover {
   background: rgba(45, 90, 39, 0.08);
+}
+
+/* Gradiente oscuro sobre la imagen */
+.galeria-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* El nombre en blanco sobre el gradiente */
+.galeria-card-nombre {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.8rem;
+  color: #fdf6e3;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+}
+
+.galeria-card-conteo {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  font-family: "EB Garamond", serif;
+}
+
+/* El menú de tres puntos queda sobre el gradiente */
+.galeria-card .options-container {
+  z-index: 3;
 }

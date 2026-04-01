@@ -415,37 +415,38 @@ function Galeria() {
       {/* VISTA PRINCIPAL */}
       {!galeriaActual && (
         <>
-          <div
-            className="seccion-sin-galeria"
-            onClick={() =>
-              setGaleriaActual({ id: "__sin_galeria__", nombre: "Sin galería" })
-            }
-          >
-            <div className="sin-galeria-preview">
-              {fotosSinGaleria.slice(0, 4).map((f, i) => (
-                <img
-                  key={f.id}
-                  src={f.imageUrl}
-                  alt=""
-                  className={`preview-mini preview-mini-${i}`}
-                />
-              ))}
-              {fotosSinGaleria.length === 0 && (
-                <div className="sin-galeria-vacia">
-                  <Camera size={28} weight="thin" />
-                </div>
-              )}
-            </div>
-            <div className="sin-galeria-info">
-              <span className="galeria-card-nombre">Nuestra galería</span>
-              <span className="galeria-card-conteo">
-                {fotosSinGaleria.length} fotos
-              </span>
-            </div>
-          </div>
-
           <div className="galerias-grid">
-            {/* Card de Collages */}
+            {/* Nuestra galería */}
+            <div
+              className="galeria-card"
+              onClick={() =>
+                setGaleriaActual({
+                  id: "__sin_galeria__",
+                  nombre: "Nuestra galería",
+                })
+              }
+            >
+              <div className="galeria-card-portada">
+                {fotosSinGaleria.length > 0 ? (
+                  <img
+                    src={fotosSinGaleria[0].imageUrl}
+                    alt="Nuestra galería"
+                  />
+                ) : (
+                  <div className="galeria-card-vacia">
+                    <Camera size={32} weight="thin" />
+                  </div>
+                )}
+              </div>
+              <div className="galeria-card-footer">
+                <span className="galeria-card-nombre">Nuestra galería</span>
+                <span className="galeria-card-conteo">
+                  {fotosSinGaleria.length} fotos
+                </span>
+              </div>
+            </div>
+
+            {/* Collages */}
             <div
               className="galeria-card"
               onClick={() =>
@@ -468,6 +469,8 @@ function Galeria() {
                 </span>
               </div>
             </div>
+
+            {/* Galerías de Firebase */}
             {galerias.map((g) => (
               <div
                 key={g.id}
