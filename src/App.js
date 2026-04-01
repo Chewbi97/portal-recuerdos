@@ -5,6 +5,7 @@ import Dashboard from "./Components/Dashboard/Dashboard";
 import PoemsPortal from "./Components/PortalPoemas/PoemsPortal";
 import TimeLine from "./Components/LineadeTiempo/TimeLine";
 import HomeContent from "./Components/HomeContent";
+import Galeria from "./Components/Galeria/Galeria"
 import "./App.css";
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
           <Route index element={<HomeContent />} />
           <Route path="PoemsPortal" element={<PoemsPortal />} />
           <Route path="TimeLine" element={<TimeLine />} />
+          <Route path="Galeria" element={<Galeria />} />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

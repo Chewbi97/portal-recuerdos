@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, Outlet } from "react-router-dom";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
+import Galeria from "../Galeria/Galeria";
 import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
-import EcuacionAmor from "../DiaEspecial/EcuacionAmor"  
+import EcuacionAmor from "../DiaEspecial/EcuacionAmor";
 import SuperficieCorazon from "../DiaEspecial/Superficiecorazon";
 import LuciernagasPoema from "../DiaEspecial/GalaxiasFusion";
 import { SignOut, Envelope } from "@phosphor-icons/react";
@@ -21,7 +22,7 @@ const COMPONENTES_DIAS = {
   diaMujer: DiaMujer,
   ecuacionDelAmor: EcuacionAmor,
   superficieCorazon: SuperficieCorazon,
-  luciernagaspoema: LuciernagasPoema
+  luciernagaspoema: LuciernagasPoema,
   // sanValentin: DiaValentin,  // futuro
 };
 
@@ -118,6 +119,9 @@ function Dashboard({ handleLogout }) {
           </Link>
           <Link to="/dashboard/TimeLine" className="nav-link">
             Memories ⏳
+          </Link>
+          <Link to="/dashboard/Galeria" className="nav-link">
+            Nosotros 💚
           </Link>
         </nav>
       </header>
