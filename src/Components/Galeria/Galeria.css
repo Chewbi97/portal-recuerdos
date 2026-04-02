@@ -1,5 +1,12 @@
-/* Galeria.css */
+/* ═══════════════════════════════════════════════════════════════════
+   GALERIA.CSS
+   Orden: Contenedor → Header → Filtros → Grid Galerías → Cards →
+          Grid Fotos → Foto Card → Menús → Selección múltiple →
+          Estados vacíos → Overlays → Modales → Generador Collage →
+          Responsive
+   ═══════════════════════════════════════════════════════════════════ */
 
+/* ── CONTENEDOR PRINCIPAL ────────────────────────────────────────── */
 .galeriafotos-container {
   width: 100%;
   max-width: 100%;
@@ -33,6 +40,14 @@
   margin: 0;
 }
 
+.galeria-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Botón volver */
 .btn-volver {
   background: rgba(45, 90, 39, 0.1);
   border: 1px solid rgba(45, 90, 39, 0.2);
@@ -51,13 +66,7 @@
   background: rgba(45, 90, 39, 0.2);
 }
 
-.galeria-header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
+/* Botones de acción del header */
 .btn-accion-header {
   display: inline-flex;
   align-items: center;
@@ -134,18 +143,6 @@
   border-color: #2d5a27;
 }
 
-.seccion-sin-galeria:hover {
-  background: rgba(253, 246, 227, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-}
-
-.sin-galeria-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ── GRID DE GALERÍAS ────────────────────────────────────────────── */
 .galerias-grid {
   display: grid;
@@ -154,24 +151,7 @@
   margin-bottom: 30px;
 }
 
-@media (max-width: 1100px) {
-  .galerias-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .galerias-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 500px) {
-  .galerias-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* ── CARD DE GALERÍA ─────────────────────────────────────────────── */
 .galeria-card {
   position: relative;
   border-radius: 14px;
@@ -188,6 +168,7 @@
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
+/* Imagen de portada — ocupa toda la card */
 .galeria-card-portada {
   position: absolute;
   inset: 0;
@@ -207,6 +188,20 @@
   transform: scale(1.05);
 }
 
+/* Gradiente oscuro en la parte inferior */
+.galeria-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Placeholder cuando no hay foto */
 .galeria-card-vacia {
   position: absolute;
   inset: 0;
@@ -217,6 +212,7 @@
   background: rgba(45, 90, 39, 0.05);
 }
 
+/* Nombre y conteo sobre el gradiente */
 .galeria-card-footer {
   position: absolute;
   bottom: 0;
@@ -229,22 +225,24 @@
   gap: 2px;
 }
 
-.galeria-card-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.galeria-card-nombre {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.8rem;
+  color: #fdf6e3;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
 }
 
 .galeria-card-conteo {
-  font-size: 0.85rem;
-  color: #7f8c8d;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
   font-style: italic;
+  font-family: "EB Garamond", serif;
+}
+
+/* Menú tres puntos — sobre el gradiente */
+.galeria-card .options-container {
+  z-index: 3;
 }
 
 /* ── GRID DE FOTOS ───────────────────────────────────────────────── */
@@ -254,31 +252,13 @@
   gap: 12px;
 }
 
-@media (max-width: 1000px) {
-  .fotos-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 700px) {
-  .fotos-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 400px) {
-  .fotos-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-  }
-}
-
+/* ── FOTO CARD ───────────────────────────────────────────────────── */
 .foto-card {
   position: relative;
   aspect-ratio: 1;
   border-radius: 10px;
   overflow: hidden;
-  background: #ddd;
+  background: rgba(253, 246, 227, 0.7);
   cursor: default;
 }
 
@@ -307,6 +287,7 @@
   opacity: 0.85;
 }
 
+/* Checkbox de selección */
 .foto-check {
   position: absolute;
   top: 8px;
@@ -317,6 +298,7 @@
   display: flex;
 }
 
+/* Fecha en la parte inferior */
 .foto-fecha {
   position: absolute;
   bottom: 0;
@@ -329,12 +311,21 @@
   font-family: "EB Garamond", serif;
 }
 
-/* Tres punticos en foto */
+/* ── MENÚ DE OPCIONES (tres puntos) ─────────────────────────────── */
+.options-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+/* Posición específica en fotos */
 .foto-options {
   top: 8px;
   right: 8px;
 }
 
+/* Botón en fotos */
 .btn-options-foto {
   background: rgba(0, 0, 0, 0.45);
   color: white;
@@ -354,7 +345,7 @@
   background: rgba(45, 90, 39, 0.85);
 }
 
-/* Tres punticos en galería */
+/* Botón en galerías */
 .btn-options-galeria {
   background: rgba(253, 246, 227, 0.9);
   color: #2d5a27;
@@ -373,14 +364,7 @@
   background: rgba(45, 90, 39, 0.15);
 }
 
-/* Menú de opciones */
-.options-container {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-}
-
+/* Dropdown del menú */
 .options-menu {
   position: absolute;
   top: 36px;
@@ -436,6 +420,34 @@
   background: rgba(125, 46, 46, 0.08);
 }
 
+/* ── BARRA DE SELECCIÓN MÚLTIPLE ─────────────────────────────────── */
+.barra-seleccion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-seleccion-modo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(45, 90, 39, 0.3);
+  color: #2d5a27;
+  padding: 7px 16px;
+  border-radius: 50px;
+  font-family: "EB Garamond", serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-seleccion-modo:hover {
+  background: rgba(45, 90, 39, 0.08);
+}
+
 /* ── ESTADOS VACÍOS Y CARGA ──────────────────────────────────────── */
 .galeria-vacia {
   grid-column: 1 / -1;
@@ -461,7 +473,7 @@
   color: #2d5a27;
 }
 
-/* ── OVERLAY SUBIENDO ────────────────────────────────────────────── */
+/* ── OVERLAY SUBIENDO FOTOS ──────────────────────────────────────── */
 .subiendo-overlay {
   position: fixed;
   inset: 0;
@@ -517,6 +529,7 @@
   justify-content: center;
 }
 
+/* Lista para mover fotos */
 .lista-galerias-mover {
   display: flex;
   flex-direction: column;
@@ -541,6 +554,7 @@
   background: rgba(45, 90, 39, 0.15);
 }
 
+/* Botones reutilizables en modales */
 .btn-cancelar-modal {
   background: transparent;
   border: 1px solid rgba(125, 46, 46, 0.3);
@@ -663,6 +677,7 @@
   font-style: italic;
 }
 
+/* Selector de estilos */
 .estilos-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -716,25 +731,60 @@
   justify-content: center;
 }
 
-/* ── MÓVIL ───────────────────────────────────────────────────────── */
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .galerias-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
+  .fotos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .galerias-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .fotos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
-  .galeria-container {
+  .galeriafotos-container {
     padding: 0 16px;
   }
+
   .galeria-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
   }
+
   .galeria-header-left h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
+
   .galeria-header-actions {
     width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
+
   .btn-accion-header {
-    font-size: 0.9rem;
-    padding: 8px 14px;
+    font-size: 0.85rem;
+    padding: 7px 12px;
+    flex: 1 1 auto;
+    justify-content: center;
   }
+
   .galerias-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -745,63 +795,8 @@
   }
 }
 
-.barra-seleccion {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.btn-seleccion-modo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid rgba(45, 90, 39, 0.3);
-  color: #2d5a27;
-  padding: 7px 16px;
-  border-radius: 50px;
-  font-family: "EB Garamond", serif;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-seleccion-modo:hover {
-  background: rgba(45, 90, 39, 0.08);
-}
-
-/* Gradiente oscuro sobre la imagen */
-.galeria-card::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* El nombre en blanco sobre el gradiente */
-.galeria-card-nombre {
-  font-family: "Great Vibes", cursive;
-  font-size: 1.8rem;
-  color: #fdf6e3;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-  line-height: 1.2;
-}
-
-.galeria-card-conteo {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-style: italic;
-  font-family: "EB Garamond", serif;
-}
-
-/* El menú de tres puntos queda sobre el gradiente */
-.galeria-card .options-container {
-  z-index: 3;
+@media (max-width: 400px) {
+  .fotos-grid {
+    gap: 6px;
+  }
 }

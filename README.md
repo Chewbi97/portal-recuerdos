@@ -12,6 +12,7 @@
 - 🖊️ Subir y leer **Poemas** (sección *Musas*), con título, autor y contenido.
 - 🗂️ Guardar **Recuerdos** (sección *Memorias*), con título, descripción y multimedia.
 - 💌 Ver y crear **Tarjetas animadas** (botón flotante) para fechas especiales o días normales, con controles de reproducción (play, pausa, adelantar, retroceder) y función de descarga. Las tarjetas de fechas especiales se abren automáticamente ese día.
+- 🖼️ Gestionar una **Galería de fotos** (sección *Nosotros*), organizada en álbumes, con soporte para subida múltiple, mover y eliminar fotos en lote, y creación de collages descargables en varios estilos.
 
 ---
 
@@ -20,11 +21,15 @@
 | Tecnología | Logo | ¿Para qué se usa? | Enlace |
 |---|---|---|---|
 | React | ⚛️ | Librería principal para la interfaz de usuario | [reactjs.org](https://reactjs.org/) |
-| Firebase | 🔥 | Autenticación, almacenamiento de multimedia y hosting | [firebase.google.com](https://firebase.google.com/) |
+| Firebase Firestore | 🔥 | Base de datos en tiempo real para fotos, galerías y collages | [firebase.google.com](https://firebase.google.com/) |
+| Firebase Storage | ☁️ | Almacenamiento de imágenes y archivos multimedia | [firebase.google.com](https://firebase.google.com/) |
+| Firebase Hosting | 🚀 | Despliegue y hosting del portal | [firebase.google.com](https://firebase.google.com/) |
 | React Router DOM | 🔀 | Navegación entre páginas y rutas del portal | [reactrouter.com](https://reactrouter.com/) |
 | Phosphor Icons | 🎨 | Biblioteca de íconos para la UI | [phosphoricons.com](https://phosphoricons.com/) |
 | SweetAlert2 | 🍬 | Alertas y modales estilizados | [sweetalert2.github.io](https://sweetalert2.github.io/) |
 | html2canvas | 📷 | Captura y descarga de tarjetas animadas como imagen | [html2canvas.hertzen.com](https://html2canvas.hertzen.com/) |
+| Canvas API | 🖌️ | Generación de collages en el navegador (cuadrícula, polaroids, revista, corazón) | Nativa del navegador |
+| Google Cloud SDK (gsutil) | 🌐 | Configuración de CORS en Firebase Storage para carga de imágenes en canvas | [cloud.google.com/sdk](https://cloud.google.com/sdk/) |
 | Node.js | 🟩 | Entorno de ejecución para herramientas de desarrollo | [nodejs.org](https://nodejs.org/) |
 
 ---
@@ -43,10 +48,30 @@ Esto instalará automáticamente todas las dependencias listadas en `package.jso
 
 ```bash
 npm install @phosphor-icons/react      # Íconos
-npm install firebase                   # Firebase (auth, storage, hosting)
+npm install firebase                   # Firebase (auth, storage, firestore, hosting)
 npm install react-router-dom           # Enrutamiento
 npm install sweetalert2                # Alertas y modales
 npm install html2canvas                # Descarga de tarjetas como imagen
+```
+
+### ⚙️ Configuración de CORS en Firebase Storage
+
+Para que el generador de collages pueda cargar imágenes desde Firebase Storage en el canvas del navegador, es necesario configurar CORS. Con Google Cloud SDK instalado, ejecuta desde la raíz del proyecto:
+
+```bash
+gsutil cors set cors.json gs://tu-bucket.firebasestorage.app
+```
+
+El archivo `cors.json` debe contener:
+
+```json
+[
+  {
+    "origin": ["http://localhost:3000", "https://tu-dominio.com"],
+    "method": ["GET"],
+    "maxAgeSeconds": 3600
+  }
+]
 ```
 
 ### ▶️ Ejecutar en desarrollo
@@ -73,43 +98,63 @@ firebase deploy
 
 ```
 portal-recuerdos/
+├── cors.json
 └── src/
-    ├── App.js                        # Componente raíz y configuración de rutas
     ├── App.css
-    ├── firebase.js                   # Configuración e inicialización de Firebase
-    ├── index.js                      # Punto de entrada de la aplicación
+    ├── App.js
+    ├── App.test.js
+    ├── firebase.js
     ├── index.css
-    ├── sweetalertConfig.js           # Configuración global de SweetAlert2
+    ├── index.js
+    ├── logo.svg
+    ├── reportWebVitals.js
+    ├── setupTests.js
+    ├── sweetalertConfig.js
     │
-    ├── Assets/                       # Recursos estáticos (imágenes de fondo, etc.)
+    ├── Assets/
     │   ├── fondo-dashboard.png
     │   ├── imagen-fondo.jpg
     │   └── imagen-fondo.png
     │
     └── Components/
-        ├── HomeContent.js            # Contenido principal del portal
+        ├── HomeContent.css
+        ├── HomeContent.js
         │
         ├── Dashboard/
-        │   └── Dashboard.js         # Vista principal con foto y frase especial
+        │   ├── Dashboard.css
+        │   └── Dashboard.js
         │
         ├── Login/
-        │   └── Login.js             # Pantalla de acceso con contraseña privada
+        │   ├── Login.css
+        │   └── Login.js
         │
         ├── PortalPoemas/
-        │   └── PoemsPortal.js       # Sección Musas — subida y visualización de poemas
+        │   ├── PoemsPortal.css
+        │   └── PoemsPortal.js
         │
         ├── LineadeTiempo/
-        │   └── TimeLine.js          # Línea de tiempo de recuerdos (Memorias)
+        │   ├── TimeLine.css
+        │   └── TimeLine.js
+        │
+        ├── Galeria/
+        │   ├── Galeria.css
+        │   └── Galeria.js
         │
         ├── GaleriaDias/
-        │   └── GaleriaDias.js       # Galería de tarjetas especiales
+        │   ├── GaleriaDias.css
+        │   └── GaleriaDias.js
         │
-        └── DiaEspecial/             # Tarjetas animadas para fechas especiales
-            ├── ControlesAnimacion.js # Controles: play, pausa, adelantar, retroceder
+        └── DiaEspecial/
+            ├── ControlesAnimacion.css
+            ├── ControlesAnimacion.js
+            ├── DiaMujer.css
             ├── DiaMujer.js
+            ├── EcuacionAmor.css
             ├── EcuacionAmor.js
+            ├── GalaxiasFusion.css
             ├── GalaxiasFusion.js
-            └── SuperficieCorazon.js
+            ├── SuperficieCorazon.css
+            └── Superficiecorazon.js
 ```
 
 ---
@@ -123,7 +168,12 @@ c00827b  🌱  Primer Commit — Upload inicial del portal al repositorio
 0b2ee81  📝  Actualización del README con contenido propio del proyecto
 a0be5d5  💌  Portal actualizado con la última tarjeta animada
 644c59f  📥  Función de descarga de tarjetas agregada + reorganización y actualización del Storage de Firebase
-         ↑
+6e151ed  📝  Actualización del archivo README
+236232c  🔐  Corrección de fuga de seguridad respecto a la contraseña pública del portal
+181d658  🖼️  Componente Galería agregado con su CSS, enrutado y añadido al Nav
+63a354a  🐛  Fix del bug que impedía imprimir fotos en el collage + ajuste de estilos del componente Galería
+4fd07e5  ✨  Ajuste final de CSS y estilos del componente Galería
+        ↑
         HEAD — main / origin/main (estado actual)
 ```
 
@@ -137,7 +187,7 @@ El portal utiliza una contraseña privada hardcodeada conocida únicamente por s
 
 ## ☁️ Hosting
 
-El portal está desplegado a través de **Firebase Hosting**. Toda la multimedia (fotos, videos, archivos de recuerdos) se almacena en **Firebase Storage**.
+El portal está desplegado a través de **Firebase Hosting** (https://portal-de-recuerdos.web.app/). Toda la multimedia (fotos, collages, archivos de recuerdos) se almacena en **Firebase Storage**, organizada en las carpetas `galeria/`, `collages/`, `recuerdos/` y `diasEspeciales/`.
 
 ---
 

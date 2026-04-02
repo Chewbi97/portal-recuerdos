@@ -610,6 +610,49 @@ function Galeria() {
                 <div className="foto-fecha">
                   {c.titulo || ""} {c.frase ? `· ${c.frase}` : ""}
                 </div>
+
+                {/* Menú de opciones */}
+                <div
+                  className="options-container foto-options"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="btn-options-foto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuAbierto(menuAbierto === c.id ? null : c.id);
+                    }}
+                  >
+                    <DotsThreeVertical size={18} weight="bold" />
+                  </button>
+                  {menuAbierto === c.id && (
+                    <div className="options-menu">
+                      <button
+                        className="delete-opt"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const result = await swalPortal.fire({
+                            title: "¿Eliminar este collage?",
+                            text: "Esta acción no se puede deshacer",
+                            showCancelButton: true,
+                            confirmButtonText: "Sí, eliminar",
+                            cancelButtonText: "Cancelar",
+                          });
+                          if (!result.isConfirmed) return;
+                          if (c.storagePath)
+                            await deleteObject(
+                              ref(storage, c.storagePath),
+                            ).catch(() => {});
+                          await deleteDoc(doc(db, "collages", c.id));
+                          setMenuAbierto(null);
+                          fetchCollages();
+                        }}
+                      >
+                        <Trash size={14} weight="light" /> Eliminar
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
             {collages.length === 0 && (

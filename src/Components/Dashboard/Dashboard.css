@@ -57,8 +57,10 @@
 .portal-nav {
   margin-top: 25px;
   display: flex;
-  gap: 50px; /* Más espacio entre ellos para que respiren */
+  gap: 20px;
   justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 16px;
 }
 
 .portal-content {
@@ -101,13 +103,13 @@
 .nav-link {
   position: relative;
   text-decoration: none !important;
-  font-family: "Great Vibes", cursive; /* Misma fuente del título */
-  font-size: 2.5rem; /* Grande pero menor al título principal */
-  color: #3d2b1f; /* Café oscuro elegante */
-  margin: 0 30px;
+  font-family: "Great Vibes", cursive;
+  font-size: 2rem; /* ← baja de 2.5rem en móvil */
+  color: #3d2b1f;
+  margin: 0;
   transition: all 0.4s ease;
   opacity: 0.7;
-  border: none !important; /* Quitamos cualquier recuadro */
+  border: none !important;
 }
 
 .nav-link::after {
@@ -159,18 +161,17 @@
     font-size: clamp(2.5rem, 12vw, 3.5rem); /* ← responsivo */
     padding: 0 16px;
   }
-
+  .portal-nav {
+    gap: 10px;
+  }
   .portal-tagline {
-    font-size: clamp(1rem, 4vw, 1.2rem);
-    padding: 0 24px; /* ← evita que llegue al borde */
-    margin-bottom: 15px;
+    font-size: 1.2rem;
+    padding: 0 16px;
   }
-
   .nav-link {
-    font-size: 1.8rem;
-    margin: 0 15px;
+    font-size: 1.6rem;
+    margin: 0;
   }
-
   .portal-content {
     padding: 20px 16px; /* ← padding lateral en móvil */
   }
