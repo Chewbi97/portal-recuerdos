@@ -174,6 +174,7 @@ a0be5d5  💌  Portal actualizado con la última tarjeta animada
 63a354a  🐛  Fix del bug que impedía imprimir fotos en el collage + ajuste de estilos del componente Galería
 4fd07e5  ✨  Ajuste final de CSS y estilos del componente Galería
 2c620cb  ✒️  Se actualiza la función de borrar collages y se aplica diseño responsivo al componente Galeria
+359b3e9  👌  Actualización del README.md y despliegue en producción de última versión
         ↑
         HEAD — main / origin/main (estado actual)
 ```

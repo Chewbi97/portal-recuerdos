@@ -75,6 +75,8 @@ function Galeria() {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [fotosSeleccionadasAccion, setFotosSeleccionadasAccion] = useState([]);
   const [showMoverMultiple, setShowMoverMultiple] = useState(false);
+  const [fotoZoom, setFotoZoom] = useState(null); // { foto, indice }
+  const [collageZoom, setCollageZoom] = useState(null);
   const fetchGalerias = async () => {
     const snap = await getDocs(
       query(collection(db, "galerias"), orderBy("fechaCreacion", "desc")),
@@ -416,13 +418,13 @@ function Galeria() {
       {!galeriaActual && (
         <>
           <div className="galerias-grid">
-            {/* Nuestra galería */}
+            {/* Nuestra Galería */}
             <div
               className="galeria-card"
               onClick={() =>
                 setGaleriaActual({
                   id: "__sin_galeria__",
-                  nombre: "Nuestra galería",
+                  nombre: "Nuestra Galería",
                 })
               }
             >
@@ -430,7 +432,7 @@ function Galeria() {
                 {fotosSinGaleria.length > 0 ? (
                   <img
                     src={fotosSinGaleria[0].imageUrl}
-                    alt="Nuestra galería"
+                    alt="Nuestra Galería"
                   />
                 ) : (
                   <div className="galeria-card-vacia">
@@ -439,7 +441,7 @@ function Galeria() {
                 )}
               </div>
               <div className="galeria-card-footer">
-                <span className="galeria-card-nombre">Nuestra galería</span>
+                <span className="galeria-card-nombre">Nuestra Galería</span>
                 <span className="galeria-card-conteo">
                   {fotosSinGaleria.length} fotos
                 </span>
@@ -595,12 +597,7 @@ function Galeria() {
                 key={c.id}
                 className="foto-card"
                 style={{ cursor: "pointer" }}
-                onClick={() => {
-                  const a = document.createElement("a");
-                  a.href = c.imageUrl;
-                  a.target = "_blank";
-                  a.click();
-                }}
+                onClick={() => setCollageZoom(c)}
               >
                 <img
                   src={c.imageUrl}
@@ -676,6 +673,8 @@ function Galeria() {
                 onClick={() => {
                   if (modoCollage) toggleSeleccion(foto.id);
                   else if (modoSeleccion) toggleSeleccionAccion(foto.id);
+                  else
+                    setFotoZoom({ foto, indice: fotosFiltradas.indexOf(foto) });
                 }}
               >
                 <img src={foto.imageUrl} alt="" loading="lazy" />
@@ -886,6 +885,120 @@ function Galeria() {
           <div className="subiendo-msg">Subiendo fotos... 📸</div>
         </div>
       )}
+      {/* ZOOM FOTO */}
+      {fotoZoom && (
+        <div className="zoom-overlay-galeria" onClick={() => setFotoZoom(null)}>
+          <div
+            className="zoom-contenido-galeria"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="zoom-close-galeria"
+              onClick={() => setFotoZoom(null)}
+            >
+              <X size={20} weight="bold" />
+            </button>
+
+            {/* Flecha anterior */}
+            {fotoZoom.indice > 0 && (
+              <button
+                className="zoom-nav-galeria zoom-nav-izq"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const nuevo = fotoZoom.indice - 1;
+                  setFotoZoom({ foto: fotosFiltradas[nuevo], indice: nuevo });
+                }}
+              >
+                ‹
+              </button>
+            )}
+
+            <img
+              src={fotoZoom.foto.imageUrl}
+              alt=""
+              className="zoom-img-galeria"
+            />
+
+            {/* Flecha siguiente */}
+            {fotoZoom.indice < fotosFiltradas.length - 1 && (
+              <button
+                className="zoom-nav-galeria zoom-nav-der"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const nuevo = fotoZoom.indice + 1;
+                  setFotoZoom({ foto: fotosFiltradas[nuevo], indice: nuevo });
+                }}
+              >
+                ›
+              </button>
+            )}
+
+            <div className="zoom-info-galeria">
+              <span>
+                {fotoZoom.indice + 1} / {fotosFiltradas.length}
+              </span>
+              <span className="zoom-fecha-galeria">
+                {fotoZoom.foto.fechaSubida?.toDate
+                  ? fotoZoom.foto.fechaSubida
+                      .toDate()
+                      .toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                  : ""}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ZOOM COLLAGE */}
+      {collageZoom && (
+        <div
+          className="zoom-overlay-galeria"
+          onClick={() => setCollageZoom(null)}
+        >
+          <div
+            className="zoom-contenido-galeria"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="zoom-close-galeria"
+              onClick={() => setCollageZoom(null)}
+            >
+              <X size={20} weight="bold" />
+            </button>
+            <img
+              src={collageZoom.imageUrl}
+              alt=""
+              className="zoom-img-galeria"
+            />
+            <div className="zoom-info-galeria">
+              {collageZoom.titulo && (
+                <span className="zoom-titulo-collage">
+                  {collageZoom.titulo}
+                </span>
+              )}
+              {collageZoom.frase && (
+                <span className="zoom-fecha-galeria">{collageZoom.frase}</span>
+              )}
+              <button
+                className="zoom-descargar-collage"
+                onClick={() => {
+                  const a = document.createElement("a");
+                  a.href = collageZoom.imageUrl;
+                  a.target = "_blank";
+                  a.download = `${collageZoom.titulo || "collage"}.jpg`;
+                  a.click();
+                }}
+              >
+                ⬇️ Descargar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1026,6 +1139,36 @@ function GeneradorCollage({ fotos, onClose }) {
                 onClick={handleDescargarYGuardar}
               >
                 ⬇️ Descargar y guardar
+              </button>
+              <button
+                className="btn-guardar-vintage"
+                style={{ background: "#4a7c59" }}
+                onClick={async () => {
+                  if (!preview) return;
+                  try {
+                    const blob = await (await fetch(preview)).blob();
+                    const storageRef = ref(
+                      storage,
+                      `collages/${Date.now()}.jpg`,
+                    );
+                    const snap = await uploadBytes(storageRef, blob);
+                    const url = await getDownloadURL(snap.ref);
+                    await addDoc(collection(db, "collages"), {
+                      imageUrl: url,
+                      storagePath: snap.ref.fullPath,
+                      titulo,
+                      frase,
+                      estilo,
+                      fotosIds: fotos.map((f) => f.id),
+                      fechaCreacion: serverTimestamp(),
+                    });
+                    onClose();
+                  } catch (err) {
+                    console.error("Error guardando collage:", err);
+                  }
+                }}
+              >
+                💾 Solo guardar
               </button>
               <button
                 className="btn-cancelar-modal"
