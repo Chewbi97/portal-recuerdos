@@ -14,7 +14,7 @@ function GaleriaDias({ onSeleccionar, onClose }) {
         const snapshot = await getDocs(collection(db, "diasEspeciales"));
         const docs = snapshot.docs
           .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((d) => d.activo) // solo los activos
+          .filter((d) => d.activo && d.visible !== false)
           .sort((a, b) => a.fecha?.localeCompare(b.fecha)); // ordenados por fecha
         setMomentos(docs);
       } catch (error) {
