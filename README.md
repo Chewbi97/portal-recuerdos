@@ -180,6 +180,8 @@ a0be5d5  💌  Portal actualizado con la última tarjeta animada
 359b3e9  👌  Actualización del README.md y despliegue en producción de última versión
 0d43e96  👓  Se agrega la función zoom a la galería
 064d5c3  ✒️  Se incluye nueva tarjeta, boceto inicial
+cc1012d  ✒️  Se termina y se envia a producción la tarjeta Plumas en completo funcionanmiento
+
         ↑
         HEAD — main / origin/main (estado actual)
 ```
