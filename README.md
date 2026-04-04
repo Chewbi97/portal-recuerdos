@@ -153,8 +153,11 @@ portal-recuerdos/
             ├── EcuacionAmor.js
             ├── GalaxiasFusion.css
             ├── GalaxiasFusion.js
+            ├── Plumas.css
+            ├── Plumas.js
             ├── SuperficieCorazon.css
             └── Superficiecorazon.js
+            
 ```
 
 ---
@@ -175,6 +178,8 @@ a0be5d5  💌  Portal actualizado con la última tarjeta animada
 4fd07e5  ✨  Ajuste final de CSS y estilos del componente Galería
 2c620cb  ✒️  Se actualiza la función de borrar collages y se aplica diseño responsivo al componente Galeria
 359b3e9  👌  Actualización del README.md y despliegue en producción de última versión
+0d43e96  👓  Se agrega la función zoom a la galería
+064d5c3  ✒️  Se incluye nueva tarjeta, boceto inicial
         ↑
         HEAD — main / origin/main (estado actual)
 ```

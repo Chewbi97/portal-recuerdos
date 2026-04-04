@@ -1,69 +1,252 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import ControlesAnimacion from "./ControlesAnimacion";
 import { enviarNotificacion } from "../../firebase";
 import "./Pluma.css";
 
-// ─── TIMELINE del JSON de Whisper (normalizado) ───────────────────
-// Los timestamps se normalizan restando el offset del primer chunk (18.36)
+// ── TIMESTAMPS DEL TRANSCRIPT (offset -18.36 aplicado) ──
 const CHUNKS_RAW = [
-  {text:"Mis",start:18.36,end:18.7},{text:"ojos",start:18.7,end:18.8},{text:"de",start:18.8,end:18.8},{text:"primer",start:18.8,end:19.32},{text:"instante",start:19.32,end:19.92},{text:"se",start:19.92,end:20.12},{text:"tornaron",start:20.12,end:20.52},{text:"en",start:20.52,end:20.68},{text:"la",start:20.68,end:20.74},{text:"ventana",start:20.74,end:21.1},{text:"hacia",start:21.1,end:21.4},{text:"un",start:21.4,end:21.54},{text:"mundo",start:21.54,end:21.66},{text:"nuevo,",start:21.66,end:22.22},{text:"colmado",start:22.78,end:23.3},{text:"de",start:23.3,end:23.44},{text:"ilusión",start:23.44,end:23.8},{text:"y",start:23.8,end:23.94},{text:"de",start:23.94,end:24.02},{text:"color.",start:24.02,end:24.32},{text:"Y",start:24.78,end:24.84},{text:"¿por",start:24.84,end:25},{text:"qué?",start:25,end:25.22},{text:"No",start:26.48,end:26.58},{text:"hay",start:26.58,end:26.72},{text:"razón",start:26.72,end:27.02},{text:"que",start:27.02,end:27.38},{text:"lo",start:27.38,end:27.48},{text:"sustente,",start:27.48,end:27.92},{text:"pues",start:28.1,end:28.16},{text:"yo",start:28.16,end:28.38},{text:"ha",start:28.38,end:28.6},{text:"entregado",start:28.6,end:29.02},{text:"siempre",start:29.02,end:29.32},{text:"a",start:29.32,end:29.42},{text:"los",start:29.42,end:29.56},{text:"hechos",start:29.56,end:29.8},{text:"y",start:29.8,end:29.96},{text:"a",start:29.96,end:29.98},{text:"la",start:29.98,end:30.04},{text:"evidencia,",start:30.04,end:30.62},{text:"bimilosica,",start:30.76,end:31.26},{text:"desmoronarse.",start:31.26,end:32.02},{text:"¿Por",start:32.98,end:33.48},{text:"qué?",start:33.48,end:33.74},{text:"¿O",start:34.22,end:34.26},{text:"cómo?",start:34.26,end:34.68},{text:"Hasta",start:36.4,end:36.66},{text:"que",start:36.66,end:36.8},{text:"comprendí",start:36.8,end:37.26},{text:"que",start:37.26,end:37.38},{text:"existían",start:37.38,end:37.82},{text:"conexiones",start:37.82,end:38.3},{text:"que",start:38.3,end:38.52},{text:"no",start:38.52,end:38.62},{text:"requieren",start:38.62,end:38.92},{text:"explicación,",start:38.92,end:39.68},{text:"pues",start:39.96,end:40.08},{text:"su",start:40.08,end:40.24},{text:"lenguaje",start:40.24,end:40.7},{text:"es",start:40.7,end:41.06},{text:"el",start:41.06,end:41.2},{text:"sentir.",start:41.2,end:41.56},{text:"En",start:42.54,end:43.36},{text:"esta",start:43.36,end:43.52},{text:"ocasión,",start:43.52,end:43.8},{text:"mis",start:43.8,end:43.94},{text:"palabras",start:43.94,end:44.16},{text:"rehúsan",start:44.16,end:44.72},{text:"a",start:44.72,end:44.8},{text:"repetir",start:44.8,end:45.28},{text:"lo",start:45.28,end:45.4},{text:"que",start:45.4,end:45.52},{text:"tantas",start:45.52,end:46},{text:"veces",start:46,end:46.18},{text:"ya",start:46.18,end:46.52},{text:"he",start:46.52,end:46.64},{text:"dicho",start:46.64,end:46.92},{text:"prefiero",start:46.92,end:47.84},{text:"dejar",start:48,end:48.2},{text:"a",start:48.2,end:48.3},{text:"mis",start:48.3,end:48.4},{text:"pensamientos",start:48.4,end:49},{text:"al",start:49,end:49.22},{text:"libre",start:49.22,end:49.38},{text:"albedrío",start:49.56,end:50.02},{text:"y",start:50.02,end:51.38},{text:"que",start:51.38,end:51.48},{text:"sean",start:51.48,end:51.7},{text:"las",start:51.7,end:51.92},{text:"letras",start:51.92,end:52.22},{text:"quienes",start:52.22,end:52.5},{text:"tracen",start:52.5,end:52.88},{text:"lo",start:52.88,end:53},{text:"que",start:53,end:53.12},{text:"yo,",start:53.12,end:53.24},{text:"en",start:53.76,end:53.98},{text:"su",start:53.98,end:54.12},{text:"torpeza,",start:54.12,end:54.62},{text:"no",start:54.62,end:54.8},{text:"siempre",start:54.8,end:55.2},{text:"logro",start:55.2,end:55.52},{text:"expresar.",start:55.52,end:56.1},{text:"Despertar",start:57.5,end:58.1},{text:"cada",start:58.1,end:58.32},{text:"mañana",start:58.32,end:58.7},{text:"y",start:58.7,end:58.84},{text:"que",start:58.84,end:58.96},{text:"lo",start:58.96,end:59.1},{text:"primero",start:59.1,end:59.48},{text:"que",start:59.48,end:59.62},{text:"cruce",start:59.62,end:59.9},{text:"mi",start:59.9,end:60.06},{text:"mente",start:60.06,end:60.36},{text:"sea",start:60.36,end:60.62},{text:"cómo",start:60.62,end:60.98},{text:"habrá",start:60.98,end:61.3},{text:"pasado",start:61.3,end:61.64},{text:"su",start:61.64,end:61.82},{text:"noche,",start:61.82,end:62.14},{text:"tomar",start:62.5,end:62.86},{text:"el",start:62.86,end:63},{text:"primer",start:63,end:63.28},{text:"sorbo",start:63.28,end:63.6},{text:"de",start:63.6,end:63.74},{text:"café",start:63.74,end:64.06},{text:"y",start:64.06,end:64.24},{text:"pensar",start:64.24,end:64.62},{text:"ojalá",start:64.62,end:65},{text:"su",start:65,end:65.2},{text:"día",start:65.2,end:65.44},{text:"sea",start:65.44,end:65.7},{text:"benigno,",start:65.7,end:66.2},{text:"son",start:66.5,end:66.72},{text:"hábitos",start:66.72,end:67.14},{text:"que",start:67.14,end:67.3},{text:"en",start:67.3,end:67.46},{text:"antaño",start:67.46,end:67.9},{text:"me",start:67.9,end:68.06},{text:"acompañaban,",start:68.06,end:68.68},{text:"mas",start:68.9,end:69.06},{text:"celebro",start:69.06,end:69.52},{text:"su",start:69.52,end:69.7},{text:"retorno",start:69.7,end:70.18},{text:"y",start:70.18,end:70.66},{text:"nuestro",start:70.66,end:71.18},{text:"pensamiento",start:71.18,end:71.9},{text:"puesto",start:73.22,end:73.52},{text:"en",start:73.52,end:73.76},{text:"la",start:73.76,end:73.84},{text:"más",start:73.84,end:74.04},{text:"excelsa",start:74.04,end:74.48},{text:"estrella",start:74.48,end:74.84},{text:"que",start:74.84,end:75.02},{text:"el",start:75.02,end:75.06},{text:"universo",start:75.06,end:75.38},{text:"pudo",start:75.38,end:75.8},{text:"haberme",start:75.8,end:76.2},{text:"concedido,",start:76.2,end:76.88},{text:"sino",start:76.88,end:78.18},{text:"el",start:78.3,end:78.38},{text:"asombro",start:78.38,end:78.78},{text:"de",start:78.78,end:78.9},{text:"saber",start:78.9,end:79.16},{text:"que",start:79.16,end:79.4},{text:"tan",start:79.4,end:79.62},{text:"bella",start:79.62,end:79.86},{text:"existencia",start:79.86,end:80.6},{text:"coincide",start:80.6,end:81.24},{text:"de",start:81.24,end:81.4},{text:"algún",start:81.4,end:81.56},{text:"modo",start:81.56,end:81.84},{text:"con",start:81.84,end:82.02},{text:"la",start:82.02,end:82.18},{text:"mía.",start:82.18,end:82.52},{text:"No",start:82.52,end:84.02},{text:"enalzo",start:84.02,end:84.52},{text:"tu",start:84.52,end:84.68},{text:"imagen",start:84.68,end:85.08},{text:"por",start:85.08,end:85.54},{text:"encima",start:85.54,end:85.94},{text:"de",start:85.94,end:86.22},{text:"la",start:86.22,end:86.34},{text:"mía,",start:86.34,end:86.64},{text:"ni",start:86.64,end:87.86},{text:"pretendo",start:87.86,end:88.24},{text:"tal",start:88.24,end:88.46},{text:"cosa,",start:88.46,end:88.86},{text:"mas",start:88.86,end:89.4},{text:"la",start:89.4,end:89.56},{text:"admiración",start:89.56,end:89.92},{text:"es",start:109.98,end:110.3},{text:"que",start:110.3,end:110.5},{text:"cada",start:110.5,end:110.8},{text:"latido",start:110.8,end:111.2},{text:"de",start:111.2,end:111.4},{text:"tu",start:111.4,end:111.6},{text:"corazón,",start:111.6,end:112.1},{text:"cada",start:112.1,end:112.4},{text:"átomo",start:112.4,end:112.9},{text:"de",start:112.9,end:113.1},{text:"tu",start:113.1,end:113.3},{text:"ser,",start:113.3,end:113.8},{text:"cada",start:113.8,end:114.1},{text:"gesto,",start:114.1,end:114.6},{text:"dimana",start:114.6,end:115.1},{text:"de",start:150.7,end:150.82},{text:"tu",start:153.2,end:153.34},{text:"bebé",start:153.34,end:153.58},{text:"que",start:153.58,end:153.7},{text:"tanto",start:153.7,end:153.9},{text:"te",start:153.9,end:154.1},{text:"quiere,",start:154.1,end:154.34},{text:"con",start:154.44,end:154.54},{text:"intención",start:154.54,end:154.98},{text:"sincera",start:154.98,end:155.44},{text:"de",start:155.44,end:155.56},{text:"amarte.",start:155.56,end:156.02},{text:"Para",start:157.48,end:157.74},{text:"la",start:157.74,end:157.9},{text:"princesa,",start:157.9,end:158.7},{text:"quien",start:158.7,end:159.2},{text:"sabe",start:159.2,end:159.56},{text:"cómo",start:159.56,end:160.58},{text:"ni",start:160.58,end:160.76},{text:"por",start:160.76,end:160.94},{text:"qué",start:160.94,end:161.14},{text:"se",start:161.14,end:161.78},{text:"ha",start:161.78,end:161.86},{text:"convertido",start:161.86,end:162.36},{text:"en",start:162.36,end:162.46},{text:"el",start:162.46,end:162.62},{text:"centro",start:162.62,end:163},{text:"de",start:163,end:163.78},{text:"mi",start:163.78,end:163.9},{text:"corazón.",start:163.9,end:164.24}
+  // --- Inicio (0s - 18.36s) ---
+  { text: "Mis Ojitos Bellos...", start: 0, end: 3.5 },
+  { text: "¿Cuántas veces lo has oído de mi boca?", start: 3.5, end: 7.2 },
+  { text: "Quizá parezca demasiado sencillo y obvio,", start: 7.2, end: 11.5 },
+  {
+    text: "pero las obviedades no pasan desapercibidas.",
+    start: 11.5,
+    end: 18.36,
+  },
+
+  // --- Bloque 1 (18.36s - 42.54s) ---
+  {
+    text: "Tus ojos desde un primer instante se convirtieron",
+    start: 18.36,
+    end: 21.1,
+  },
+  {
+    text: "en la ventana a un nuevo mundo lleno de ilusión y color.",
+    start: 21.1,
+    end: 24.32,
+  },
+  {
+    text: "¿Y por qué? No hay razón propia que valga,",
+    start: 24.78,
+    end: 27.92,
+  },
+  {
+    text: "entregado siempre a los hechos y evidencias,",
+    start: 28.1,
+    end: 30.62,
+  },
+  { text: "destrozo mi lógica. ¿Cómo? ¿Por qué?", start: 30.76, end: 34.68 },
+  { text: "Hasta que entendí que hay conexiones", start: 36.4, end: 38.3 },
+  {
+    text: "que no tienen explicación, solo se sienten.",
+    start: 38.3,
+    end: 41.56,
+  },
+
+  // --- Bloque 2 (42.54s - 57.22s) ---
+  {
+    text: "En esta ocasión mis palabras quieren dejar de repetir",
+    start: 42.54,
+    end: 45.5,
+  },
+  { text: "lo que tantas veces ya he expresado.", start: 45.5, end: 48.4 },
+  {
+    text: "Prefiero el día de hoy solo dar rienda suelta",
+    start: 48.4,
+    end: 51.38,
+  },
+  {
+    text: "a mis pensamientos y que las letras dibujen",
+    start: 51.38,
+    end: 54.62,
+  },
+  {
+    text: "lo que mis palabras muchas veces entorpecen.",
+    start: 54.62,
+    end: 57.22,
+  },
+
+  // --- Bloque 3 (57.22s - 82.52s) ---
+  { text: "Despertar cada mañana y que lo primero", start: 57.22, end: 59.5 },
+  {
+    text: "que por mi mente pase es: ¿Cómo habrá pasado la noche?",
+    start: 59.5,
+    end: 62.5,
+  },
+  { text: "Tomar el primer café del día y pensar:", start: 62.5, end: 64.5 },
+  { text: "Ojalá su día vaya bien...", start: 64.5, end: 67.5 },
+  {
+    text: "Son comportamientos que antaño no me acogían,",
+    start: 67.5,
+    end: 71.2,
+  },
+  { text: "pero me alegra tener de vuelta,", start: 71.2, end: 73.22 },
+  {
+    text: "porque no es solo mi pensar en la más excelsa estrella",
+    start: 73.22,
+    end: 76.88,
+  },
+  {
+    text: "que el universo pudo haber enviado para mí.",
+    start: 78.18,
+    end: 80.6,
+  },
+  { text: "Es el hecho de pensar que la presencia", start: 80.6, end: 82.52 },
+  {
+    text: "y existencia tan hermosa corresponda a la mía.",
+    start: 82.52,
+    end: 86.64,
+  },
+
+  // --- Bloque 4: Rellenando el hueco (86.64s - 149.98s) ---
+  {
+    text: "No enaltezco o superpongo tu imagen a la mía,",
+    start: 86.64,
+    end: 90.0,
+  },
+  {
+    text: "solo que la admiración y cariño que he desarrollado",
+    start: 90.0,
+    end: 94.0,
+  },
+  {
+    text: "me hace pensar en querer compartir todo contigo,",
+    start: 94.0,
+    end: 98.0,
+  },
+  { text: "en ofrecerte todo lo que mi mano y mente", start: 98.0, end: 102.0 },
+  {
+    text: "son capaces de ofrecer, no hablo de riquezas.",
+    start: 102.0,
+    end: 107.0,
+  },
+  {
+    text: "Hablo de entregar todo lo que soy al máximo",
+    start: 107.0,
+    end: 112.0,
+  },
+  {
+    text: "para hacer que tu mundo sea un bonito lugar,",
+    start: 112.0,
+    end: 117.0,
+  },
+  { text: "porque solo así estoy seguro", start: 117.0, end: 122.0 },
+  {
+    text: "ambos gozaremos de tiempos maravillosos.",
+    start: 122.0,
+    end: 128.0,
+  },
+  {
+    text: "Mis ojitos te hablo hoy en un día sin presiones,",
+    start: 128.0,
+    end: 133.0,
+  },
+  {
+    text: "porque contigo cada momento se hace especial.",
+    start: 133.0,
+    end: 140.0,
+  },
+  {
+    text: "Emanan una pureza que ni el yacimiento cristalino",
+    start: 140.0,
+    end: 145.0,
+  },
+  {
+    text: "más puro sería capaz de competir frente a ti.",
+    start: 145.0,
+    end: 149.98,
+  },
+
+  // --- Bloque Final (149.98s - Final) ---
+  { text: "Y es que cada latido de tu corazón,", start: 149.98, end: 151.36 },
+  {
+    text: "cada átomo de tu cuerpo, cada acción de tu ser,",
+    start: 151.36,
+    end: 153.2,
+  },
+  { text: "de tu Bebé que tanto te quiere,", start: 153.2, end: 154.34 },
+  { text: "con las intenciones de amarte.", start: 154.44, end: 157.48 },
+  {
+    text: "Para la Princesa que sin saber por qué,",
+    start: 157.48,
+    end: 161.14,
+  },
+  {
+    text: "se convirtió en el centro de mi corazón. ✦",
+    start: 161.14,
+    end: 164.24,
+  },
 ];
 
-const OFFSET = CHUNKS_RAW[0].start;
-const TIMELINE = CHUNKS_RAW.map(c => ({
-  text: c.text.trim(),
-  start: c.start - OFFSET,
-  end: c.end - OFFSET,
+const START_DELAY = 15; // El tiempo que tarda el corazón en formarse y empezar el audio
+
+const FRASES = CHUNKS_RAW.map((c) => ({
+  txt: c.text,
+  start: c.start + START_DELAY,
+  end: c.end + START_DELAY,
 }));
 
-const DURACION_AUDIO = TIMELINE[TIMELINE.length - 1].end + 2;
+const AUDIO_DURATION = 164.24;
+const TOTAL_DURATION = 187;
 const FPS = 60;
-const DURACION_TOTAL = Math.ceil((DURACION_AUDIO + 4) * FPS); // +4s de outro
+const TOTAL_FRAMES = TOTAL_DURATION * FPS;
 
-// ─── HELPERS ─────────────────────────────────────────────────────
-const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
-const easeInOut = (t) => t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t;
-const easeOut = (t) => 1 - (1-t)*(1-t);
+// Timing visual
+const T_HEART_FORM_END = 18;
+const T_STAR_LAUNCH = 20;
+const T_STAR_ARRIVE = 38;
+const T_HEART_GLOW = 40;
+const T_DECOMPOSE_START = 90;
+const T_DECOMPOSE_END = 115;
+const T_BOOK_PAGES = 118;
+const T_BOOK_CLOSE = 150;
+const T_BOOK_TITLE = 175;
+const T_FIRMA = 179;
 
-// ─── COMPONENTE PRINCIPAL ─────────────────────────────────────────
-function Pluma({ diaEspecial, onClose }) {
+export default function Pluma({ diaEspecial, onClose }) {
   const canvasRef = useRef(null);
   const audioVozRef = useRef(null);
   const audioMusRef = useRef(null);
   const animRef = useRef(null);
-  const frameRef = useRef(0);
   const pausadoRef = useRef(false);
   const loopStartRef = useRef(null);
-  const vozIniciada = useRef(false);
+  const frameRef = useRef(0);
+  const vozStartedRef = useRef(false);
 
-  // Estado de escritura
-  const textoEscritoRef = useRef([]);   // palabras ya escritas [{text, x, y, linea}]
-  const palabraActualRef = useRef(null);
-  const progPalabraRef = useRef(0);
+  // Estado interno de la animación (no React — para no re-renderizar)
+  const internalRef = useRef({
+    starX: 0,
+    starY: 0,
+    starVX: 0,
+    starVY: 0,
+    starPhase: "waiting",
+    starGlowR: 0,
+    starTrail: [],
+    starInitialized: false,
+    heartGlowAlpha: 0,
+    curFi: -1,
+    subTargets: [],
+  });
 
-  // Pluma
-  const plumaRef = useRef({ x: 0, y: 0, angulo: -30, estado: 'inicio' });
+  const partsRef = useRef(null);
+  const subPartsRef = useRef(null);
+  const starsRef = useRef(null);
+  const pixCacheRef = useRef({});
 
   const [pausado, setPausado] = useState(false);
   const [progreso, setProgreso] = useState(0);
 
-  // ── Fade música ──────────────────────────────────────────────────
-  const fadeMusica = (de, a, ms) => {
-    if (!audioMusRef.current) return;
-    const n = 40, d = (a - de) / n;
-    let i = 0;
-    const t = setInterval(() => {
-      i++;
-      if (audioMusRef.current)
-        audioMusRef.current.volume = Math.max(0, Math.min(1, de + d * i));
-      if (i >= n) clearInterval(t);
-    }, ms / n);
-  };
+  // ── UTILIDADES ──
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const eio = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+  const rand = (a, b) => a + Math.random() * (b - a);
 
   const handleClose = () => {
     cancelAnimationFrame(animRef.current);
-    audioMusRef.current?.pause();
     audioVozRef.current?.pause();
+    audioMusRef.current?.pause();
     onClose();
   };
 
@@ -71,566 +254,867 @@ function Pluma({ diaEspecial, onClose }) {
     pausadoRef.current = !pausadoRef.current;
     setPausado(pausadoRef.current);
     if (pausadoRef.current) {
-      audioMusRef.current?.pause();
       audioVozRef.current?.pause();
+      audioMusRef.current?.pause();
     } else {
       loopStartRef.current = null;
       audioMusRef.current?.play().catch(() => {});
-      if (vozIniciada.current) audioVozRef.current?.play().catch(() => {});
+      if (vozStartedRef.current) audioVozRef.current?.play().catch(() => {});
     }
+  };
+
+  const resetInternal = () => {
+    const s = internalRef.current;
+    s.starX = 0;
+    s.starY = 0;
+    s.starVX = 0;
+    s.starVY = 0;
+    s.starPhase = "waiting";
+    s.starGlowR = 0;
+    s.starTrail = [];
+    s.starInitialized = false;
+    s.heartGlowAlpha = 0;
+    s.curFi = -1;
+    s.subTargets = [];
+    vozStartedRef.current = false;
+    partsRef.current?.forEach((p) => {
+      p.x = rand(0, 420);
+      p.y = rand(-80, 460);
+    });
+    subPartsRef.current?.forEach((p) => {
+      p.alpha = 0;
+      p.active = false;
+    });
   };
 
   const handleBarra = (val) => {
     frameRef.current = val;
     setProgreso(val);
-    loopStartRef.current = null;
-    vozIniciada.current = false;
-    textoEscritoRef.current = [];
-    palabraActualRef.current = null;
+    loopStartRef.current = null; // Para que el render recalcule el tiempo suavemente
 
     const segActual = val / FPS;
+
+    // 1. Lógica de la MÚSICA (Empieza desde el segundo 0)
     if (audioMusRef.current) {
-      audioMusRef.current.currentTime = Math.min(segActual, audioMusRef.current.duration || 999);
-      const enVoz = segActual >= 0 && segActual <= DURACION_AUDIO;
-      audioMusRef.current.volume = enVoz ? 0.12 : 0.35;
+      audioMusRef.current.currentTime =
+        segActual % (audioMusRef.current.duration || 999);
+
+      // Bajamos el volumen (ducking) solo cuando la voz debería estar sonando
+      const vozActiva =
+        segActual >= START_DELAY && segActual <= START_DELAY + AUDIO_DURATION;
+      audioMusRef.current.volume = vozActiva ? 0.06 : 0.18;
+
       if (!pausadoRef.current) audioMusRef.current.play().catch(() => {});
     }
-    if (segActual > 0 && audioVozRef.current) {
-      audioVozRef.current.currentTime = Math.min(segActual, audioVozRef.current.duration || 0);
-      if (!pausadoRef.current) audioVozRef.current.play().catch(() => {});
-      vozIniciada.current = true;
-    } else if (audioVozRef.current) {
-      audioVozRef.current.pause();
-      audioVozRef.current.currentTime = 0;
+
+    // 2. Lógica de la VOZ (Empieza solo después del START_DELAY)
+    if (audioVozRef.current) {
+      if (segActual >= START_DELAY) {
+        // Sincronizamos: Tiempo actual de la tarjeta - 15 segundos de espera
+        const tiempoRelativoVoz = segActual - START_DELAY;
+
+        audioVozRef.current.currentTime = Math.min(
+          tiempoRelativoVoz,
+          audioVozRef.current.duration || 0,
+        );
+
+        if (!pausadoRef.current) audioVozRef.current.play().catch(() => {});
+        vozStartedRef.current = true;
+      } else {
+        // Si la barra está antes del segundo 15, la voz debe estar callada
+        audioVozRef.current.pause();
+        audioVozRef.current.currentTime = 0;
+        vozStartedRef.current = false;
+      }
     }
   };
 
-  useEffect(() => {
-    const k = (e) => { if (e.key === "Escape") handleClose(); };
-    window.addEventListener("keydown", k);
-    return () => window.removeEventListener("keydown", k);
+  // ── BUILD CORAZÓN ──
+  const buildHeartPixels = useCallback((W, H) => {
+    const off = document.createElement("canvas");
+    off.width = W;
+    off.height = H;
+    const c = off.getContext("2d");
+    const cx = W / 2,
+      cy = H * 0.37;
+    c.save();
+    c.translate(cx, cy);
+    c.beginPath();
+    c.moveTo(10, -55);
+    c.bezierCurveTo(45, -60, 75, -40, 80, -10);
+    c.bezierCurveTo(85, 20, 70, 55, 45, 85);
+    c.bezierCurveTo(30, 100, 10, 108, 0, 110);
+    c.bezierCurveTo(-10, 108, -30, 100, -45, 85);
+    c.bezierCurveTo(-70, 55, -85, 20, -80, -10);
+    c.bezierCurveTo(-75, -40, -45, -60, -10, -55);
+    c.closePath();
+    c.fillStyle = "#8B0000";
+    c.fill();
+    c.beginPath();
+    c.moveTo(-10, -55);
+    c.bezierCurveTo(-45, -65, -85, -50, -95, -20);
+    c.bezierCurveTo(-105, 10, -90, 45, -70, 65);
+    c.bezierCurveTo(-55, 78, -45, 85, -45, 85);
+    c.bezierCurveTo(-70, 55, -85, 20, -80, -10);
+    c.bezierCurveTo(-75, -40, -45, -60, -10, -55);
+    c.closePath();
+    c.fillStyle = "#6B0000";
+    c.fill();
+    c.beginPath();
+    c.moveTo(10, -55);
+    c.bezierCurveTo(30, -70, 60, -80, 70, -70);
+    c.bezierCurveTo(85, -55, 80, -35, 65, -30);
+    c.bezierCurveTo(50, -25, 30, -35, 10, -55);
+    c.closePath();
+    c.fillStyle = "#9B1020";
+    c.fill();
+    c.beginPath();
+    c.moveTo(-10, -55);
+    c.bezierCurveTo(-30, -72, -65, -82, -78, -70);
+    c.bezierCurveTo(-95, -55, -92, -30, -75, -22);
+    c.bezierCurveTo(-58, -15, -35, -28, -10, -55);
+    c.closePath();
+    c.fillStyle = "#7B1525";
+    c.fill();
+    c.beginPath();
+    c.moveTo(5, -55);
+    c.bezierCurveTo(8, -80, 15, -100, 10, -118);
+    c.bezierCurveTo(8, -128, -2, -132, -8, -128);
+    c.bezierCurveTo(-14, -124, -16, -112, -12, -100);
+    c.bezierCurveTo(-8, -85, -5, -70, -5, -55);
+    c.closePath();
+    c.fillStyle = "#CC3030";
+    c.fill();
+    c.beginPath();
+    c.moveTo(-15, -62);
+    c.bezierCurveTo(-25, -80, -40, -105, -55, -112);
+    c.bezierCurveTo(-65, -118, -75, -112, -72, -102);
+    c.bezierCurveTo(-69, -92, -58, -88, -48, -88);
+    c.bezierCurveTo(-35, -88, -22, -78, -15, -62);
+    c.closePath();
+    c.fillStyle = "#4455AA";
+    c.fill();
+    c.beginPath();
+    c.moveTo(55, -60);
+    c.bezierCurveTo(62, -80, 65, -100, 60, -118);
+    c.bezierCurveTo(57, -128, 50, -130, 44, -126);
+    c.bezierCurveTo(38, -122, 38, -110, 42, -95);
+    c.bezierCurveTo(46, -80, 50, -68, 50, -58);
+    c.closePath();
+    c.fillStyle = "#3344AA";
+    c.fill();
+    c.beginPath();
+    c.moveTo(15, -30);
+    c.bezierCurveTo(40, -10, 55, 20, 40, 55);
+    c.strokeStyle = "rgba(220,60,60,0.6)";
+    c.lineWidth = 2.2;
+    c.stroke();
+    c.beginPath();
+    c.moveTo(-15, -30);
+    c.bezierCurveTo(-40, 0, -50, 35, -35, 65);
+    c.strokeStyle = "rgba(220,60,60,0.5)";
+    c.lineWidth = 1.8;
+    c.stroke();
+    c.beginPath();
+    c.moveTo(0, -50);
+    c.bezierCurveTo(2, 10, 3, 60, 0, 110);
+    c.strokeStyle = "rgba(0,0,0,0.45)";
+    c.lineWidth = 2.5;
+    c.stroke();
+    c.restore();
+    const d = off.getContext("2d").getImageData(0, 0, W, H).data;
+    const px = [],
+      col = [];
+    for (let y = 0; y < H; y += 3)
+      for (let x = 0; x < W; x += 3) {
+        const i = (y * W + x) * 4;
+        if (d[i + 3] > 60) {
+          px.push({ x, y });
+          col.push({ r: d[i], g: d[i + 1], b: d[i + 2] });
+        }
+      }
+    return { px, col };
+  }, []);
+
+  const buildBookPixels = useCallback((W, H) => {
+    const BCX = W / 2,
+      BCY = H * 0.37,
+      BW = 200,
+      BH = 260,
+      BSPINE = 26;
+    const off = document.createElement("canvas");
+    off.width = W;
+    off.height = H;
+    const c = off.getContext("2d");
+    const bx = BCX - BW / 2,
+      by = BCY - BH / 2;
+    c.fillStyle = "#0a0a2a";
+    c.fillRect(bx, by, BSPINE, BH);
+    c.fillStyle = "#080820";
+    c.fillRect(bx + BSPINE, by, BW - BSPINE, BH);
+    c.strokeStyle = "rgba(0,180,255,0.8)";
+    c.lineWidth = 2;
+    c.strokeRect(bx + BSPINE + 6, by + 6, BW - BSPINE - 12, BH - 12);
+    const d = c.getImageData(0, 0, W, H).data;
+    const pts = [];
+    for (let y = 0; y < H; y += 3)
+      for (let x = 0; x < W; x += 3) {
+        const i = (y * W + x) * 4;
+        if (d[i + 3] > 30) pts.push({ x, y });
+      }
+    return { pts, BCX, BCY, BW, BH, BSPINE };
+  }, []);
+
+  const buildSubPixels = useCallback((txt, W, H) => {
+    const SW = W - 40,
+      SH = 90; // más alto para mejor legibilidad
+    const off = document.createElement("canvas");
+    off.width = SW;
+    off.height = SH;
+    const c = off.getContext("2d");
+    c.clearRect(0, 0, SW, SH);
+    c.fillStyle = "#fff";
+    // Fuente más grande para mejor lectura
+    const fs = txt.length > 40 ? 17 : txt.length > 28 ? 20 : 23;
+    c.font = `italic ${fs}px 'EB Garamond', 'Palatino Linotype', Georgia, serif`;
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillText(txt, SW / 2, SH / 2, SW - 8);
+    const d = c.getImageData(0, 0, SW, SH).data;
+    const pts = [];
+    for (let y = 0; y < SH; y += 2)
+      for (let x = 0; x < SW; x += 2)
+        if (d[(y * SW + x) * 4 + 3] > 80)
+          pts.push({ x: x + 20, y: H * 0.84 + y - SH / 2 });
+    return pts;
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    const W = 420,
+      H = 700;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext("2d");
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
+    const { px: heartPx, col: heartCol } = buildHeartPixels(W, H);
+    const { pts: bookPts, BCX, BCY, BW, BH, BSPINE } = buildBookPixels(W, H);
 
-    // Audio
-    if (diaEspecial.musicaUrl) {
-      audioMusRef.current = new Audio(diaEspecial.musicaUrl);
-      audioMusRef.current.loop = true;
-      audioMusRef.current.volume = 0.35;
-      audioMusRef.current.play().catch(() => {});
-    }
-    if (diaEspecial.audioUrl) {
+    const N = Math.min(heartPx.length, 1800);
+    partsRef.current = Array.from({ length: N }, (_, i) => {
+      const hi = Math.floor((i / N) * heartPx.length);
+      const bi = Math.floor((i / N) * bookPts.length);
+      const hp = heartPx[hi],
+        hc = heartCol[hi],
+        bp = bookPts[bi];
+      const vary = rand(-18, 18);
+      return {
+        x: rand(0, W),
+        y: rand(-80, H * 0.65),
+        htx: hp.x,
+        hty: hp.y,
+        hcr: clamp(hc.r + vary, 0, 255),
+        hcg: clamp(hc.g + vary, 0, 255),
+        hcb: clamp(hc.b + vary, 0, 255),
+        btx: bp ? bp.x : rand(BCX - 75, BCX + 75),
+        bty: bp ? bp.y : rand(BCY - 100, BCY + 100),
+        bcr: rand(0, 30),
+        bcg: rand(120, 220),
+        bcb: 255,
+        r: rand(0.8, 2.2),
+        alpha: rand(0.4, 1.0),
+        delay: rand(0, 0.82),
+        twF: rand(0.4, 2.0),
+        twP: rand(0, Math.PI * 2),
+      };
+    });
+
+    starsRef.current = Array.from({ length: 230 }, () => ({
+      x: rand(0, W),
+      y: rand(0, H * 0.9),
+      r: rand(0.2, 1.2),
+      a: rand(0.08, 0.55),
+      twF: rand(0.3, 1.8),
+      twP: rand(0, Math.PI * 2),
+    }));
+
+    FRASES.forEach((f) => {
+      pixCacheRef.current[f.start] = buildSubPixels(f.txt, W, H);
+    });
+
+    subPartsRef.current = Array.from({ length: 440 }, () => ({
+      x: rand(0, W),
+      y: rand(H * 0.87, H + 20),
+      tx: 0,
+      ty: 0,
+      r: rand(0.7, 1.6),
+      alpha: 0,
+      active: false,
+      speed: rand(0.04, 0.08), // más lento
+    }));
+
+    // ── AUDIO ──
+    if (diaEspecial?.audioUrl) {
       audioVozRef.current = new Audio(diaEspecial.audioUrl);
-      audioVozRef.current.volume = 1;
+      audioVozRef.current.volume = 1.0;
       audioVozRef.current.preload = "auto";
     }
+    if (diaEspecial?.musicaUrl) {
+      audioMusRef.current = new Audio(diaEspecial.musicaUrl);
+      audioMusRef.current.loop = true;
+      audioMusRef.current.volume = 0.12; // música más baja de inicio
+    }
 
-    enviarNotificacion(`✒️ ${diaEspecial.titulo}`, diaEspecial.descripcionGaleria || "").catch(() => {});
+    enviarNotificacion(
+      `✒️ ${diaEspecial?.titulo || "Un momento especial"}`,
+      diaEspecial?.descripcionGaleria || "",
+    ).catch(() => {});
 
-    // ── Funciones de dibujo ───────────────────────────────────────
-
-    const dibujarFondo = () => {
-      const W = canvas.width, H = canvas.height;
-      // Fondo oscuro cálido — como una mesa de madera antigua
-      const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.8);
-      grad.addColorStop(0, '#2C1A0E');
-      grad.addColorStop(0.6, '#1A0F07');
-      grad.addColorStop(1, '#0D0703');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      // Viñeta en esquinas
-      const vig = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.85);
-      vig.addColorStop(0, 'rgba(0,0,0,0)');
-      vig.addColorStop(1, 'rgba(0,0,0,0.6)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, W, H);
-    };
-
-    const dibujarPergamino = (W, H) => {
-      const pw = Math.min(W * 0.72, 720);
-      const ph = Math.min(H * 0.82, 900);
-      const px = (W - pw) / 2;
-      const py = (H - ph) / 2;
-
-      ctx.save();
-
-      // Sombra del pergamino
-      ctx.shadowColor = 'rgba(0,0,0,0.6)';
-      ctx.shadowBlur = 40;
-      ctx.shadowOffsetX = 8;
-      ctx.shadowOffsetY = 12;
-
-      // Forma del pergamino con bordes irregulares (curvatura de papel antiguo)
-      ctx.beginPath();
-      // Esquina superior izquierda — enrollada
-      ctx.moveTo(px + 18, py + 12);
-      ctx.bezierCurveTo(px + 8, py + 4, px + 2, py + 8, px + 6, py + 20);
-      // Borde superior con ondulaciones sutiles
-      ctx.bezierCurveTo(px + pw*0.15, py - 4, px + pw*0.3, py + 6, px + pw*0.45, py + 2);
-      ctx.bezierCurveTo(px + pw*0.6, py - 2, px + pw*0.75, py + 5, px + pw - 14, py + 8);
-      // Esquina superior derecha — ligeramente doblada
-      ctx.bezierCurveTo(px + pw - 4, py + 4, px + pw - 2, py + 10, px + pw - 8, py + 22);
-      // Borde derecho con micro-ondulaciones
-      ctx.bezierCurveTo(px + pw + 3, py + ph*0.25, px + pw - 5, py + ph*0.5, px + pw + 2, py + ph*0.75);
-      ctx.bezierCurveTo(px + pw - 3, py + ph*0.88, px + pw + 4, py + ph - 20, px + pw - 10, py + ph - 10);
-      // Esquina inferior derecha
-      ctx.bezierCurveTo(px + pw - 2, py + ph - 4, px + pw - 6, py + ph - 2, px + pw - 20, py + ph - 6);
-      // Borde inferior
-      ctx.bezierCurveTo(px + pw*0.75, py + ph + 4, px + pw*0.5, py + ph - 3, px + pw*0.25, py + ph + 2);
-      ctx.bezierCurveTo(px + pw*0.12, py + ph - 1, px + 22, py + ph + 3, px + 12, py + ph - 8);
-      // Esquina inferior izquierda — ligeramente doblada hacia adentro
-      ctx.bezierCurveTo(px + 4, py + ph - 4, px + 2, py + ph - 10, px + 8, py + ph - 22);
-      // Borde izquierdo
-      ctx.bezierCurveTo(px - 3, py + ph*0.75, px + 5, py + ph*0.5, px - 2, py + ph*0.25);
-      ctx.closePath();
-
-      // Relleno base del pergamino — degradado cálido
-      const pergGrad = ctx.createLinearGradient(px, py, px + pw, py + ph);
-      pergGrad.addColorStop(0, '#F2E0C4');
-      pergGrad.addColorStop(0.3, '#EDD8B8');
-      pergGrad.addColorStop(0.6, '#E8D0A8');
-      pergGrad.addColorStop(0.85, '#EDD5B0');
-      pergGrad.addColorStop(1, '#E5CB9F');
-      ctx.fillStyle = pergGrad;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-
-      // Textura de papel — líneas horizontales muy sutiles (renglones)
-      ctx.save();
-      ctx.clip(); // Solo dentro del pergamino
-      ctx.globalAlpha = 0.06;
-      ctx.strokeStyle = '#8B6914';
-      ctx.lineWidth = 0.5;
-      for (let ly = py + 60; ly < py + ph - 40; ly += 28) {
-        ctx.beginPath();
-        ctx.moveTo(px + 30, ly);
-        ctx.lineTo(px + pw - 30, ly);
-        ctx.stroke();
-      }
-
-      // Manchas de envejecimiento
-      ctx.globalAlpha = 0.04;
-      const manchas = [
-        {x: px + 40, y: py + 80, r: 25},
-        {x: px + pw - 60, y: py + 120, r: 18},
-        {x: px + 80, y: py + ph - 100, r: 30},
-        {x: px + pw*0.6, y: py + ph*0.7, r: 22},
-        {x: px + pw*0.3, y: py + ph*0.4, r: 15},
-      ];
-      manchas.forEach(m => {
-        const mg = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-        mg.addColorStop(0, '#8B5E1A');
-        mg.addColorStop(1, 'rgba(139,94,26,0)');
-        ctx.fillStyle = mg;
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, m.r, 0, Math.PI*2);
-        ctx.fill();
-      });
-
-      // Curvatura del papel — sombra interna en los bordes
-      ctx.globalAlpha = 0.12;
-      const curvIzq = ctx.createLinearGradient(px, py, px + 60, py);
-      curvIzq.addColorStop(0, 'rgba(0,0,0,0.4)');
-      curvIzq.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = curvIzq;
-      ctx.fillRect(px, py, 60, ph);
-
-      const curvDer = ctx.createLinearGradient(px + pw - 60, py, px + pw, py);
-      curvDer.addColorStop(0, 'rgba(0,0,0,0)');
-      curvDer.addColorStop(1, 'rgba(0,0,0,0.35)');
-      ctx.fillStyle = curvDer;
-      ctx.fillRect(px + pw - 60, py, 60, ph);
-
-      const curvTop = ctx.createLinearGradient(px, py, px, py + 50);
-      curvTop.addColorStop(0, 'rgba(0,0,0,0.25)');
-      curvTop.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = curvTop;
-      ctx.fillRect(px, py, pw, 50);
-
-      ctx.restore();
-
-      // Borde del pergamino
-      ctx.globalAlpha = 0.3;
-      ctx.strokeStyle = '#A07830';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      ctx.restore();
-
-      return { px, py, pw, ph };
-    };
-
-    const dibujarTarro = (px, py, ph, frame) => {
-      const tx = px - 10;
-      const ty = py + ph - 200;
-      const tw = 70, th = 100;
-
-      ctx.save();
-
-      // Sombra del tarro
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 15;
-      ctx.shadowOffsetX = 4;
-      ctx.shadowOffsetY = 6;
-
-      // Cuerpo del tarro — cilindro con perspectiva
-      const tarroGrad = ctx.createLinearGradient(tx, ty, tx + tw, ty);
-      tarroGrad.addColorStop(0, '#5C3D1E');
-      tarroGrad.addColorStop(0.25, '#8B6340');
-      tarroGrad.addColorStop(0.5, '#A07848');
-      tarroGrad.addColorStop(0.75, '#7A5530');
-      tarroGrad.addColorStop(1, '#4A2E12');
-      ctx.fillStyle = tarroGrad;
-      ctx.beginPath();
-      ctx.roundRect(tx, ty + 20, tw, th - 20, [4, 4, 8, 8]);
-      ctx.fill();
-
-      // Líneas de textura de madera
-      ctx.shadowBlur = 0;
-      ctx.globalAlpha = 0.2;
-      ctx.strokeStyle = '#3A1E08';
-      ctx.lineWidth = 0.8;
-      for (let lx = tx + 8; lx < tx + tw - 8; lx += 6) {
-        ctx.beginPath();
-        ctx.moveTo(lx, ty + 22);
-        ctx.lineTo(lx, ty + th - 2);
-        ctx.stroke();
-      }
-
-      // Tapa metálica
-      ctx.globalAlpha = 1;
-      ctx.shadowColor = 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 8;
-      const tapaGrad = ctx.createLinearGradient(tx, ty, tx + tw, ty + 22);
-      tapaGrad.addColorStop(0, '#8A8A8A');
-      tapaGrad.addColorStop(0.3, '#C8C8C8');
-      tapaGrad.addColorStop(0.6, '#9A9A9A');
-      tapaGrad.addColorStop(1, '#6A6A6A');
-      ctx.fillStyle = tapaGrad;
-      ctx.beginPath();
-      ctx.roundRect(tx - 3, ty + 10, tw + 6, 18, 4);
-      ctx.fill();
-
-      // Elipse superior de la tapa
-      ctx.beginPath();
-      ctx.ellipse(tx + tw/2, ty + 10, tw/2 + 2, 8, 0, 0, Math.PI*2);
-      ctx.fillStyle = '#B0B0B0';
-      ctx.fill();
-
-      // Tinta dentro del tarro — nivel oscuro
-      ctx.shadowBlur = 0;
-      ctx.save();
-      ctx.beginPath();
-      ctx.roundRect(tx + 3, ty + 28, tw - 6, th - 32, [0, 0, 6, 6]);
-      ctx.clip();
-      ctx.fillStyle = '#1A1008';
-      ctx.fillRect(tx + 3, ty + 50, tw - 6, th - 52);
-      // Reflejo en la tinta
-      ctx.globalAlpha = 0.15;
-      ctx.fillStyle = '#8B7355';
-      ctx.fillRect(tx + 8, ty + 52, 12, th - 56);
-      ctx.restore();
-
-      ctx.restore();
-      return { tx: tx + tw/2, ty: ty + 15 }; // punto de mojado
-    };
-
-    const dibujarPluma = (x, y, angulo, mojada) => {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angulo * Math.PI / 180);
-
-      const largo = 180;
-      const grosorCano = 7;
-
-      // Sombra de la pluma
-      ctx.shadowColor = 'rgba(0,0,0,0.4)';
-      ctx.shadowBlur = 8;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 3;
-
-      // Cañón de madera
-      const canoGrad = ctx.createLinearGradient(0, -grosorCano/2, 0, grosorCano/2);
-      canoGrad.addColorStop(0, '#8B6340');
-      canoGrad.addColorStop(0.4, '#C49A6C');
-      canoGrad.addColorStop(0.7, '#A07848');
-      canoGrad.addColorStop(1, '#6B4A28');
-      ctx.fillStyle = canoGrad;
-      ctx.beginPath();
-      ctx.roundRect(-largo * 0.7, -grosorCano/2, largo * 0.75, grosorCano, 3);
-      ctx.fill();
-
-      // Anillo metálico
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = '#B8A070';
-      ctx.beginPath();
-      ctx.roundRect(-largo*0.7 + largo*0.7 - 8, -grosorCano/2 - 1, 10, grosorCano + 2, 1);
-      ctx.fill();
-
-      // Plumilla — forma de gota/punta
-      ctx.shadowColor = 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 4;
-      const plumGrad = ctx.createLinearGradient(0, -4, 0, 4);
-      plumGrad.addColorStop(0, '#2A2A2A');
-      plumGrad.addColorStop(0.5, '#4A4A4A');
-      plumGrad.addColorStop(1, '#1A1A1A');
-      ctx.fillStyle = plumGrad;
-      ctx.beginPath();
-      ctx.moveTo(largo * 0.05, -grosorCano/2 + 1);
-      ctx.bezierCurveTo(largo * 0.25, -5, largo * 0.45, -2, largo * 0.55, 0);
-      ctx.bezierCurveTo(largo * 0.45, 2, largo * 0.25, 5, largo * 0.05, grosorCano/2 - 1);
-      ctx.closePath();
-      ctx.fill();
-
-      // Hendidura de la plumilla
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = '#0A0A0A';
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(largo * 0.1, 0);
-      ctx.lineTo(largo * 0.52, 0);
-      ctx.stroke();
-
-      // Tinta en la punta si está mojada
-      if (mojada) {
-        ctx.globalAlpha = 0.85;
-        ctx.fillStyle = '#1A0A00';
-        ctx.beginPath();
-        ctx.ellipse(largo * 0.48, 0, 6, 3, 0, 0, Math.PI * 2);
-        ctx.fill();
-        // Gota colgante
-        ctx.globalAlpha = 0.7;
-        ctx.beginPath();
-        ctx.arc(largo * 0.53, 3, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
-    };
-
-    // ── Layout del texto en el pergamino ─────────────────────────
-    let layoutCalculado = false;
-    let wordLayout = []; // [{text, x, y, width}]
-
-    const calcularLayout = (px, py, pw, ph) => {
-      if (layoutCalculado) return;
-      layoutCalculado = true;
-
-      const fontSize = Math.max(16, Math.min(22, pw * 0.038));
-      ctx.font = `italic ${fontSize}px 'EB Garamond', Georgia, serif`;
-
-      const margenIzq = px + pw * 0.12;
-      const margenDer = px + pw * 0.88;
-      const yInicio = py + ph * 0.12;
-      const lineHeight = fontSize * 1.75;
-      const espacioPalabra = fontSize * 0.35;
-
-      let cx2 = margenIzq;
-      let cy2 = yInicio;
-
-      TIMELINE.forEach((chunk) => {
-        const txt = chunk.text;
-        const w = ctx.measureText(txt).width;
-
-        if (cx2 + w > margenDer) {
-          cx2 = margenIzq;
-          cy2 += lineHeight;
+    const setFrase = (idx) => {
+      const s = internalRef.current;
+      if (idx === s.curFi) return;
+      s.curFi = idx;
+      s.subTargets = pixCacheRef.current[FRASES[idx].start] || [];
+      subPartsRef.current.forEach((p, i) => {
+        const tgt = s.subTargets[i % Math.max(s.subTargets.length, 1)];
+        p.active = !!tgt;
+        if (tgt) {
+          p.tx = tgt.x;
+          p.ty = tgt.y;
         }
-
-        wordLayout.push({
-          text: txt,
-          x: cx2,
-          y: cy2,
-          width: w,
-          start: chunk.start,
-          end: chunk.end,
-          fontSize,
-        });
-
-        cx2 += w + espacioPalabra;
+        p.x = rand(0, W);
+        p.y = rand(H * 0.88, H + 20);
+        p.alpha = 0;
       });
     };
 
-    const dibujarTextoEscrito = (tiempoActual, px, py, pw, ph) => {
-      const fontSize = wordLayout[0]?.fontSize || 20;
-      ctx.save();
-      ctx.font = `italic ${fontSize}px 'EB Garamond', Georgia, serif`;
-      ctx.fillStyle = '#1C0F05';
-      ctx.shadowColor = 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = 1;
-      ctx.shadowOffsetX = 0.5;
-      ctx.shadowOffsetY = 0.5;
-
-      let plumaX = null, plumaY = null;
-      let plumaAngulo = -25;
-      let mojada = false;
-
-      wordLayout.forEach((word, idx) => {
-        if (tiempoActual >= word.end) {
-          // Palabra completamente escrita
-          ctx.globalAlpha = 0.92;
-          ctx.fillText(word.text, word.x, word.y);
-          plumaX = word.x + word.width + 4;
-          plumaY = word.y;
-          mojada = true;
-        } else if (tiempoActual >= word.start) {
-          // Palabra escribiéndose
-          const prog = (tiempoActual - word.start) / Math.max(0.01, word.end - word.start);
-          const letrasAMostrar = Math.ceil(word.text.length * prog);
-          const textoParc = word.text.slice(0, letrasAMostrar);
-          ctx.globalAlpha = 0.92;
-          ctx.fillText(textoParc, word.x, word.y);
-          const wParc = ctx.measureText(textoParc).width;
-          plumaX = word.x + wParc + 2;
-          plumaY = word.y;
-          mojada = true;
-        }
-      });
-
-      ctx.restore();
-      return { plumaX, plumaY, plumaAngulo, mojada };
+    const initStar = () => {
+      const s = internalRef.current;
+      s.starX = W + 60;
+      s.starY = rand(H * 0.08, H * 0.2);
+      const duration = T_STAR_ARRIVE - T_STAR_LAUNCH;
+      s.starVX = (W / 2 - s.starX) / duration;
+      s.starVY = (H * 0.37 - s.starY) / duration;
+      s.starPhase = "flying";
+      s.starTrail = [];
     };
 
-    // ── LOOP PRINCIPAL ────────────────────────────────────────────
-    const loop = (timestamp) => {
+    // ── RENDER ──
+    const render = (timestamp) => {
       if (pausadoRef.current) {
-        animRef.current = requestAnimationFrame(loop);
+        animRef.current = requestAnimationFrame(render);
         return;
       }
 
+      // 1. Calculamos el tiempo base de la animación
       if (!loopStartRef.current) {
         loopStartRef.current = timestamp - (frameRef.current / FPS) * 1000;
       }
-      const seg = (timestamp - loopStartRef.current) / 1000;
-      frameRef.current = Math.min(Math.floor(seg * FPS), DURACION_TOTAL);
-      const tiempoActual = seg;
 
-      const W = canvas.width, H = canvas.height;
+      let t = (timestamp - loopStartRef.current) / 1000;
 
-      // Limpiar
-      ctx.clearRect(0, 0, W, H);
-      dibujarFondo();
+      // 2. Sincronización con la voz (SOLO si ya pasamos los 15s y la voz suena)
+      if (
+        vozStartedRef.current &&
+        audioVozRef.current &&
+        !audioVozRef.current.paused
+      ) {
+        // t es el tiempo del audio + los 15s de espera inicial
+        t = audioVozRef.current.currentTime + START_DELAY;
+        // Actualizamos el frame para que la barra de progreso no salte
+        frameRef.current = Math.floor(t * FPS);
+      } else {
+        frameRef.current = Math.floor(t * FPS);
+      }
 
-      const { px, py, pw, ph } = dibujarPergamino(W, H);
-      const tarroPos = dibujarTarro(px, py, ph, frameRef.current);
+      const s = internalRef.current;
+      const fr = frameRef.current;
 
-      // Calcular layout una vez que tenemos dimensiones
-      calcularLayout(px, py, pw, ph);
+      // ── CONTROL DE AUDIO (Música vs Voz) ──
 
-      // Fase 1 (0-2s): Pluma va al tarro
-      // Fase 2 (2s+): Escribe sincronizado con voz
-      let plumaX, plumaY, plumaAng, mojada;
+      // 1. La Música: Arranca inmediatamente (t >= 0)
+      if (
+        audioMusRef.current &&
+        audioMusRef.current.paused &&
+        !pausadoRef.current
+      ) {
+        audioMusRef.current.play().catch(() => {});
+      }
 
-      const plumaInicioX = px + pw + 30;
-      const plumaInicioY = py + 40;
-
-      if (tiempoActual < 0.5) {
-        // Pluma aparece en reposo
-        plumaX = plumaInicioX;
-        plumaY = plumaInicioY;
-        plumaAng = -30;
-        mojada = false;
-
-      } else if (tiempoActual < 1.2) {
-        // Pluma se mueve hacia el tarro
-        const t = easeInOut((tiempoActual - 0.5) / 0.7);
-        plumaX = lerp(plumaInicioX, tarroPos.tx - 60, t);
-        plumaY = lerp(plumaInicioY, tarroPos.ty + 10, t);
-        plumaAng = lerp(-30, -60, t);
-        mojada = false;
-
-      } else if (tiempoActual < 1.6) {
-        // Pluma moja en el tarro
-        const t = easeInOut((tiempoActual - 1.2) / 0.4);
-        plumaX = tarroPos.tx - 60;
-        plumaY = lerp(tarroPos.ty + 10, tarroPos.ty + 25, t);
-        plumaAng = -65;
-        mojada = t > 0.5;
-
-      } else if (tiempoActual < 2.2) {
-        // Pluma vuelve al papel
-        const t = easeOut((tiempoActual - 1.6) / 0.6);
-        const primeraX = wordLayout[0]?.x - 20 || px + pw*0.12;
-        const primeraY = wordLayout[0]?.y || py + ph*0.12;
-        plumaX = lerp(tarroPos.tx - 60, primeraX, t);
-        plumaY = lerp(tarroPos.ty + 20, primeraY, t);
-        plumaAng = lerp(-65, -25, t);
-        mojada = true;
-
-        // Arrancar voz y bajar música
-        if (!vozIniciada.current && tiempoActual > 1.8 && audioVozRef.current) {
+      // Lógica de la Voz con RESET
+      if (t >= START_DELAY) {
+        // Si ya pasó el tiempo y no ha arrancado, arráncala
+        if (!vozStartedRef.current && audioVozRef.current) {
           audioVozRef.current.currentTime = 0;
           audioVozRef.current.play().catch(() => {});
-          vozIniciada.current = true;
-          fadeMusica(0.35, 0.12, 1500);
-          audioVozRef.current.addEventListener("ended", () => fadeMusica(0.12, 0.35, 2000), { once: true });
+          vozStartedRef.current = true;
         }
-
       } else {
-        // Escribe — sincronizado con el audio de voz
-        const vozTime = tiempoActual - 2.2; // offset de cuando arranca la voz
-        const resultado = dibujarTextoEscrito(vozTime, px, py, pw, ph);
-        plumaX = resultado.plumaX || (wordLayout[0]?.x || px + pw*0.12);
-        plumaY = resultado.plumaY || (wordLayout[0]?.y || py + ph*0.12);
-        plumaAng = resultado.plumaAngulo;
-        mojada = resultado.mojada;
-
-        // Outro — pluma descansa
-        if (vozTime > DURACION_AUDIO + 0.5) {
-          const tOutro = Math.min((vozTime - DURACION_AUDIO - 0.5) / 2, 1);
-          plumaX = lerp(plumaX, plumaX + 60, easeOut(tOutro));
-          plumaAng = lerp(-25, 10, easeOut(tOutro));
+        // SI EL TIEMPO ES MENOR A 15 (reinicio o inicio):
+        if (vozStartedRef.current) {
+          audioVozRef.current?.pause();
+          if (audioVozRef.current) audioVozRef.current.currentTime = 0;
+          vozStartedRef.current = false; // ESTO permite que vuelva a empezar sincronizado
         }
       }
 
-      // Dibujar pluma
-      if (plumaX !== null) {
-        dibujarPluma(plumaX, plumaY, plumaAng, mojada);
+      // Ducking: música más bajita durante el poema
+      if (audioMusRef.current) {
+        const inPoem = t >= 0 && t <= AUDIO_DURATION;
+        audioMusRef.current.volume = inPoem ? 0.06 : 0.18;
       }
 
-      setProgreso(frameRef.current);
-      if (frameRef.current < DURACION_TOTAL) {
-        animRef.current = requestAnimationFrame(loop);
+      setProgreso(fr);
+
+      ctx.clearRect(0, 0, W, H);
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#000205");
+      bg.addColorStop(1, "#040008");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Estrellas
+      starsRef.current.forEach((st) => {
+        ctx.globalAlpha =
+          st.a * (0.5 + 0.5 * Math.sin(fr * st.twF * 0.04 + st.twP));
+        ctx.fillStyle = "#b0d8f5";
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      // ── CORAZÓN ──
+      const formT = clamp(t / T_HEART_FORM_END, 0, 1);
+      const beatPulse = Math.sin(t * 1.1 * Math.PI * 2);
+      const beatScale =
+        formT > 0.3 ? 1 + beatPulse * 0.042 * Math.min(formT * 3, 1) : 1;
+      const decompT = clamp(
+        (t - T_DECOMPOSE_START) / (T_DECOMPOSE_END - T_DECOMPOSE_START),
+        0,
+        1,
+      );
+      const HCX = W / 2,
+        HCY = H * 0.37;
+
+      if (formT > 0.05 && decompT < 1) {
+        const haA = (0.06 + beatPulse * 0.03) * formT * (1 - decompT);
+        const hg = ctx.createRadialGradient(HCX, HCY, 15, HCX, HCY, 92 * formT);
+        hg.addColorStop(0, `rgba(200,20,30,${haA})`);
+        hg.addColorStop(0.6, `rgba(140,5,15,${haA * 0.4})`);
+        hg.addColorStop(1, "rgba(80,0,5,0)");
+        ctx.fillStyle = hg;
+        ctx.beginPath();
+        ctx.arc(HCX, HCY, 92 * formT, 0, Math.PI * 2);
+        ctx.fill();
       }
+
+      if (t > T_HEART_GLOW && s.heartGlowAlpha > 0) {
+        const glA = s.heartGlowAlpha * (1 - decompT);
+        if (glA > 0) {
+          const glg = ctx.createRadialGradient(
+            HCX,
+            HCY,
+            0,
+            HCX,
+            HCY,
+            125 * glA,
+          );
+          glg.addColorStop(0, `rgba(255,220,235,${glA * 0.45})`);
+          glg.addColorStop(0.4, `rgba(220,100,130,${glA * 0.2})`);
+          glg.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = glg;
+          ctx.beginPath();
+          ctx.arc(HCX, HCY, 125, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      if (decompT > 0.4) {
+        const bA = clamp((decompT - 0.4) * 1.5, 0, 1);
+        const bg2 = ctx.createRadialGradient(BCX, BCY, 10, BCX, BCY, 110 * bA);
+        bg2.addColorStop(0, `rgba(0,180,255,${bA * 0.15})`);
+        bg2.addColorStop(0.5, `rgba(0,120,200,${bA * 0.06})`);
+        bg2.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = bg2;
+        ctx.beginPath();
+        ctx.arc(BCX, BCY, 110, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── PARTÍCULAS ──
+      partsRef.current.forEach((p) => {
+        const eff = clamp(
+          (formT - p.delay * 0.6) / (1 - p.delay * 0.6 + 0.001),
+          0,
+          1,
+        );
+        const heartProg = eio(eff);
+        const bookProg = eio(clamp(decompT * 1.15, 0, 1));
+        const rawX = lerp(lerp(p.x, p.htx, heartProg), p.btx, bookProg);
+        const rawY = lerp(lerp(p.y, p.hty, heartProg), p.bty, bookProg);
+        let fx = rawX,
+          fy = rawY;
+        if (bookProg < 0.9) {
+          const dx = (rawX - HCX) * beatScale,
+            dy = (rawY - HCY) * beatScale;
+          fx = lerp(HCX + dx, rawX, bookProg);
+          fy = lerp(HCY + dy, rawY, bookProg);
+        }
+        const cr = Math.round(lerp(p.hcr, p.bcr, bookProg));
+        const cg = Math.round(lerp(p.hcg, p.bcg, bookProg));
+        const cb = Math.round(lerp(p.hcb, p.bcb, bookProg));
+        const twinkle = 0.65 + 0.35 * Math.sin(fr * p.twF * 0.045 + p.twP);
+        const a = p.alpha * Math.max(heartProg, bookProg * 0.5) * twinkle;
+        if (a < 0.015) return;
+        const hr = p.r * 4.2;
+        const hg2 = ctx.createRadialGradient(fx, fy, 0, fx, fy, hr);
+        hg2.addColorStop(0, `rgba(${cr},${cg},${cb},${a * 0.52})`);
+        hg2.addColorStop(0.4, `rgba(${cr},${cg},${cb},${a * 0.18})`);
+        hg2.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = hg2;
+        ctx.beginPath();
+        ctx.arc(fx, fy, hr, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = Math.min(1, a * 1.05);
+        ctx.fillStyle = `rgb(${Math.min(255, cr + 90)},${Math.min(255, cg + 70)},${Math.min(255, cb + 70)})`;
+        ctx.beginPath();
+        ctx.arc(fx, fy, p.r * 0.52, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+
+      // ── LIBRO ──
+      if (t > T_BOOK_PAGES) {
+        const bookAlpha = clamp((t - T_BOOK_PAGES) / 3, 0, 1);
+        const bx = BCX - BW / 2,
+          by = BCY - BH / 2;
+        if (bookAlpha > 0.1) {
+          ctx.save();
+          ctx.globalAlpha = bookAlpha * 0.7;
+          for (let i = 0; i < 18; i++) {
+            const ly = by + (i / 18) * BH;
+            const glow = ctx.createLinearGradient(bx, ly, bx + BSPINE, ly);
+            glow.addColorStop(0, "rgba(0,150,255,0)");
+            glow.addColorStop(
+              0.5,
+              `rgba(0,200,255,${0.5 + Math.sin(fr * 0.08 + i) * 0.2})`,
+            );
+            glow.addColorStop(1, "rgba(0,150,255,0)");
+            ctx.fillStyle = glow;
+            ctx.fillRect(bx, ly, BSPINE, 1.5);
+          }
+          ctx.shadowColor = "rgba(0,180,255,0.8)";
+          ctx.shadowBlur = 8;
+          ctx.strokeStyle = `rgba(0,180,255,${bookAlpha * 0.85})`;
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(bx + BSPINE + 5, by + 5, BW - BSPINE - 10, BH - 10);
+          ctx.shadowBlur = 0;
+          ctx.strokeStyle = `rgba(0,140,220,${bookAlpha * 0.4})`;
+          ctx.lineWidth = 0.6;
+          ctx.strokeRect(bx + BSPINE + 13, by + 13, BW - BSPINE - 26, BH - 26);
+          ctx.restore();
+        }
+
+        if (t > T_BOOK_PAGES && t < T_BOOK_CLOSE) {
+          const pageT = (t - T_BOOK_PAGES) / (T_BOOK_CLOSE - T_BOOK_PAGES);
+          const pageNum = Math.floor(pageT * 14);
+          const pageProgress = (pageT * 14) % 1;
+          for (let pi = 0; pi < Math.min(pageNum, 7); pi++) {
+            ctx.save();
+            ctx.globalAlpha = bookAlpha * 0.25;
+            for (let li = 0; li < 8; li++) {
+              const lx = bx + BSPINE + 10 + pi,
+                ly = by + 20 + li * 20;
+              const lw = (BW - BSPINE - 20) * (0.4 + Math.random() * 0.55);
+              ctx.fillStyle = `rgba(${100 + pi * 10},${180 + pi * 8},255,0.6)`;
+              ctx.fillRect(lx, ly, lw, 1);
+            }
+            ctx.restore();
+          }
+          const scX = Math.abs(Math.cos(pageProgress * Math.PI));
+          ctx.save();
+          ctx.translate(bx + BSPINE, by + BH / 2);
+          ctx.scale(scX, 1);
+          ctx.translate(0, -BH / 2);
+          ctx.globalAlpha = bookAlpha * 0.55;
+          for (let li = 0; li < 10; li++) {
+            const filled = li / 10 < pageProgress ? 1 : 0.15;
+            const lw = (BW - BSPINE - 20) * (0.3 + li * 0.06);
+            const lineG = ctx.createLinearGradient(0, 0, lw, 0);
+            lineG.addColorStop(0, "rgba(0,200,255,0)");
+            lineG.addColorStop(0.2, `rgba(0,200,255,${filled * 0.7})`);
+            lineG.addColorStop(0.8, `rgba(0,180,255,${filled * 0.5})`);
+            lineG.addColorStop(1, "rgba(0,200,255,0)");
+            ctx.fillStyle = lineG;
+            ctx.fillRect(10, 18 + li * 18, lw, 1.2);
+          }
+          ctx.restore();
+        }
+
+        if (t >= T_BOOK_CLOSE) {
+          const closeT = clamp(
+            (t - T_BOOK_CLOSE) / (T_BOOK_TITLE - T_BOOK_CLOSE),
+            0,
+            1,
+          );
+          ctx.save();
+          ctx.translate(bx + BSPINE, by + BH / 2);
+          ctx.scale(closeT, 1);
+          ctx.translate(0, -BH / 2);
+          ctx.globalAlpha = bookAlpha * closeT;
+          ctx.shadowColor = "rgba(0,180,255,0.6)";
+          ctx.shadowBlur = 10;
+          ctx.strokeStyle = `rgba(0,180,255,${closeT * 0.9})`;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(0, 0, BW - BSPINE, BH);
+          ctx.shadowColor = "rgba(255,200,0,0.8)";
+          ctx.shadowBlur = 8;
+          ctx.strokeStyle = `rgba(255,200,0,${closeT * 0.7})`;
+          ctx.lineWidth = 1;
+          ctx.strokeRect(8, 8, BW - BSPINE - 16, BH - 16);
+          ctx.restore();
+        }
+
+        if (t > T_BOOK_TITLE) {
+          const titA = clamp((t - T_BOOK_TITLE) / 4, 0, 1);
+          const bookCenterX = BCX + BSPINE / 2 + 10;
+          ctx.save();
+          ctx.globalAlpha = titA;
+          ctx.textAlign = "center";
+
+          // Título
+          ctx.shadowColor = "rgba(255,200,30,0.9)";
+          ctx.shadowBlur = 16;
+          ctx.font = `italic bold 20px 'EB Garamond', Georgia, serif`;
+          ctx.fillStyle = `rgba(255,215,50,${titA})`;
+          ctx.fillText(
+            diaEspecial?.titulo || "Nuestra Historia",
+            bookCenterX,
+            BCY - 22,
+          );
+
+          // Línea decorativa
+          ctx.shadowBlur = 6;
+          ctx.strokeStyle = `rgba(255,200,40,${titA * 0.6})`;
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(BCX - 50, BCY - 10);
+          ctx.lineTo(BCX + 80, BCY - 10);
+          ctx.stroke();
+
+          // Ornamento
+          ctx.font = "12px Georgia";
+          ctx.fillStyle = `rgba(255,200,40,${titA * 0.6})`;
+          ctx.fillText("✦", bookCenterX, BCY + 8);
+
+          // Firma pequeña en portada
+          ctx.shadowBlur = 8;
+          ctx.font = `italic 12px 'EB Garamond', Georgia, serif`;
+          ctx.fillStyle = `rgba(255,195,40,${titA * 0.55})`;
+          ctx.fillText(
+            diaEspecial?.firma || "Tu Bebé 💚",
+            bookCenterX,
+            BCY + 26,
+          );
+
+          ctx.textAlign = "left";
+          ctx.restore();
+        }
+        if (t > T_FIRMA) {
+          const firmaA = clamp((t - T_FIRMA) / 3, 0, 1);
+          ctx.save();
+          ctx.globalAlpha = firmaA;
+          ctx.textAlign = "center";
+          ctx.shadowColor = "rgba(255,200,30,0.9)";
+          ctx.shadowBlur = 12;
+          ctx.font = `italic bold 44px 'EB Garamond', Georgia, serif`;
+          ctx.fillStyle = `rgba(255,215,50,${firmaA})`;
+          ctx.fillText(diaEspecial?.firma || "Tu Bebé 💚", W / 2, H * 0.76);
+          ctx.textAlign = "left";
+          ctx.restore();
+        }
+      }
+
+      // ── ESTRELLA ──
+      if (!s.starInitialized && t >= T_STAR_LAUNCH) {
+        initStar();
+        s.starInitialized = true;
+      }
+
+      if (s.starPhase === "flying") {
+        const dt = 1 / 60;
+        s.starX += s.starVX * dt;
+        s.starY += s.starVY * dt;
+        s.starTrail.push({ x: s.starX, y: s.starY });
+        if (s.starTrail.length > 60) s.starTrail.shift();
+        for (let i = 0; i < s.starTrail.length; i++) {
+          const tp = i / s.starTrail.length;
+          ctx.globalAlpha = tp * 0.42 * (0.6 + 0.4 * Math.sin(fr * 0.15));
+          ctx.fillStyle = "#e0f4ff";
+          ctx.beginPath();
+          ctx.arc(s.starTrail[i].x, s.starTrail[i].y, tp * 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.save();
+        ctx.shadowColor = "#a0d8ff";
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(s.starX, s.starY, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(200,230,255,0.75)";
+        ctx.lineWidth = 1;
+        [0, 1, 2, 3].forEach((di) => {
+          const angle = (di * Math.PI) / 4;
+          ctx.beginPath();
+          ctx.moveTo(
+            s.starX - Math.cos(angle) * 10,
+            s.starY - Math.sin(angle) * 10,
+          );
+          ctx.lineTo(
+            s.starX + Math.cos(angle) * 10,
+            s.starY + Math.sin(angle) * 10,
+          );
+          ctx.stroke();
+        });
+        ctx.restore();
+        ctx.globalAlpha = 1;
+        const dx = s.starX - HCX,
+          dy = s.starY - HCY;
+        if (Math.sqrt(dx * dx + dy * dy) < 30) {
+          s.starPhase = "glowing";
+          s.starGlowR = 5;
+        }
+      }
+
+      if (s.starPhase === "glowing") {
+        s.starGlowR += 3.0;
+        const ga = Math.max(0, 1 - s.starGlowR / 170);
+        s.heartGlowAlpha = Math.max(s.heartGlowAlpha, 1 - ga);
+        ctx.save();
+        ctx.globalAlpha = ga * 0.52;
+        ctx.strokeStyle = "#ffd0e0";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(HCX, HCY, s.starGlowR, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = ga * 0.28;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(HCX, HCY, s.starGlowR * 0.55, 0, Math.PI * 2);
+        ctx.stroke();
+        const fg = ctx.createRadialGradient(
+          HCX,
+          HCY,
+          0,
+          HCX,
+          HCY,
+          s.starGlowR * 0.75,
+        );
+        fg.addColorStop(0, `rgba(255,225,235,${ga * 0.5})`);
+        fg.addColorStop(0.4, `rgba(220,80,110,${ga * 0.22})`);
+        fg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = fg;
+        ctx.beginPath();
+        ctx.arc(HCX, HCY, s.starGlowR * 0.75, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        if (s.starGlowR > 175) {
+          s.starPhase = "done";
+          s.heartGlowAlpha = 1;
+        }
+      }
+
+      // ── SUBTÍTULOS ──
+      // ── SUBTÍTULOS (Versión Nítida) ──
+      let fi = -1;
+      for (let i = 0; i < FRASES.length; i++) {
+        if (t >= FRASES[i].start && t <= FRASES[i].end) {
+          fi = i;
+          break;
+        }
+      }
+
+      if (fi !== -1) {
+        const f = FRASES[fi];
+        const fadeTime = 0.5;
+        let alpha = 1;
+        if (t < f.start + fadeTime) alpha = (t - f.start) / fadeTime;
+        else if (t > f.end - fadeTime) alpha = (f.end - t) / fadeTime;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+        ctx.textAlign = "center";
+        ctx.font = "italic 22px 'EB Garamond', Georgia, serif";
+        ctx.shadowColor = "rgba(0, 255, 255, 0.8)";
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = "white";
+        ctx.fillText(f.txt, W / 2, H * 0.85);
+        ctx.restore();
+      }
+
+      if (fr < TOTAL_FRAMES) animRef.current = requestAnimationFrame(render);
     };
 
-    animRef.current = requestAnimationFrame(loop);
+    // Render inicial (idle)
+    ctx.clearRect(0, 0, W, H);
+    const bgI = ctx.createLinearGradient(0, 0, 0, H);
+    bgI.addColorStop(0, "#000205");
+    bgI.addColorStop(1, "#040008");
+    ctx.fillStyle = bgI;
+    ctx.fillRect(0, 0, W, H);
+    starsRef.current.forEach((st) => {
+      ctx.globalAlpha = st.a * 0.4;
+      ctx.fillStyle = "#b0d8f5";
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 0.05;
+    partsRef.current.slice(0, 300).forEach((p) => {
+      ctx.fillStyle = `rgb(${p.hcr},${p.hcg},${p.hcb})`;
+      ctx.beginPath();
+      ctx.arc(p.htx, p.hty, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    animRef.current = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", resize);
-      audioMusRef.current?.pause();
       audioVozRef.current?.pause();
+      audioMusRef.current?.pause();
     };
+  }, []);
+
+  useEffect(() => {
+    const k = (e) => {
+      if (e.key === "Escape") handleClose();
+    };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
   }, []);
 
   return (
     <div className="pluma-overlay">
-      <canvas ref={canvasRef} className="pluma-canvas" />
+      <div className="pluma-canvas-wrapper">
+        <canvas ref={canvasRef} className="pluma-canvas" />
+      </div>
       <ControlesAnimacion
         pausado={pausado}
         progreso={progreso}
-        duracionTotal={DURACION_TOTAL}
+        duracionTotal={TOTAL_FRAMES}
         onPausa={handlePausa}
         onBarra={handleBarra}
         onClose={handleClose}
-        videoUrl={diaEspecial.videoUrl}
+        videoUrl={diaEspecial?.videoUrl}
       />
     </div>
   );
 }
-
-export default Pluma;
