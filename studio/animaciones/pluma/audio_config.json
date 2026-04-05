@@ -1,0 +1,6 @@
+{
+  "voz": "voz.mp3",
+  "musica": "musica.mp3",
+  "voz_delay_segundos": 15,
+  "musica_loop": true
+}
