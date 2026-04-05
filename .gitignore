@@ -1,59 +1,40 @@
-# --- Dependencias de Node.js & Testing ---
+# ── React / Node ──
 node_modules/
-/.pnp
-.pnp.js
-/coverage/
-/build/
-
-# --- Variables de Entorno y Logs (SEGURIDAD) ---
-.env*
+build/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
 
-# --- Firebase y Credenciales (MUY IMPORTANTE) ---
+# ── Firebase ──
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# ── Studio — outputs y archivos generados ──
+studio/output/
+studio/**/media/
+studio/**/__pycache__/
+studio/**/*.pyc
+
+# ── Studio — credenciales y entorno (NUNCA subir) ──
 studio/firebase-credentials.json
-studio/serviceAccountKey.json
 studio/.env
 
-# --- Python & Entornos Virtuales ---
-# Ignora cualquier carpeta de entorno virtual en cualquier nivel
-.venv/
-venv/
-env/
+# ── Studio — entornos virtuales Python ──
 studio/.venv/
-studio/venv/
-# Carpetas internas de venv (por si acaso)
-scripts/
-include/
-lib/
-share/
-pyvenv.cfg
+studio/**/.venv/
+studio/**/.venv310/
 
-# --- Cache de Python ---
-**/__pycache__/
-*.py[cod]
-.python-version
+# ── Studio — clips de voz personal (privacidad) ──
+studio/voz/referencias/
 
-# --- Inteligencia Artificial & Modelos (Evita subir GB de datos) ---
-# Ignora los pesos de los modelos que descargan TTS y Whisper
-**/models/
-**/.cache/
-**/tts_cache/
-**/TTS_models/
-.whisper_cache/
-*.pth
-*.bin
-*.onnx
-
-# --- Multimedia y Archivos Temporales ---
-# Ignora audios generados y transcripciones en cualquier carpeta
-*.mp3
-*.wav
-*.m4a
-*.flac
-studio/output/
-studio/**/*_transcript.json
-/outputs/
-/temp/
+# ── Sistema ──
+.DS_Store
+Thumbs.db
+*.log
