@@ -32,87 +32,143 @@
   <tbody>
     <tr>
       <td><b>React</b></td>
-      <td align="center"><img src="https://1000logos.net/react-logo/" width="25" title="React"></td>
+      <td align="center"><img src="https://cdn.neurosys.com/wp-content/uploads/2021/10/react-js-1.svg" height="30" title="React"></td>
       <td>Librería principal para la interfaz de usuario</td>
       <td><a href="https://reactjs.org/">reactjs.org</a></td>
     </tr>
     <tr>
       <td><b>Localhost / Dev</b></td>
-      <td align="center"><img src="https://shields.io" alt="LocalDev"></td>
-      <td>Entorno de ejecución local para pruebas y previsualización</td>
+      <td align="center"><img src="https://raw.githubusercontent.com/kristerkari/react-native-svg-transformer/HEAD/images/react-native-logo.png" height="30"></td>
+      <td>Entorno de ejecución local para pruebas</td>
       <td><a href="http://localhost:3000">localhost:3000</a></td>
     </tr>
     <tr>
       <td><b>JavaScript</b></td>
-      <td align="center"><img src="https://githubusercontent.com" width="25" title="JavaScript"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/303206/javascript-logo.svg" height="30"></td>
       <td>Lenguaje principal del frontend y lógica de animaciones</td>
       <td>Nativo</td>
     </tr>
     <tr>
       <td><b>CSS</b></td>
-      <td align="center"><img src="https://githubusercontent.com" width="25" title="CSS3"></td>
+      <td align="center"><img src="https://www.vectorlogo.zone/logos/w3_css/w3_css-icon~old.svg" height="30"></td>
       <td>Estilos, diseño responsivo y animaciones visuales</td>
       <td>Nativo</td>
     </tr>
     <tr>
       <td><b>Firebase Firestore</b></td>
-      <td align="center"><img src="https://vectorlogo.zone" width="25" title="Firestore"></td>
-      <td>Base de datos en tiempo real para fotos, galerías y collages</td>
+      <td align="center"><img src="https://www.svgrepo.com/show/375433/firestore.svg" height="30"></td>
+      <td>Base de datos en tiempo real para fotos y collages</td>
       <td><a href="https://firebase.google.com/">firebase.google.com</a></td>
     </tr>
     <tr>
       <td><b>Firebase Storage</b></td>
-      <td align="center"><img src="https://vectorlogo.zone" width="25" title="Firebase Storage"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/368694/firebase.svg" height="30"></td>
       <td>Almacenamiento de imágenes y archivos multimedia</td>
       <td><a href="https://firebase.google.com/">firebase.google.com</a></td>
     </tr>
     <tr>
       <td><b>Firebase Hosting</b></td>
-      <td align="center"><img src="https://vectorlogo.zone" width="25" title="Firebase Hosting"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/373752/light-firebasehosting.svg" height="30"></td>
       <td>Despliegue y hosting del portal</td>
       <td><a href="https://firebase.google.com/">firebase.google.com</a></td>
     </tr>
     <tr>
       <td><b>React Router DOM</b></td>
-      <td align="center"><img src="https://githubusercontent.com" width="25" title="React Router"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/354262/react-router.svg" height="30"></td>
       <td>Navegación entre páginas y rutas del portal</td>
       <td><a href="https://reactrouter.com/">reactrouter.com</a></td>
     </tr>
     <tr>
       <td><b>Phosphor Icons</b></td>
-      <td align="center"><img src="https://phosphoricons.com" width="25" title="Phosphor Icons"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/365642/phosphor-logo-thin.svg" height="30"></td>
       <td>Biblioteca de íconos para la UI</td>
       <td><a href="https://phosphoricons.com/">phosphoricons.com</a></td>
     </tr>
     <tr>
       <td><b>SweetAlert2</b></td>
-      <td align="center"><img src="https://github.io" width="25" title="SweetAlert2"></td>
+      <td align="center"><img src="https://sweetalert2.github.io/images/SweetAlert2.png" height="30"></td>
       <td>Alertas y modales estilizados</td>
       <td><a href="https://sweetalert2.github.io/">sweetalert2.github.io</a></td>
     </tr>
     <tr>
       <td><b>html2canvas</b></td>
-      <td align="center"><img src="https://hertzen.com" width="25" title="html2canvas"></td>
+      <td align="center"><img src="https://html2canvas.net/wp-content/uploads/2024/07/logo-fina.png" height="30"></td>
       <td>Captura y descarga de tarjetas animadas como imagen</td>
       <td><a href="https://html2canvas.hertzen.com/">html2canvas</a></td>
     </tr>
     <tr>
       <td><b>Canvas API</b></td>
-      <td align="center"><img src="https://githubusercontent.com" width="25" title="Canvas/HTML5"></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/gist/fromaline/f6a7b114028d7f358c035ac2a15b203c/raw/91fa3a16ee603df91507e0b6c3d1b84bc9d6ff24/html5_canvas_logo_dark.svg" height="30"></td>
       <td>Generación de collages y animaciones en el navegador</td>
       <td>Nativa</td>
     </tr>
     <tr>
       <td><b>Google Cloud SDK</b></td>
-      <td align="center"><img src="https://vectorlogo.zone" width="25" title="Google Cloud"></td>
+      <td align="center"><img src="https://gitlab.com/uploads/-/system/project/avatar/57413760/gcloud.png" height="30"></td>
       <td>Configuración de CORS en Firebase Storage</td>
       <td><a href="https://cloud.google.com/sdk">cloud.google.com</a></td>
     </tr>
     <tr>
       <td><b>Node.js</b></td>
-      <td align="center"><img src="https://githubusercontent.com" width="25" title="Node.js"></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/452075/node-js.svg" height="30"></td>
       <td>Entorno de ejecución para herramientas de desarrollo</td>
       <td><a href="https://nodejs.org/">nodejs.org</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Studio — Pipeline de producción</h3>
+<table>
+  <thead>
+    <tr>
+      <th align="left">Tecnología</th>
+      <th align="center">Logo</th>
+      <th align="left">¿Para qué se usa?</th>
+      <th align="center">Python requerido</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Python</b></td>
+      <td align="center"><img src="https://www.svgrepo.com/show/452091/python.svg" height="35"></td>
+      <td>Lenguaje base de todo el pipeline de producción</td>
+      <td align="center">3.10 / 3.12</td>
+    </tr>
+    <tr>
+      <td><b>Manim</b></td>
+      <td align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Manim_icon.svg/1280px-Manim_icon.svg.png" height="35"></td>
+      <td>Renderizado de animaciones cinematográficas en alta calidad</td>
+      <td align="center">3.12</td>
+    </tr>
+    <tr>
+      <td><b>faster-whisper</b></td>
+      <td align="center"><img src="https://cdn.freebiesupply.com/logos/large/2x/whisper-logo-svg-vector.svg" height="35"></td>
+      <td>Transcripción de audio con timestamps palabra por palabra (Self-Hosted, GPU)</td>
+      <td align="center">3.12</td>
+    </tr>
+    <tr>
+      <td><b>XTTS v2 (Coqui TTS)</b></td>
+      <td align="center"><img src="https://coqui-tts.readthedocs.io/en/latest/_static/logo.png" height="35"></td>
+      <td>Clonación de voz para narrar poemas con la voz del autor</td>
+      <td align="center">3.10</td>
+    </tr>
+    <tr>
+      <td><b>FFmpeg</b></td>
+      <td align="center"><img src="https://download.logo.wine/logo/FFmpeg/FFmpeg-Logo.wine.png" height="35"></td>
+      <td>Mezcla de audio (voz + música), ajuste de tono y exportación final</td>
+      <td align="center">—</td>
+    </tr>
+    <tr>
+      <td><b>firebase-admin</b></td>
+      <td align="center"><img src="https://firebase.google.com/static/images/icons/firebase-ai-logic.svg?hl=es-419" height="35"></td>
+      <td>Subida automática a Storage y actualización de Firestore desde el pipeline</td>
+      <td align="center">3.12</td>
+    </tr>
+    <tr>
+      <td><b>ffmpeg-python</b></td>
+      <td align="center"><img src="https://raw.githubusercontent.com/kkroening/ffmpeg-python/master/doc/logo.png" height="35"></td>
+      <td>Wrapper Python para FFmpeg dentro del pipeline</td>
+      <td align="center">3.12</td>
     </tr>
   </tbody>
 </table>
@@ -345,8 +401,9 @@ a0be5d5  💌  Portal actualizado con última tarjeta animada
 064d5c3  ✒️  Se incluye nueva tarjeta, boceto inicial
 cc1012d  ✒️  Se termina y se envía a producción la tarjeta Plumas en completo funcionamiento
 d31419e  📝  Actualización de Commits
-[próximo] 🎬  Studio agregado — pipeline Manim + Whisper (self-hosted) + XTTS v2
-
+4319777  🎞️  Se crea el espacio estudio para el desarrollo de futuras tarjetas y contenido multimedia del portal, con la inclusión de python, ffmpeg y manim
+c72e441  🎙️  Se implementa API para modelado de voz y transcripción para optimizar resultados de las tarjetas
+833afa0  🎙️  Integración de API para generación de voz ya en funcionamiento, actualización del README y gitignore
         ↑
         HEAD — main / origin/main (estado actual)
 ```
