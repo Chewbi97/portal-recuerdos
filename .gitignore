@@ -1,28 +1,59 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# --- Dependencias de Node.js & Testing ---
+node_modules/
 /.pnp
 .pnp.js
+/coverage/
+/build/
 
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# --- Variables de Entorno y Logs (SEGURIDAD) ---
+.env*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.DS_Store
 
-studio/output/
+# --- Firebase y Credenciales (MUY IMPORTANTE) ---
 studio/firebase-credentials.json
+studio/serviceAccountKey.json
 studio/.env
+
+# --- Python & Entornos Virtuales ---
+# Ignora cualquier carpeta de entorno virtual en cualquier nivel
+.venv/
+venv/
+env/
+studio/.venv/
+studio/venv/
+# Carpetas internas de venv (por si acaso)
+scripts/
+include/
+lib/
+share/
+pyvenv.cfg
+
+# --- Cache de Python ---
+**/__pycache__/
+*.py[cod]
+.python-version
+
+# --- Inteligencia Artificial & Modelos (Evita subir GB de datos) ---
+# Ignora los pesos de los modelos que descargan TTS y Whisper
+**/models/
+**/.cache/
+**/tts_cache/
+**/TTS_models/
+.whisper_cache/
+*.pth
+*.bin
+*.onnx
+
+# --- Multimedia y Archivos Temporales ---
+# Ignora audios generados y transcripciones en cualquier carpeta
+*.mp3
+*.wav
+*.m4a
+*.flac
+studio/output/
+studio/**/*_transcript.json
+/outputs/
+/temp/
