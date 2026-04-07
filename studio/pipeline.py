@@ -24,11 +24,17 @@ import firebase_admin
 from firebase_admin import credentials, storage, firestore
 
 from config import (
-    ANIMACIONES_DIR, OUTPUT_DIR,
-    FIREBASE_CREDENTIALS, FIREBASE_BUCKET,
-    MANIM_QUALITY, MANIM_FPS,
-    AUDIO_VOZ_VOLUME, AUDIO_MUSICA_VOLUME, AUDIO_DUCKING_VOLUME
+    ANIMACIONES_DIR,
+    OUTPUT_DIR,
+    FIREBASE_CREDENTIALS,
+    FIREBASE_BUCKET,
+    MANIM_QUALITY,
+    MANIM_FPS,
+    AUDIO_VOZ_VOLUME,
+    AUDIO_MUSICA_VOLUME,
+    AUDIO_DUCKING_VOLUME,
 )
+
 
 # ── PASO 1: Render con Manim ──
 def render_animacion(nombre: str) -> Path:
@@ -41,15 +47,22 @@ def render_animacion(nombre: str) -> Path:
 
     print(f"\n[1/4] Renderizando {nombre}.py con Manim...")
 
-    result = subprocess.run([
-        sys.executable, "-m", "manim",
-        str(script),
-        "Animacion",                    # nombre de la clase dentro del .py
-        f"--quality={MANIM_QUALITY[0]}", # l | m | h | p
-        f"--fps={MANIM_FPS}",
-        "--output_file", f"{nombre}_raw",
-        "--media_dir", str(OUTPUT_DIR / "manim_media"),
-    ], capture_output=False)
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "manim",
+            str(script),
+            "Animacion",  # nombre de la clase dentro del .py
+            f"--quality={MANIM_QUALITY[0]}",  # l | m | h | p
+            f"--fps={MANIM_FPS}",
+            "--output_file",
+            f"{nombre}_raw",
+            "--media_dir",
+            str(OUTPUT_DIR / "manim_media"),
+        ],
+        capture_output=False,
+    )
 
     if result.returncode != 0:
         print("[ERROR] Manim falló. Revisa los errores arriba.")
@@ -65,17 +78,18 @@ def render_animacion(nombre: str) -> Path:
     print(f"[OK] Video raw: {raw_path}")
     return raw_path
 
+
 # ── PASO 2: Mezcla de audio con FFmpeg ──
 def mezclar_audio(nombre: str, raw_video: Path) -> Path:
     anim_dir = ANIMACIONES_DIR / nombre / "assets"
     config_file = ANIMACIONES_DIR / nombre / "audio_config.json"
-
     final_path = OUTPUT_DIR / f"{nombre}_final.mp4"
 
-    # Leer configuración de audio de la animación
+    # Sin audio_config → copiar video tal cual
     if not config_file.exists():
         print(f"[2/4] Sin audio_config.json — copiando video sin audio extra...")
         import shutil
+
         shutil.copy(raw_video, final_path)
         return final_path
 
@@ -83,88 +97,221 @@ def mezclar_audio(nombre: str, raw_video: Path) -> Path:
         audio_cfg = json.load(f)
 
     voz_file = anim_dir / audio_cfg.get("voz", "")
-    musica_file = anim_dir / audio_cfg.get("musica", "")
+    musica_file = (
+        anim_dir / audio_cfg.get("musica", "") if audio_cfg.get("musica") else None
+    )
     voz_delay = audio_cfg.get("voz_delay_segundos", 0)
     musica_loop = audio_cfg.get("musica_loop", True)
 
+    tiene_voz = voz_file.exists()
+    tiene_musica = musica_file is not None and musica_file.exists()
+
     print(f"\n[2/4] Mezclando audio...")
-    print(f"      Voz: {voz_file.name} (delay: {voz_delay}s)")
-    print(f"      Música: {musica_file.name}")
+    if tiene_voz:
+        print(f"      Voz:    {voz_file.name}  (delay: {voz_delay}s)")
+    if tiene_musica:
+        print(f"      Música: {musica_file.name}")
 
-    # Construir filtro de audio con ducking automático
-    video_input = ffmpeg.input(str(raw_video))
-
-    inputs = [video_input]
-    filter_parts = []
-
-    # Música de fondo
-    if musica_file.exists():
-        musica_input = ffmpeg.input(str(musica_file), stream_loop=-1 if musica_loop else 0)
-        inputs.append(musica_input)
-        filter_parts.append(f"[{len(inputs)-1}:a]volume={AUDIO_MUSICA_VOLUME}[musica]")
-
-    # Voz con delay
-    if voz_file.exists():
-        voz_input = ffmpeg.input(str(voz_file))
-        inputs.append(voz_input)
-        filter_parts.append(
-            f"[{len(inputs)-1}:a]adelay={int(voz_delay*1000)}|{int(voz_delay*1000)},"
-            f"volume={AUDIO_VOZ_VOLUME}[voz]"
+    # ── Caso 1: Solo voz, sin música ──────────────────────────────────────────
+    if tiene_voz and not tiene_musica:
+        delay_ms = int(voz_delay * 1000)
+        filter_complex = (
+            f"[1:a]"
+            f"adelay={delay_ms}|{delay_ms},"
+            f"volume={AUDIO_VOZ_VOLUME}"
+            f"[audio_final]"
         )
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(raw_video),
+            "-i",
+            str(voz_file),
+            "-filter_complex",
+            filter_complex,
+            "-map",
+            "0:v",
+            "-map",
+            "[audio_final]",
+            "-vcodec",
+            "copy",
+            "-acodec",
+            "aac",
+            "-shortest",
+            str(final_path),
+        ]
+        print("[INFO] Solo voz, sin música...")
+        result = subprocess.run(cmd, capture_output=False)
+        if result.returncode != 0:
+            print("[ERROR] FFmpeg falló al mezclar solo voz.")
+            import shutil
 
-    # Mezcla final
-    if len(filter_parts) == 2:
-        filter_parts.append("[musica][voz]amix=inputs=2:duration=first:dropout_transition=2[audio_final]")
-        output_map = "[audio_final]"
-    elif len(filter_parts) == 1 and "musica" in filter_parts[0]:
-        output_map = "[musica]"
-    elif len(filter_parts) == 1 and "voz" in filter_parts[0]:
-        output_map = "[voz]"
-    else:
-        # Sin audio, solo copiar
-        import shutil
-        shutil.copy(raw_video, final_path)
+            shutil.copy(raw_video, final_path)
+        else:
+            print(f"[OK] Video final: {final_path}")
         return final_path
 
-    filter_complex = ";".join(filter_parts)
+    # ── Caso 2: Solo música, sin voz ─────────────────────────────────────────
+    if tiene_musica and not tiene_voz:
+        loop_flag = "-stream_loop -1" if musica_loop else ""
+        cmd = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(raw_video),
+        ]
+        if musica_loop:
+            cmd += ["-stream_loop", "-1"]
+        cmd += [
+            "-i",
+            str(musica_file),
+            "-filter_complex",
+            f"[1:a]volume={AUDIO_MUSICA_VOLUME}[audio_final]",
+            "-map",
+            "0:v",
+            "-map",
+            "[audio_final]",
+            "-vcodec",
+            "copy",
+            "-acodec",
+            "aac",
+            "-shortest",
+            str(final_path),
+        ]
+        result = subprocess.run(cmd, capture_output=False)
+        if result.returncode != 0:
+            import shutil
 
-    try:
-        (
-            ffmpeg
-            .input(str(raw_video))
-            .output(
-                *[i.audio for i in inputs[1:]],
-                str(final_path),
-                filter_complex=filter_complex,
-                map=["0:v", output_map],
-                vcodec="copy",
-                acodec="aac",
-                shortest=None,
-                y=None
-            )
-            .run(overwrite_output=True, quiet=False)
+            shutil.copy(raw_video, final_path)
+        else:
+            print(f"[OK] Video final: {final_path}")
+        return final_path
+
+    # ── Caso 3: Voz + Música con ducking real ─────────────────────────────────
+    #
+    # Estrategia de ducking con FFmpeg sidechaincompress:
+    #   - La voz actúa como sidechain para comprimir la música
+    #   - Cuando la voz suena → música baja automáticamente
+    #   - Cuando la voz para → música sube gradualmente
+    #
+    # Filtros:
+    #   [1:a] = voz (con delay)
+    #   [2:a] = música (con loop si aplica)
+    #
+    # Cadena:
+    #   voz → adelay → volume=1.0 → [voz_final]
+    #   musica → volume=0.30 → sidechaincompress → [musica_ducked]
+    #   [voz_final] + [musica_ducked] → amix → [output]
+
+    delay_ms = int(voz_delay * 1000)
+
+    # Vol base de música: 30% intro/outro, ducking a ~8% durante la voz
+    # ratio=8 significa que cuando la voz entra, la música se comprime 8:1
+    # threshold=-20dB, attack=300ms, release=1000ms para transiciones suaves
+    filter_complex = (
+        # Voz: aplicar delay y volumen
+        f"[1:a]adelay={delay_ms}|{delay_ms},volume={AUDIO_VOZ_VOLUME}[voz_proc];"
+        # Música: volumen base
+        f"[2:a]volume={AUDIO_MUSICA_VOLUME * 2.5}[musica_base];"
+        # Ducking: la voz comprime la música
+        # sidechaincompress: cuando detecta señal de la voz, baja la música
+        f"[musica_base][voz_proc]sidechaincompress="
+        f"threshold=0.015:"  # umbral muy bajo para detectar la voz rápido
+        f"ratio=4:"  # comprimir 4:1 (la música queda a ~25% de su nivel)
+        f"attack=400:"  # 400ms para bajar suavemente
+        f"release=1200:"  # 1200ms para subir suavemente al terminar la voz
+        f"makeup=1.0"
+        f"[musica_ducked];"
+        # Mezcla final
+        f"[voz_proc][musica_ducked]amix=inputs=2:duration=longest:dropout_transition=3[audio_final]"
+    )
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(raw_video),
+        "-i",
+        str(voz_file),
+    ]
+
+    if musica_loop:
+        cmd += ["-stream_loop", "-1", "-i", str(musica_file)]
+    else:
+        cmd += ["-i", str(musica_file)]
+
+    cmd += [
+        "-filter_complex",
+        filter_complex,
+        "-map",
+        "0:v",
+        "-map",
+        "[audio_final]",
+        "-vcodec",
+        "copy",
+        "-acodec",
+        "aac",
+        "-b:a",
+        "192k",
+        "-shortest",
+        str(final_path),
+    ]
+
+    print("[INFO] Mezclando con ducking automático...")
+    print(f"       Volumen base música:   {AUDIO_MUSICA_VOLUME * 2.5 * 100:.0f}%")
+    print(
+        f"       Volumen durante voz:   ~{AUDIO_MUSICA_VOLUME * 2.5 / 4 * 100:.0f}%  (ducking 4:1)"
+    )
+    print(f"       Attack/Release:        400ms / 1200ms")
+
+    result = subprocess.run(cmd, capture_output=False)
+
+    if result.returncode != 0:
+        print("[WARN] Ducking falló, intentando mezcla simple...")
+        # Fallback: mezcla directa sin ducking
+        filter_simple = (
+            f"[1:a]adelay={delay_ms}|{delay_ms},volume={AUDIO_VOZ_VOLUME}[v];"
+            f"[2:a]volume={AUDIO_MUSICA_VOLUME}[m];"
+            f"[v][m]amix=inputs=2:duration=longest:dropout_transition=2[audio_final]"
         )
-    except ffmpeg.Error as e:
-        # Fallback: mezcla simple sin ducking
-        print("[WARN] Filtro complejo falló, usando mezcla simple...")
-        cmd = ["ffmpeg", "-y", "-i", str(raw_video)]
-        if voz_file.exists():
-            cmd += ["-i", str(voz_file)]
-        if musica_file.exists():
-            cmd += ["-i", str(musica_file)]
-        if voz_file.exists() and musica_file.exists():
-            cmd += [
-                "-filter_complex",
-                f"[1:a]volume={AUDIO_VOZ_VOLUME}[v];[2:a]volume={AUDIO_MUSICA_VOLUME}[m];[v][m]amix=inputs=2:duration=first[a]",
-                "-map", "0:v", "-map", "[a]"
-            ]
-        elif voz_file.exists():
-            cmd += ["-filter_complex", f"[1:a]volume={AUDIO_VOZ_VOLUME}[a]", "-map", "0:v", "-map", "[a]"]
-        cmd += ["-vcodec", "copy", "-acodec", "aac", "-shortest", str(final_path)]
-        subprocess.run(cmd, check=True)
+        cmd_fallback = [
+            "ffmpeg",
+            "-y",
+            "-i",
+            str(raw_video),
+            "-i",
+            str(voz_file),
+            "-i",
+            str(musica_file),
+            "-filter_complex",
+            filter_simple,
+            "-map",
+            "0:v",
+            "-map",
+            "[audio_final]",
+            "-vcodec",
+            "copy",
+            "-acodec",
+            "aac",
+            "-shortest",
+            str(final_path),
+        ]
+        result2 = subprocess.run(cmd_fallback, capture_output=False)
+        if result2.returncode != 0:
+            print(
+                "[ERROR] Mezcla simple también falló. Copiando video sin audio extra."
+            )
+            import shutil
 
-    print(f"[OK] Video final: {final_path}")
+            shutil.copy(raw_video, final_path)
+        else:
+            print(f"[OK] Video final (mezcla simple): {final_path}")
+    else:
+        print(f"[OK] Video final con ducking: {final_path}")
+
     return final_path
+
 
 # ── PASO 3: Subir a Firebase Storage ──
 def subir_a_storage(nombre: str, video_path: Path) -> str:
@@ -174,7 +321,9 @@ def subir_a_storage(nombre: str, video_path: Path) -> str:
     if not cred_path.exists():
         print(f"[ERROR] No existe {cred_path}")
         print("        Descarga las credenciales desde Firebase Console →")
-        print("        Configuración del proyecto → Cuentas de servicio → Generar clave privada")
+        print(
+            "        Configuración del proyecto → Cuentas de servicio → Generar clave privada"
+        )
         sys.exit(1)
 
     # Inicializar Firebase solo una vez
@@ -193,6 +342,7 @@ def subir_a_storage(nombre: str, video_path: Path) -> str:
     print(f"[OK] Subido: {url}")
     return url
 
+
 # ── PASO 4: Actualizar Firestore ──
 def actualizar_firestore(nombre: str, video_url: str):
     print(f"\n[4/4] Actualizando Firestore...")
@@ -203,19 +353,32 @@ def actualizar_firestore(nombre: str, video_url: str):
 
     if not doc.exists:
         print(f"[WARN] Documento diasEspeciales/{nombre} no existe en Firestore.")
-        print(f"       Crea el documento manualmente y vuelve a correr con --solo-subir")
+        print(
+            f"       Crea el documento manualmente y vuelve a correr con --solo-subir"
+        )
         return
 
     doc_ref.update({"videoUrl": video_url})
     print(f"[OK] videoUrl actualizado en diasEspeciales/{nombre}")
 
+
 # ── MAIN ──
 def main():
-    parser = argparse.ArgumentParser(description="Pipeline de animaciones — Portal de Recuerdos")
-    parser.add_argument("--animacion", required=True, help="Nombre de la animación (ej: pluma)")
-    parser.add_argument("--solo-render", action="store_true", help="Solo renderizar, sin subir")
-    parser.add_argument("--solo-subir", action="store_true", help="Solo subir video ya renderizado")
-    parser.add_argument("--calidad", default=None, help="Calidad: l | m | h | p (sobreescribe config)")
+    parser = argparse.ArgumentParser(
+        description="Pipeline de animaciones — Portal de Recuerdos"
+    )
+    parser.add_argument(
+        "--animacion", required=True, help="Nombre de la animación (ej: pluma)"
+    )
+    parser.add_argument(
+        "--solo-render", action="store_true", help="Solo renderizar, sin subir"
+    )
+    parser.add_argument(
+        "--solo-subir", action="store_true", help="Solo subir video ya renderizado"
+    )
+    parser.add_argument(
+        "--calidad", default=None, help="Calidad: l | m | h | p (sobreescribe config)"
+    )
     args = parser.parse_args()
 
     nombre = args.animacion
@@ -245,6 +408,7 @@ def main():
     print(f"\n{'='*50}")
     print(f"  ✓ Pipeline completado")
     print(f"{'='*50}\n")
+
 
 if __name__ == "__main__":
     main()

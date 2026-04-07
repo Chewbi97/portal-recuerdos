@@ -266,42 +266,71 @@ firebase deploy
 ```
 portal-recuerdos/
 │
-├── src/                              ← App React (frontend)
-│   ├── firebase.js
-│   ├── App.js / App.css
+├── src/                                ← App React (Frontend)
 │   └── Components/
+│       ├── HomeContent.js              ← Pantalla de Inicio al iniciar el portal
+│       ├── HomeContent.css  
 │       ├── Dashboard/
+│       │   ├── Dashboard.js            ← Navegación del portal
+│       │   └── Dashboard.css
 │       ├── Login/
+│       │   ├── Login.js                ← Pantalla de Inicio y credenciales
+│       │   └── Login.css
 │       ├── PortalPoemas/
+│       │   ├── PoemsPortal.js          ← Biblioteca de Poemas
+│       │   └── PoemsPortal.css
 │       ├── LineadeTiempo/
+│       │   ├── TimeLine.js             ← Biblioteca de Recuerdos
+│       │   └── TimeLine.css
 │       ├── Galeria/
+│       │   ├── Galeria.js              ← Biblioteca de Fotos
+│       │   └── Galeria.css
 │       ├── GaleriaDias/
-│       └── DiaEspecial/
+│       │   ├── GaleriaDias.js          ← Interfaz para ver las Tarjetas
+│       │   └── GaleriaDias.css
+│       └── DiaEspecial/                ← Módulo de animaciones interactivas
 │           ├── ControlesAnimacion.js
+│           ├── ControlesAnimacion.css
 │           ├── DiaMujer.js
+│           ├── DiaMujer.css
 │           ├── EcuacionAmor.js
+│           ├── EcuacionAmor.css
 │           ├── GalaxiasFusion.js
-│           ├── Plumas.js
-│           └── SuperficieCorazon.js
+│           ├── GalaxiasFusion.css
+│           ├── Pluma.js
+│           ├── Pluma.css
+│           └── SuperficieCorazon.js 
+│           └── SuperficieCorazon.css
 │
-└── studio/                           ← Pipeline de producción (no se despliega)
-    ├── config.py                     ← Configuración central
-    ├── pipeline.py                   ← Script maestro: render + mezcla + subida
-    ├── requirements.txt              ← Dependencias Python 3.12
-    ├── env.example                   ← Plantilla de variables de entorno
-    ├── README.md                     ← Documentación interna del studio
-    ├── whisper_transcribe.py         ← Transcripción con timestamps (GPU)
-    │
-    ├── animaciones/
-    │   ├── audio_config.json         ← Config de mezcla de audio
-    │   ├── pluma.py                  ← Animación Manim — tarjeta pluma
-    │   └── assets/                   ← Audios fuente de cada animación
-    │
-    └── voz/                          ← Módulo de generación de voz
-        ├── referencias/              ← Clip de voz de referencia (gitignored)
-        ├── ajustar_tono.py           ← Ajusta pitch y ecualización con FFmpeg
-        ├── generarvoz.py             ← Clona la voz con XTTS v2
-        └── procesar_poema.py         ← Pipeline completo de voz de un solo comando
+├── studio/                           ← Pipeline de producción (no se despliega)
+│   ├── config.py                     ← Configuración central
+│   ├── pipeline.py                   ← Script maestro: render + mezcla + subida
+│   ├── requirements.txt              ← Dependencias Python 3.12
+│   ├── env.example                   ← Plantilla de variables de entorno
+│   ├── README.md                     ← Documentación interna del studio
+│   ├── whisper_transcribe.py         ← Transcripción con timestamps (GPU)
+│   │
+│   ├── animaciones/
+│   │   ├── audio_config.json         ← Config de mezcla de audio
+│   │   ├── pluma.py                  ← Animación Manim — tarjeta pluma
+│   │   └── assets/                   ← Audios fuente de cada animación
+│   │
+│   └── voz/                          ← Módulo de generación de voz
+│        ├── referencias/              ← Clip de voz de referencia (gitignored)
+│        ├── ajustar_tono.py           ← Ajusta pitch y ecualización con FFmpeg
+│        ├── generarvoz.py             ← Clona la voz con XTTS v2
+│        └── procesar_poema.py         ← Pipeline completo de voz de un solo comando
+│
+├── App.js
+├── App.css
+├── App.test.js
+├── firebase.js
+├── index.js
+├── index.css
+├── logo.svg
+├── reportWebVital.js
+├── seetupTests.js
+├── SweetalertConfig.js
 ```
 
 ---
