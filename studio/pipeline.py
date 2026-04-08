@@ -56,6 +56,7 @@ def render_animacion(nombre: str) -> Path:
             "Animacion",  # nombre de la clase dentro del .py
             f"--quality={MANIM_QUALITY[0]}",  # l | m | h | p
             f"--fps={MANIM_FPS}",
+            "--resolution", "1080,1920",
             "--output_file",
             f"{nombre}_raw",
             "--media_dir",

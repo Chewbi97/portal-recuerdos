@@ -23,8 +23,8 @@ HEART_FULL = 55  # corazón completamente formado
 FIRMA_START = 245  # "Tu Bebé 💚" empieza a formarse
 FIRMA_FULL = 265  # firma completamente visible
 
-CAMERA_W = 14.2  # ancho del frame de Manim (16:9 → 14.2 x 8)
-CAMERA_H = 8.0
+CAMERA_W = 8.0 # ancho del frame de Manim (16:9 → 14.2 x 8)
+CAMERA_H = 14.2
 
 # ── FRASES DEL POEMA (pre-procesadas desde transcript.json) ─────────────────
 FRASES = [
@@ -303,6 +303,8 @@ class Animacion(Scene):
 
     def construct(self):
         rng_seed()
+        self.camera.frame_width = 8.0
+        self.camera.frame_height = 14.2
         self.camera.background_color = ManimColor.from_rgb((0.01, 0.01, 0.04))
 
         # Centros
