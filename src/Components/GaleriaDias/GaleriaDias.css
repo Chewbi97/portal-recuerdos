@@ -177,19 +177,39 @@
 }
 
 @media (max-width: 600px) {
-  .galeria-container {
-    padding: 45px 20px 30px;
-    width: 95%;
-  }
   .momento-card {
-    padding: 18px 16px;
-    gap: 14px;
+    flex-direction: column !important; /* Apila todo: Emoji -> Info -> Botón */
+    align-items: center !important;
+    text-align: center;
+    padding: 20px !important;
+    gap: 10px !important;
+    height: auto !important; /* Permite que la tarjeta crezca hacia abajo */
   }
-  .momento-nombre {
-    font-size: 1.5rem;
+
+  .momento-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
   }
+
+  /* Aseguramos que la descripción sea visible */
   .momento-desc {
-    display: none;
+    display: block !important; /* Eliminamos el display: none definitivamente */
+    font-size: 0.9rem !important;
+    margin-top: 8px !important;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+    max-width: 90%;
+  }
+
+  /* Ajustamos el botón "Revivir" para que no estorbe */
+  .momento-play {
+    position: relative !important;
+    margin-top: 10px;
+    flex-direction: row !important;
+    gap: 5px;
   }
 }
 

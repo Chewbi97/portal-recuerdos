@@ -311,15 +311,19 @@ portal-recuerdos/
 │   ├── whisper_transcribe.py         ← Transcripción con timestamps (GPU)
 │   │
 │   ├── animaciones/
-│   │   ├── audio_config.json         ← Config de mezcla de audio
-│   │   ├── pluma.py                  ← Animación Manim — tarjeta pluma
-│   │   └── assets/                   ← Audios fuente de cada animación
+│   │   ├── cartapluma                ← Config de mezcla de audio
+│   │       ├── audio_config.json     ← Config de mezcla de audio
+│   │       ├── cartapluma.py         ← Animación Manim — tarjeta pluma
+│   │       └── assets/               ← Audios fuente de cada animación
+│   │           ├── musica.mp3        ← Animación Manim — tarjeta pluma
+│   │           ├── transcript.json   ← Animación Manim — tarjeta pluma
+│   │           └── voz.wav           ← Audios fuente de cada animación
 │   │
 │   └── voz/                          ← Módulo de generación de voz
-│        ├── referencias/              ← Clip de voz de referencia (gitignored)
-│        ├── ajustar_tono.py           ← Ajusta pitch y ecualización con FFmpeg
-│        ├── generarvoz.py             ← Clona la voz con XTTS v2
-│        └── procesar_poema.py         ← Pipeline completo de voz de un solo comando
+│        ├── referencias/             ← Clip de voz de referencia (gitignored)
+│        ├── ajustar_tono.py          ← Ajusta pitch y ecualización con FFmpeg
+│        ├── generarvoz.py            ← Clona la voz con XTTS v2
+│        └── procesar_poema.py        ← Pipeline completo de voz de un solo comando
 │
 ├── App.js
 ├── App.css
@@ -433,6 +437,8 @@ d31419e  📝  Actualización de Commits
 4319777  🎞️  Se crea el espacio estudio para el desarrollo de futuras tarjetas y contenido multimedia del portal, con la inclusión de python, ffmpeg y manim
 c72e441  🎙️  Se implementa API para modelado de voz y transcripción para optimizar resultados de las tarjetas
 833afa0  🎙️  Integración de API para generación de voz ya en funcionamiento, actualización del README y gitignore
+b772956  👌  Se actualiza proyecto a version final
+947a850  🔭  Se realiza primera animación desde studio usando API para generación de Transcripción y Timestamp, animación mendiante Manim y Upload a storage automatico
         ↑
         HEAD — main / origin/main (estado actual)
 ```

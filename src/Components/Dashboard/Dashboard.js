@@ -3,6 +3,7 @@ import { Link, useNavigate, Outlet } from "react-router-dom";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import Galeria from "../Galeria/Galeria";
+import VideoAnimacion from "../DiaEspecial/VideoAnimacion";
 import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
 import EcuacionAmor from "../DiaEspecial/EcuacionAmor";
@@ -94,11 +95,27 @@ function Dashboard({ handleLogout }) {
 
   const renderDiaEspecial = () => {
     if (!diaParaMostrar) return null;
-    const Componente = COMPONENTES_DIAS[diaParaMostrar.id];
-    if (!Componente) return null;
-    return (
-      <Componente diaEspecial={diaParaMostrar} onClose={handleCerrarModal} />
-    );
+
+    // Prioridad 1: Si tiene videoUrl (Manim), usamos el reproductor universal
+    if (diaParaMostrar.videoUrl) {
+      return (
+        <VideoAnimacion data={diaParaMostrar} onClose={handleCerrarModal} />
+      );
+    }
+
+    // Prioridad 2: Si no hay video, buscamos en el mapa de componentes antiguos (Canvas)
+    const ComponenteLegacy = COMPONENTES_DIAS[diaParaMostrar.id];
+
+    if (ComponenteLegacy) {
+      return (
+        <ComponenteLegacy
+          diaEspecial={diaParaMostrar}
+          onClose={handleCerrarModal}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
