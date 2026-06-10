@@ -1,0 +1,169 @@
+/* CumpleanosTeaser.css */
+
+/* ── BACKDROP — se pinta sobre el fondo del portal, sin caja aparte ── */
+.cumple-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(244, 236, 216, 0);          /* pergamino base del portal */
+  backdrop-filter: blur(0px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.5s ease, backdrop-filter 0.5s ease;
+  padding: 24px;
+}
+
+.cumple-backdrop--visible {
+  background: rgba(244, 236, 216, 0.92);
+  backdrop-filter: blur(6px);
+}
+
+/* ── CONTENIDO — sin borde ni sombra de "caja", solo el texto ── */
+.cumple-contenido {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  animation: cumpleEntrada 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.1s;
+}
+
+@keyframes cumpleEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── CERRAR ── */
+.cumple-cerrar {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: rgba(45, 90, 39, 0.12);
+  border: none;
+  color: #2d5a27;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.cumple-cerrar:hover {
+  background: rgba(45, 90, 39, 0.22);
+}
+
+/* ── CONTADOR ── */
+.cumple-contador-label {
+  font-family: "EB Garamond", serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(45, 90, 39, 0.55);
+  letter-spacing: 0.06em;
+  margin: 0 0 18px;
+}
+
+/* ── TÍTULOS ── */
+.cumple-titulo {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  color: #2d5a27;
+  line-height: 1.15;
+  margin: 0;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.cumple-titulo--sub {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  color: #5a7d55;
+  margin-top: 4px;
+}
+
+/* ── LÍNEA DECORATIVA ── */
+.cumple-linea {
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #2d5a27, transparent);
+  margin: 20px auto;
+  opacity: 0.4;
+}
+
+/* ── MENSAJE PRINCIPAL ── */
+.cumple-mensaje {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #3d2b1f;
+  margin: 0 0 16px;
+  line-height: 1.35;
+}
+
+/* ── DETALLE / FIRMA ── */
+.cumple-detalle {
+  font-family: "EB Garamond", serif;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-style: italic;
+  color: rgba(61, 43, 31, 0.75);
+  line-height: 1.7;
+  margin: 0 0 28px;
+}
+
+/* ── FOTO ── */
+.cumple-foto-wrapper {
+  position: relative;
+  width: min(320px, 82vw);
+  margin: 0 auto;
+}
+
+.cumple-foto {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+  object-fit: cover;
+  max-height: 340px;
+  filter: brightness(0.96) saturate(1.05);
+  box-shadow:
+    0 4px 24px rgba(45, 90, 39, 0.18),
+    0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.cumple-foto-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 22px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(45, 90, 39, 0.12) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .cumple-backdrop {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 80px;
+  }
+  .cumple-titulo {
+    font-size: 2.2rem;
+  }
+  .cumple-titulo--sub {
+    font-size: 1.5rem;
+  }
+  .cumple-mensaje {
+    font-size: 1.6rem;
+  }
+}

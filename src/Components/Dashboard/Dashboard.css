@@ -264,3 +264,38 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+.nav-link--coming-soon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Great Vibes", cursive;
+  font-size: 2rem;
+  color: #3d2b1f;
+  opacity: 0.55;
+  transition: all 0.4s ease;
+  letter-spacing: 0.01em;
+  padding: 0;
+  position: relative;
+}
+
+.nav-link--coming-soon::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2d5a27;
+  transition: width 0.3s ease;
+}
+
+.nav-link--coming-soon:hover {
+  opacity: 1;
+  color: #2d5a27;
+  transform: scale(1.05);
+}
+
+.nav-link--coming-soon:hover::after {
+  width: 100%;
+}

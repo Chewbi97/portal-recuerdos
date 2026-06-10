@@ -3,6 +3,7 @@ import { Link, useNavigate, Outlet } from "react-router-dom";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import Galeria from "../Galeria/Galeria";
+import CumpleanosTeaser from "../DiaEspecial/CumpleanosTeaser";
 import VideoAnimacion from "../DiaEspecial/VideoAnimacion";
 import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
@@ -14,6 +15,7 @@ import { SignOut, Envelope } from "@phosphor-icons/react";
 import "./Dashboard.css";
 import { solicitarPermisoNotificaciones } from "../../firebase";
 // MAPA: fecha (MM-DD) → ID del documento en Firestore
+
 const FECHAS = {
   "03-08": "diaMujer",
   // "02-14": "sanValentin",  // futuro
@@ -35,6 +37,7 @@ function Dashboard({ handleLogout }) {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarGaleria, setMostrarGaleria] = useState(false);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
+  const [mostrarCumpleTeaser, setMostrarCumpleTeaser] = useState(false);
 
   useEffect(() => {
     solicitarPermisoNotificaciones();
@@ -142,6 +145,12 @@ function Dashboard({ handleLogout }) {
           <Link to="/dashboard/Galeria" className="nav-link">
             Nosotros 💚
           </Link>
+          <button
+            className="nav-link nav-link--coming-soon"
+            onClick={() => setMostrarCumpleTeaser(true)}
+          >
+            Coming Soon ✨
+          </button>
         </nav>
       </header>
 
@@ -178,6 +187,9 @@ function Dashboard({ handleLogout }) {
 
       {/* ANIMACIÓN DEL DÍA ESPECIAL */}
       {mostrarModal && renderDiaEspecial()}
+      {mostrarCumpleTeaser && (
+        <CumpleanosTeaser onClose={() => setMostrarCumpleTeaser(false)} />
+      )}
     </div>
   );
 }
