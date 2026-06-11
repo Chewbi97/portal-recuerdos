@@ -10,6 +10,7 @@ import DiaMujer from "../DiaEspecial/DiaMujer";
 import EcuacionAmor from "../DiaEspecial/EcuacionAmor";
 import SuperficieCorazon from "../DiaEspecial/Superficiecorazon";
 import LuciernagasPoema from "../DiaEspecial/GalaxiasFusion";
+import CumpleanosCard from "../DiaEspecial/Cumpleanoscard";
 import Pluma from "../DiaEspecial/Pluma";
 import { SignOut, Envelope } from "@phosphor-icons/react";
 import "./Dashboard.css";
@@ -38,6 +39,7 @@ function Dashboard({ handleLogout }) {
   const [mostrarGaleria, setMostrarGaleria] = useState(false);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [mostrarCumpleTeaser, setMostrarCumpleTeaser] = useState(false);
+  const [mostrarCumpleCard, setMostrarCumpleCard] = useState(false);
 
   useEffect(() => {
     solicitarPermisoNotificaciones();
@@ -145,12 +147,11 @@ function Dashboard({ handleLogout }) {
           <Link to="/dashboard/Galeria" className="nav-link">
             Nosotros 💚
           </Link>
-          <button
-            className="nav-link nav-link--coming-soon"
-            onClick={() => setMostrarCumpleTeaser(true)}
+          <Link
+            to="/dashboard/Cumpleanoscard" className="nav-link"
           >
             Coming Soon ✨
-          </button>
+          </Link>
         </nav>
       </header>
 
