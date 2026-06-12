@@ -4,11 +4,11 @@ import "./Cumpleanoscard.css";
 
 // ── PALETA ──────────────────────────────────────────────────────────────────
 const COLORES = [
-  { r: 45,  g: 90,  b: 39  }, // verde oscuro portal
-  { r: 126, g: 217, b: 87  }, // verde lima brillante
-  { r: 240, g: 192, b: 64  }, // dorado cálido
+  { r: 45, g: 90, b: 39 }, // verde oscuro portal
+  { r: 126, g: 217, b: 87 }, // verde lima brillante
+  { r: 240, g: 192, b: 64 }, // dorado cálido
   { r: 255, g: 255, b: 220 }, // blanco cremoso
-  { r: 90,  g: 160, b: 70  }, // verde medio
+  { r: 90, g: 160, b: 70 }, // verde medio
   { r: 255, g: 210, b: 100 }, // amarillo suave
 ];
 
@@ -50,7 +50,13 @@ class Particula {
     for (let i = 0; i < this.trail.length; i++) {
       const t = i / this.trail.length;
       ctx.beginPath();
-      ctx.arc(this.trail[i].x, this.trail[i].y, this.radio * t * 0.6, 0, Math.PI * 2);
+      ctx.arc(
+        this.trail[i].x,
+        this.trail[i].y,
+        this.radio * t * 0.6,
+        0,
+        Math.PI * 2,
+      );
       ctx.fillStyle = `rgba(${this.r},${this.g},${this.b},${this.alpha * t * 0.4})`;
       ctx.fill();
     }
@@ -140,6 +146,7 @@ class Cohete {
 export default function CumpleanosCard() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
+  const audioFuegosRef = useRef(null);
   const animRef = useRef(null);
   const cohetesRef = useRef([]);
   const lanzadorRef = useRef(null);
@@ -153,6 +160,13 @@ export default function CumpleanosCard() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
+
+    // Audio de pirotecnia — dura lo mismo que la fase de fuegos (~7.2s)
+    if (audioFuegosRef.current) {
+      audioFuegosRef.current.volume = 0.7;
+      audioFuegosRef.current.currentTime = 0;
+      audioFuegosRef.current.play().catch(() => {});
+    }
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -179,6 +193,10 @@ export default function CumpleanosCard() {
       // Esperar que los últimos cohetes terminen (~2s más) y mostrar mensaje
       setTimeout(() => {
         setMensajeVisible(true);
+        if (audioFuegosRef.current) {
+          audioFuegosRef.current.pause();
+          audioFuegosRef.current.currentTime = 0;
+        }
       }, 2200);
     }, 5000);
 
@@ -236,18 +254,26 @@ export default function CumpleanosCard() {
   const handleContinuar = () => {
     cancelAnimationFrame(animRef.current);
     clearInterval(lanzadorRef.current);
-    // acá después navegará a la tarjeta interactiva real
-    navigate("/dashboard");
+    audioFuegosRef.current?.pause();
+    navigate("/dashboard/CumpleanosFiesta");
   };
 
   const handleClose = () => {
     cancelAnimationFrame(animRef.current);
     clearInterval(lanzadorRef.current);
+    audioFuegosRef.current?.pause();
     navigate("/dashboard");
   };
 
   return (
-    <div className={`cumcard-backdrop ${visible ? "cumcard-backdrop--visible" : ""}`}>
+    <div
+      className={`cumcard-backdrop ${visible ? "cumcard-backdrop--visible" : ""}`}
+    >
+      <audio
+        ref={audioFuegosRef}
+        src="https://firebasestorage.googleapis.com/v0/b/portal-de-recuerdos.firebasestorage.app/o/diasEspeciales%2Fmusica%2FFuegosArtificiales.mp3?alt=media"
+        preload="auto"
+      />
 
       {/* Canvas de fuegos — siempre montado, solo visible en fase fuegos */}
       <canvas
@@ -271,9 +297,7 @@ export default function CumpleanosCard() {
       {/* ── MENSAJE FINAL ── */}
       {fase === "fuegos" && mensajeVisible && (
         <div className="cumcard-mensaje">
-          <p className="cumcard-mensaje-texto">
-            Hoy en tu día especial,
-          </p>
+          <p className="cumcard-mensaje-texto">Hoy en tu día especial,</p>
           <p className="cumcard-mensaje-texto cumcard-mensaje-texto--sub">
             déjame ser yo quien ilumine esos bellos ojos
           </p>
@@ -287,7 +311,9 @@ export default function CumpleanosCard() {
       )}
 
       {/* Botón cerrar discreto */}
-      <button className="cumcard-cerrar" onClick={handleClose}>✕</button>
+      <button className="cumcard-cerrar" onClick={handleClose}>
+        ✕
+      </button>
     </div>
   );
 }

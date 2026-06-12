@@ -6,7 +6,8 @@ import PoemsPortal from "./Components/PortalPoemas/PoemsPortal";
 import TimeLine from "./Components/LineadeTiempo/TimeLine";
 import HomeContent from "./Components/HomeContent";
 import Galeria from "./Components/Galeria/Galeria"
-import CumpleanosCard from "./Components/DiaEspecial/Cumpleanoscard";
+import CumpleanosCard from "./Components/DiaEspecial/Cumpleaños/Cumpleanoscard";
+import Cummpleanosfiesta from "./Components/DiaEspecial/Cumpleaños/Cumpleanosfiesta";
 import "./App.css";
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
           <Route path="TimeLine" element={<TimeLine />} />
           <Route path="Galeria" element={<Galeria />} />
           <Route path="Cumpleanoscard" element={<CumpleanosCard />} />
+          <Route path="Cumpleanosfiesta" element={<Cummpleanosfiesta />} />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

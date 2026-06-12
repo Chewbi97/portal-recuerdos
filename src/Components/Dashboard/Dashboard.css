@@ -299,3 +299,89 @@
 .nav-link--coming-soon:hover::after {
   width: 100%;
 }
+
+/* ════════════════════════════════════════════════════
+   CUMPLEAÑOS — link "Feliz Cumpleaños 🎉" en la nav
+   ════════════════════════════════════════════════════ */
+.nav-link--cumple {
+  color: #2d5a27;
+  opacity: 1;
+  animation: cumplePulso 1.8s infinite;
+}
+
+@keyframes cumplePulso {
+  0%,
+  100% {
+    text-shadow: 0 0 10px rgba(126, 217, 87, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 22px rgba(126, 217, 87, 0.8);
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   "Coming Soon ✨" como <button> con estilo de nav-link
+   ════════════════════════════════════════════════════ */
+.nav-link--coming-soon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Great Vibes", cursive;
+  font-size: 2rem;
+  color: #3d2b1f;
+  opacity: 0.7;
+  transition: all 0.4s ease;
+  padding: 0;
+  position: relative;
+  text-decoration: none;
+}
+
+.nav-link--coming-soon::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #2d5a27;
+  transition: width 0.3s ease;
+}
+
+.nav-link--coming-soon:hover {
+  opacity: 1;
+  color: #2d5a27;
+  transform: scale(1.05);
+}
+
+.nav-link--coming-soon:hover::after {
+  width: 100%;
+}
+
+/* ════════════════════════════════════════════════════
+   BOTÓN DEV — solo visible en local (NODE_ENV=development)
+   TEMPORAL: quitar este bloque + el botón en Dashboard.js
+   cuando todo esté probado y listo para producción.
+   ════════════════════════════════════════════════════ */
+.btn-dev {
+  position: fixed;
+  bottom: 30px;
+  left: 20px;
+  background: rgba(45, 90, 39, 0.12);
+  border: 1px solid rgba(45, 90, 39, 0.2);
+  color: rgba(45, 90, 39, 0.4);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-dev:hover {
+  background: rgba(45, 90, 39, 0.22);
+  color: rgba(45, 90, 39, 0.7);
+}

@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getMessaging, getToken } from "firebase/messaging";
+import { getMessaging, getToken, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCHRPMhmT3S9LRNbF7GIih6K6KpEttjr00",
@@ -18,12 +18,36 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-const messaging = getMessaging(app);
 export const VAPID_KEY =
   "BND0faE_dLQrMykI_Dgd6DBW8qpHnxvdh3kdIW2ozBbiSntCapogXIu-R4QF_VGuX0m8fX-wNhLdIeXdSAMv4XY";
 
+// ── Verifica si el navegador/contexto soporta Firebase Messaging ──
+// (requiere HTTPS o localhost — falla en http://192.168.x.x:3000)
+let messagingPromise = null;
+const getMessagingSafe = async () => {
+  if (messagingPromise) return messagingPromise;
+  messagingPromise = (async () => {
+    try {
+      const soportado = await isSupported();
+      if (!soportado) return null;
+      return getMessaging(app);
+    } catch {
+      return null;
+    }
+  })();
+  return messagingPromise;
+};
+
 export const solicitarPermisoNotificaciones = async () => {
   try {
+    const messaging = await getMessagingSafe();
+    if (!messaging) {
+      console.log(
+        "Notificaciones no soportadas en este entorno (requiere HTTPS).",
+      );
+      return null;
+    }
+
     const permiso = await Notification.requestPermission();
     if (permiso !== "granted") return null;
 
@@ -72,7 +96,7 @@ export const enviarNotificacion = async (titulo, cuerpo) => {
 
     // ✅ Leer todos los documentos de la subcolección tokens
     const snapshot = await getDocs(
-      collection(db, "notificaciones", "dispositivos", "tokens")
+      collection(db, "notificaciones", "dispositivos", "tokens"),
     );
 
     if (snapshot.empty) return;

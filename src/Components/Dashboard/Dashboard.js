@@ -3,14 +3,13 @@ import { Link, useNavigate, Outlet } from "react-router-dom";
 import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import Galeria from "../Galeria/Galeria";
-import CumpleanosTeaser from "../DiaEspecial/CumpleanosTeaser";
+import CumpleanosTeaser from "../DiaEspecial/Cumpleaños/CumpleanosTeaser";
 import VideoAnimacion from "../DiaEspecial/VideoAnimacion";
 import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
 import EcuacionAmor from "../DiaEspecial/EcuacionAmor";
 import SuperficieCorazon from "../DiaEspecial/Superficiecorazon";
 import LuciernagasPoema from "../DiaEspecial/GalaxiasFusion";
-import CumpleanosCard from "../DiaEspecial/Cumpleanoscard";
 import Pluma from "../DiaEspecial/Pluma";
 import { SignOut, Envelope } from "@phosphor-icons/react";
 import "./Dashboard.css";
@@ -32,6 +31,9 @@ const COMPONENTES_DIAS = {
   // sanValentin: DiaValentin,  // futuro
 };
 
+// ── CUMPLEAÑOS ──
+const FECHA_CUMPLE = new Date("2026-07-04T00:00:00");
+
 function Dashboard({ handleLogout }) {
   const navigate = useNavigate();
   const [diaEspecial, setDiaEspecial] = useState(null);
@@ -39,7 +41,8 @@ function Dashboard({ handleLogout }) {
   const [mostrarGaleria, setMostrarGaleria] = useState(false);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [mostrarCumpleTeaser, setMostrarCumpleTeaser] = useState(false);
-  const [mostrarCumpleCard, setMostrarCumpleCard] = useState(false);
+
+  const yaEsCumple = new Date() >= FECHA_CUMPLE;
 
   useEffect(() => {
     solicitarPermisoNotificaciones();
@@ -63,6 +66,18 @@ function Dashboard({ handleLogout }) {
       }
     };
     verificarDiaEspecial();
+  }, []);
+
+  // ── CUMPLEAÑOS: el 4 de julio, al entrar al portal se activa solo ──
+  useEffect(() => {
+    if (!yaEsCumple) return;
+    const hoy = new Date().toLocaleDateString("en-CA");
+    const yaVisto = sessionStorage.getItem(`cumple_${hoy}`);
+    if (!yaVisto) {
+      sessionStorage.setItem(`cumple_${hoy}`, "true");
+      navigate("/dashboard/Cumpleanoscard");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Click en botón 💌:
@@ -147,11 +162,22 @@ function Dashboard({ handleLogout }) {
           <Link to="/dashboard/Galeria" className="nav-link">
             Nosotros 💚
           </Link>
-          <Link
-            to="/dashboard/Cumpleanoscard" className="nav-link"
-          >
-            Coming Soon ✨
-          </Link>
+
+          {yaEsCumple ? (
+            <Link
+              to="/dashboard/Cumpleanoscard"
+              className="nav-link nav-link--cumple"
+            >
+              Feliz Cumpleaños 🎉
+            </Link>
+          ) : (
+            <button
+              className="nav-link nav-link--coming-soon"
+              onClick={() => setMostrarCumpleTeaser(true)}
+            >
+              Coming Soon ✨
+            </button>
+          )}
         </nav>
       </header>
 
@@ -188,8 +214,20 @@ function Dashboard({ handleLogout }) {
 
       {/* ANIMACIÓN DEL DÍA ESPECIAL */}
       {mostrarModal && renderDiaEspecial()}
+
       {mostrarCumpleTeaser && (
         <CumpleanosTeaser onClose={() => setMostrarCumpleTeaser(false)} />
+      )}
+
+      {/* ── BOTÓN DEV — solo visible en local, acceso directo sin esperar fecha ── */}
+      {process.env.NODE_ENV === "development" && (
+        <button
+          className="btn-dev"
+          onClick={() => navigate("/dashboard/Cumpleanoscard")}
+          title="dev: ir a Cumpleanoscard"
+        >
+          ⚙
+        </button>
       )}
     </div>
   );
