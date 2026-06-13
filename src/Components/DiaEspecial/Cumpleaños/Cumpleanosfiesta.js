@@ -5,44 +5,26 @@ import "./Cumpleanosfiesta.css";
 
 const TOTAL_SOPLOS = 15;
 const DURACION_DESEO_TOTAL = 10000; // ms que "Pide tu deseo" permanece en pantalla
-const SPEED_DESEO = 0.017; // ~3s en armarse
-const SPEED_FELIZ = 0.01; // ~5s en armarse
+const FADE_TEXTO = 700; // ms de fade out del texto del deseo
 const SPEED_CORAZON = 0.005; // ~10s en armarse
-const ALPHA_SPEED = 0.05; // velocidad de fade in/out
+const ALPHA_SPEED = 0.05; // velocidad de fade in/out de partículas
 const FADE_INICIO = 20; // segundos antes del final donde aparece la frase + fade
 
-// ════════════════════════════════════════════════════════════════════════
-// PARTÍCULAS DE TEXTO — muestreo de pixeles desde un canvas oculto
-// ════════════════════════════════════════════════════════════════════════
-function muestrearTexto(texto, fontSize, font, W, H, yPos, maxPts = 1500) {
-  const off = document.createElement("canvas");
-  off.width = W;
-  off.height = H;
-  const ctx = off.getContext("2d");
-  ctx.fillStyle = "#fff";
-  ctx.font = `${fontSize}px '${font}', cursive`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(texto, W / 2, yPos, W * 0.94);
-  const data = ctx.getImageData(0, 0, W, H).data;
-  const pts = [];
-  const step = 2; // más denso = más legible
-  for (let y = 0; y < H; y += step) {
-    for (let x = 0; x < W; x += step) {
-      if (data[(y * W + x) * 4 + 3] > 90) pts.push({ x, y });
-    }
-  }
-  if (pts.length <= maxPts) return pts;
-  const out = [];
-  const skip = Math.ceil(pts.length / maxPts);
-  for (let i = 0; i < pts.length; i += skip) out.push(pts[i]);
-  return out;
-}
+// Pulso del corazón
+const PULSO_AMPLITUD = 0.045;
+const PULSO_VELOCIDAD = 0.0032;
+
+// Chispas que salen del corazón
+const CHISPAS_INTERVALO = 1900; // ms entre tandas
+const CHISPAS_POR_TANDA = 16;
+
+// Tamaño aproximado de las fotos flotantes (debe coincidir con el CSS)
+const FOTO_SIZE = 130;
 
 // ════════════════════════════════════════════════════════════════════════
-// CORAZÓN — curva paramétrica clásica
+// CORAZÓN — curva paramétrica clásica, con profundidad (z) para dar volumen
 // ════════════════════════════════════════════════════════════════════════
-function puntosCorazon(n, cx, cy, escala) {
+function puntosCorazon(n, escala) {
   const pts = [];
   for (let i = 0; i < n; i++) {
     const t = (i / n) * Math.PI * 2;
@@ -53,31 +35,11 @@ function puntosCorazon(n, cx, cy, escala) {
       2 * Math.cos(3 * t) -
       Math.cos(4 * t)
     );
-    const r = 0.55 + Math.random() * 0.45;
-    pts.push({ x: cx + x * escala * r, y: cy + y * escala * r });
+    const r = 0.5 + Math.random() * 0.5;
+    const z = Math.random() * 2 - 1; // -1 (fondo) a 1 (frente)
+    pts.push({ x: x * escala * r, y: y * escala * r, z });
   }
   return pts;
-}
-
-// ── Dibuja y actualiza un array de partículas en el canvas ──
-function actualizarYDibujar(ctx, parts) {
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-    p.x += (p.tx - p.x) * p.speed;
-    p.y += (p.ty - p.y) * p.speed;
-    p.alpha += (p.targetAlpha - p.alpha) * ALPHA_SPEED;
-    if (p.alpha < 0.01) continue;
-
-    const twinkle = 0.78 + 0.22 * Math.sin(performance.now() * 0.0025 + p.fase);
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${p.col},${p.alpha * twinkle})`;
-    ctx.shadowBlur = 3;
-    ctx.shadowColor = `rgba(${p.col},0.6)`;
-    ctx.fill();
-  }
-  ctx.shadowBlur = 0;
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -89,18 +51,24 @@ export default function CumpleanosFiesta() {
   const audioRef = useRef(null);
   const animRef = useRef(null);
   const fadeIntervalRef = useRef(null);
+  const carruselRef = useRef(null);
+  const chispasIntervalRef = useRef(null);
 
   const [fase, setFase] = useState("pastel"); // pastel | deseo | fiesta | final
   const [soplos, setSoplos] = useState(0);
   const [fotos, setFotos] = useState([]);
   const [fotosVisibles, setFotosVisibles] = useState([]);
+  const [deseoEstado, setDeseoEstado] = useState("oculto"); // oculto | mostrando | saliendo
+  const [mostrarFeliz, setMostrarFeliz] = useState(false);
   const [mostrarFrase, setMostrarFrase] = useState(false);
   const [mostrarFinal, setMostrarFinal] = useState(false);
 
-  // Grupo 1: partículas centrales — "Pide tu deseo" → luego corazón
+  // Partículas del corazón
   const particlesRef = useRef([]);
-  // Grupo 2: "Feliz Cumpleaños" — fijo en la parte superior durante la fiesta
-  const headerRef = useRef([]);
+  // Chispas/fuegos (del corazón y de las fotos)
+  const chispasRef = useRef([]);
+  // Centro del canvas (para el pulso del corazón)
+  const centroRef = useRef({ cx: 0, cy: 0 });
 
   // ── Cargar fotos de Firebase Storage ──
   useEffect(() => {
@@ -125,6 +93,7 @@ export default function CumpleanosFiesta() {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      centroRef.current = { cx: canvas.width / 2, cy: canvas.height / 2 };
     };
     resize();
     window.addEventListener("resize", resize);
@@ -135,9 +104,85 @@ export default function CumpleanosFiesta() {
       ctx.fillStyle = "rgba(0,0,0,0.16)";
       ctx.fillRect(0, 0, W, H);
 
-      actualizarYDibujar(ctx, particlesRef.current);
-      actualizarYDibujar(ctx, headerRef.current);
+      const { cx, cy } = centroRef.current;
+      const pulso =
+        1 + PULSO_AMPLITUD * Math.sin(performance.now() * PULSO_VELOCIDAD);
 
+      // ── Glow de fondo del corazón ──
+      const parts = particlesRef.current;
+      const corazonActivo = parts.some(
+        (p) => p.bx !== undefined && p.targetAlpha > 0,
+      );
+      if (corazonActivo) {
+        const radioGlow = Math.min(W, H) * 0.32 * pulso;
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radioGlow);
+        glow.addColorStop(0, "rgba(126,217,87,0.16)");
+        glow.addColorStop(0.5, "rgba(126,217,87,0.06)");
+        glow.addColorStop(1, "rgba(126,217,87,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radioGlow, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // ── Partículas del corazón ──
+      for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+        if (p.bx !== undefined) {
+          const profundidad = 1 + p.z * 0.06; // partículas "de frente" pulsan un poco más
+          p.tx = cx + p.bx * pulso * profundidad;
+          p.ty = cy + p.by * pulso * profundidad;
+        }
+        p.x += (p.tx - p.x) * p.speed;
+        p.y += (p.ty - p.y) * p.speed;
+        p.alpha += (p.targetAlpha - p.alpha) * ALPHA_SPEED;
+        if (p.alpha < 0.01) continue;
+
+        const twinkle =
+          0.78 + 0.22 * Math.sin(performance.now() * 0.0025 + p.fase);
+        const brillo = p.z !== undefined ? 0.55 + ((p.z + 1) / 2) * 0.45 : 1;
+        const radio =
+          p.r * (p.z !== undefined ? 0.7 + ((p.z + 1) / 2) * 0.6 : 1);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radio, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.col},${p.alpha * twinkle * brillo})`;
+        ctx.shadowBlur = 3 + brillo * 3;
+        ctx.shadowColor = `rgba(${p.col},0.6)`;
+        ctx.fill();
+
+        // Núcleo brillante en partículas frontales — da sensación de "vida"
+        if (p.z !== undefined && p.z > 0.4) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, radio * 0.35, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(230,255,225,${p.alpha * 0.8})`;
+          ctx.shadowBlur = 0;
+          ctx.fill();
+        }
+      }
+
+      // ── Chispas (corazón + fotos) ──
+      const chispas = chispasRef.current;
+      for (let i = chispas.length - 1; i >= 0; i--) {
+        const c = chispas[i];
+        c.x += c.vx;
+        c.y += c.vy;
+        c.vx *= 0.97;
+        c.vy *= 0.97;
+        c.alpha -= c.decay;
+        if (c.alpha <= 0) {
+          chispas.splice(i, 1);
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${c.col},${c.alpha})`;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = `rgba(${c.col},0.8)`;
+        ctx.fill();
+      }
+
+      ctx.shadowBlur = 0;
       animRef.current = requestAnimationFrame(loop);
     };
     animRef.current = requestAnimationFrame(loop);
@@ -148,115 +193,92 @@ export default function CumpleanosFiesta() {
     };
   }, []);
 
-  // ── Crea/actualiza partículas de un array hacia un texto ──
-  const formarTextoEn = useCallback(
-    (
-      targetRef,
-      texto,
-      yFrac,
-      fontSizeFrac,
-      colVerde,
-      speed,
-      targetAlpha = 1,
-    ) => {
-      const canvas = canvasRef.current;
-      const W = canvas.width;
-      const H = canvas.height;
-      const fontSize = Math.max(34, W * fontSizeFrac);
-      const targets = muestrearTexto(
-        texto,
-        fontSize,
-        "Great Vibes",
-        W,
-        H,
-        H * yFrac,
-      );
-      const col = colVerde ? "126,217,87" : "240,192,64";
+  // ── Crea/actualiza las partículas del corazón ──
+  const formarCorazon = useCallback(() => {
+    const canvas = canvasRef.current;
+    const escala = Math.min(canvas.width, canvas.height) * 0.018;
+    const targets = puntosCorazon(1300, escala);
+    const parts = particlesRef.current;
 
-      const parts = targetRef.current;
-      if (parts.length < targets.length) {
-        for (let i = parts.length; i < targets.length; i++) {
-          parts.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            tx: 0,
-            ty: 0,
-            r: 1.7 + Math.random() * 1.4,
-            alpha: 0,
-            targetAlpha: 0,
-            col,
-            speed,
-            fase: Math.random() * Math.PI * 2,
-          });
-        }
+    if (parts.length < targets.length) {
+      for (let i = parts.length; i < targets.length; i++) {
+        parts.push({
+          x: centroRef.current.cx,
+          y: centroRef.current.cy,
+          tx: 0,
+          ty: 0,
+          bx: 0,
+          by: 0,
+          z: 0,
+          r: 1.4 + Math.random() * 1.7,
+          alpha: 0,
+          targetAlpha: 0,
+          col: "126,217,87",
+          speed: SPEED_CORAZON,
+          fase: Math.random() * Math.PI * 2,
+        });
       }
-      for (let i = 0; i < parts.length; i++) {
-        if (i < targets.length) {
-          const t = targets[i];
-          parts[i].tx = t.x;
-          parts[i].ty = t.y;
-          parts[i].targetAlpha = targetAlpha;
-          parts[i].col = col;
-          parts[i].speed = speed;
-        } else {
-          parts[i].targetAlpha = 0;
-        }
+    }
+    for (let i = 0; i < parts.length; i++) {
+      if (i < targets.length) {
+        parts[i].bx = targets[i].x;
+        parts[i].by = targets[i].y;
+        parts[i].z = targets[i].z;
+        parts[i].targetAlpha = 0.9;
+        parts[i].col = Math.random() < 0.16 ? "240,192,64" : "126,217,87";
+      } else {
+        parts[i].targetAlpha = 0;
       }
-    },
-    [],
-  );
-
-  // ── Disuelve (fade out) un array de partículas sin reposicionar ──
-  const disolver = useCallback((targetRef) => {
-    targetRef.current.forEach((p) => {
-      p.targetAlpha = 0;
-    });
+    }
   }, []);
 
-  // ── Crea/actualiza partículas hacia el corazón ──
-  const formarCorazon = useCallback(
-    (targetRef, speed = SPEED_CORAZON, targetAlpha = 0.9) => {
-      const canvas = canvasRef.current;
-      const W = canvas.width;
-      const H = canvas.height;
-      const cx = W / 2;
-      const cy = H / 2;
-      const escala = Math.min(W, H) * 0.018;
+  // ── Chispas saliendo del corazón ──
+  const lanzarChispas = useCallback(() => {
+    const parts = particlesRef.current.filter(
+      (p) => p.bx !== undefined && p.targetAlpha > 0,
+    );
+    if (parts.length === 0) return;
+    const { cx, cy } = centroRef.current;
 
-      const targets = puntosCorazon(750, cx, cy, escala);
-      const parts = targetRef.current;
+    for (let i = 0; i < CHISPAS_POR_TANDA; i++) {
+      const origen = parts[Math.floor(Math.random() * parts.length)];
+      const dx = origen.x - cx;
+      const dy = origen.y - cy;
+      const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      const dirX = dx / dist;
+      const dirY = dy / dist;
+      const vel = 0.8 + Math.random() * 2.2;
 
-      if (parts.length < targets.length) {
-        for (let i = parts.length; i < targets.length; i++) {
-          parts.push({
-            x: cx,
-            y: cy,
-            tx: 0,
-            ty: 0,
-            r: 1.6 + Math.random() * 1.8,
-            alpha: 0,
-            targetAlpha: 0,
-            col: "126,217,87",
-            speed,
-            fase: Math.random() * Math.PI * 2,
-          });
-        }
-      }
-      for (let i = 0; i < parts.length; i++) {
-        if (i < targets.length) {
-          const t = targets[i];
-          parts[i].tx = t.x;
-          parts[i].ty = t.y;
-          parts[i].targetAlpha = targetAlpha;
-          parts[i].col = Math.random() < 0.18 ? "240,192,64" : "126,217,87";
-          parts[i].speed = speed;
-        } else {
-          parts[i].targetAlpha = 0;
-        }
-      }
-    },
-    [],
-  );
+      chispasRef.current.push({
+        x: origen.x,
+        y: origen.y,
+        vx: dirX * vel + (Math.random() - 0.5) * 0.6,
+        vy: dirY * vel + (Math.random() - 0.5) * 0.6,
+        r: 1 + Math.random() * 1.6,
+        alpha: 0.9,
+        decay: 0.015 + Math.random() * 0.02,
+        col: Math.random() < 0.4 ? "240,192,64" : "126,217,87",
+      });
+    }
+  }, []);
+
+  // ── Chispas doradas alrededor de un punto (cuando aparece una foto) ──
+  const lanzarChispasDoradas = useCallback((x, y, n = 22) => {
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const vel = 0.6 + Math.random() * 2.4;
+      chispasRef.current.push({
+        x,
+        y,
+        vx: Math.cos(ang) * vel,
+        vy: Math.sin(ang) * vel,
+        r: 1 + Math.random() * 1.8,
+        alpha: 1,
+        decay: 0.018 + Math.random() * 0.022,
+        col: "240,192,64",
+      });
+    }
+  }, []);
 
   // ────────────────────────────────────────────────────────────────────
   // FASE: PASTEL — botón "Sopla"
@@ -272,46 +294,9 @@ export default function CumpleanosFiesta() {
 
   const iniciarDeseo = () => {
     setFase("deseo");
-    // "Pide tu deseo mi amor" — tarda ~3s en armarse, queda 10s en pantalla
-    formarTextoEn(
-      particlesRef,
-      "Pide tu deseo mi amor",
-      0.5,
-      0.095,
-      true,
-      SPEED_DESEO,
-      1,
-    );
+    setDeseoEstado("mostrando");
 
-    setTimeout(() => {
-      // Disolver el mensaje del centro...
-      disolver(particlesRef);
-
-      // ...y armar "Feliz Cumpleaños" arriba — queda fijo toda la fiesta
-      formarTextoEn(
-        headerRef,
-        "Feliz Cumpleaños",
-        0.13,
-        0.105,
-        false,
-        SPEED_FELIZ,
-        1,
-      );
-
-      // Tras la disolución (~1.2s), las partículas centrales forman el corazón
-      setTimeout(() => {
-        formarCorazon(particlesRef, SPEED_CORAZON, 0.9);
-        iniciarFiesta();
-      }, 1200);
-    }, DURACION_DESEO_TOTAL);
-  };
-
-  // ────────────────────────────────────────────────────────────────────
-  // FASE: FIESTA — corazón + fotos + canción
-  // ────────────────────────────────────────────────────────────────────
-  const iniciarFiesta = () => {
-    setFase("fiesta");
-
+    // ── La canción arranca apenas aparece "Pide tu deseo" ──
     const audio = audioRef.current;
     if (audio) {
       audio.volume = 0.85;
@@ -345,11 +330,30 @@ export default function CumpleanosFiesta() {
       }
     }
 
+    setTimeout(() => {
+      setDeseoEstado("saliendo");
+
+      setTimeout(() => {
+        formarCorazon();
+        setMostrarFeliz(true);
+        iniciarFiesta();
+      }, FADE_TEXTO);
+    }, DURACION_DESEO_TOTAL);
+  };
+
+  // ────────────────────────────────────────────────────────────────────
+  // FASE: FIESTA — corazón + fotos
+  // ────────────────────────────────────────────────────────────────────
+  const iniciarFiesta = () => {
+    setFase("fiesta");
+
+    // Chispas saliendo del corazón cada ~1.9s
+    chispasIntervalRef.current = setInterval(lanzarChispas, CHISPAS_INTERVALO);
+
     iniciarCarruselFotos();
   };
 
-  // ── Carrusel: agrega/quita fotos alrededor del corazón ──
-  const carruselRef = useRef(null);
+  // ── Carrusel: agrega/quita fotos alrededor del corazón + chispas doradas ──
   const iniciarCarruselFotos = () => {
     if (carruselRef.current) clearInterval(carruselRef.current);
 
@@ -364,6 +368,20 @@ export default function CumpleanosFiesta() {
       { bottom: "6%", right: "20%" },
     ];
 
+    // Convierte una posición CSS (%) en coordenadas de canvas aproximadas (centro de la foto)
+    const calcularPosicionCanvas = (pos) => {
+      const canvas = canvasRef.current;
+      const W = canvas.width;
+      const H = canvas.height;
+      let x;
+      let y;
+      if (pos.left) x = (parseFloat(pos.left) / 100) * W + FOTO_SIZE / 2;
+      else x = W - (parseFloat(pos.right) / 100) * W - FOTO_SIZE / 2;
+      if (pos.top) y = (parseFloat(pos.top) / 100) * H + FOTO_SIZE / 2;
+      else y = H - (parseFloat(pos.bottom) / 100) * H - FOTO_SIZE / 2;
+      return { x, y };
+    };
+
     let idx = 0;
     const tick = () => {
       setFotos((current) => {
@@ -373,7 +391,12 @@ export default function CumpleanosFiesta() {
 
         const slotIdx = Math.floor(Math.random() * posiciones.length);
         const key = `${Date.now()}-${Math.random()}`;
-        const nueva = { url, key, pos: posiciones[slotIdx] };
+        const pos = posiciones[slotIdx];
+        const nueva = { url, key, pos };
+
+        // Chispas doradas en el punto donde aparece la foto
+        const { x, y } = calcularPosicionCanvas(pos);
+        lanzarChispasDoradas(x, y);
 
         setFotosVisibles((prev) => {
           const sinSlot = prev.filter((f) => f.slotIdx !== slotIdx);
@@ -392,24 +415,27 @@ export default function CumpleanosFiesta() {
     return () => {
       if (carruselRef.current) clearInterval(carruselRef.current);
       if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+      if (chispasIntervalRef.current) clearInterval(chispasIntervalRef.current);
       cancelAnimationFrame(animRef.current);
       audioRef.current?.pause();
     };
   }, []);
 
-  const handleSigueme = () => {
+  const limpiarTodo = () => {
     cancelAnimationFrame(animRef.current);
     if (carruselRef.current) clearInterval(carruselRef.current);
     if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
+    if (chispasIntervalRef.current) clearInterval(chispasIntervalRef.current);
     audioRef.current?.pause();
+  };
+
+  const handleSigueme = () => {
+    limpiarTodo();
     navigate("/dashboard");
   };
 
   const handleSalir = () => {
-    cancelAnimationFrame(animRef.current);
-    if (carruselRef.current) clearInterval(carruselRef.current);
-    if (fadeIntervalRef.current) clearInterval(fadeIntervalRef.current);
-    audioRef.current?.pause();
+    limpiarTodo();
     navigate("/dashboard");
   };
 
@@ -461,6 +487,18 @@ export default function CumpleanosFiesta() {
         </div>
       )}
 
+      {/* ── MENSAJE "PIDE TU DESEO" — efecto de trazo ── */}
+      {fase === "deseo" && (
+        <p className={`cumf-deseo-texto cumf-deseo-texto--${deseoEstado}`}>
+          Pide tu deseo mi amor 💚
+        </p>
+      )}
+
+      {/* ── "FELIZ CUMPLEAÑOS" — fijo arriba durante la fiesta, efecto de trazo ── */}
+      {mostrarFeliz && (fase === "fiesta" || fase === "final") && (
+        <p className="cumf-feliz-texto">Feliz Cumpleaños 🎉</p>
+      )}
+
       {/* ── FASE FIESTA: fotos alrededor del corazón ── */}
       {fase === "fiesta" &&
         fotosVisibles.map((f) => (
@@ -469,7 +507,7 @@ export default function CumpleanosFiesta() {
           </div>
         ))}
 
-      {/* ── FRASE FINAL (debajo del corazón) ── */}
+      {/* ── FRASE FINAL (debajo del corazón) — efecto de trazo ── */}
       {fase === "fiesta" && mostrarFrase && (
         <p className="cumf-frase-final">Te Quiero Mucho Mis Ojitos Bellos 💚</p>
       )}

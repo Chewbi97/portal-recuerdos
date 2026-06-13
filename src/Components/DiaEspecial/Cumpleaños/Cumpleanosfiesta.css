@@ -237,7 +237,69 @@
 }
 
 /* ════════════════════════════════════════════════════
-   FRASE FINAL (debajo del corazón)
+   "PIDE TU DESEO" — efecto de trazo (se va "escribiendo")
+   ════════════════════════════════════════════════════ */
+.cumf-deseo-texto {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 92%;
+  text-align: center;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.2rem, 7vw, 4rem);
+  color: #7ed957;
+  text-shadow:
+    0 0 24px rgba(126, 217, 87, 0.7),
+    0 0 50px rgba(126, 217, 87, 0.3);
+  z-index: 6;
+  margin: 0;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+.cumf-deseo-texto--mostrando {
+  opacity: 1;
+  animation: cumfTrazo 1.8s ease forwards;
+}
+
+.cumf-deseo-texto--saliendo {
+  opacity: 0;
+  clip-path: inset(0 0% 0 0);
+  transition: opacity 0.7s ease;
+}
+
+@keyframes cumfTrazo {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   "FELIZ CUMPLEAÑOS" — fijo arriba, efecto de trazo
+   ════════════════════════════════════════════════════ */
+.cumf-feliz-texto {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  text-align: center;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  color: #f0c040;
+  text-shadow: 0 0 20px rgba(240, 192, 64, 0.6);
+  z-index: 6;
+  margin: 0;
+  clip-path: inset(0 100% 0 0);
+  animation: cumfTrazo 2.2s ease forwards;
+}
+
+/* ════════════════════════════════════════════════════
+   FRASE FINAL (debajo del corazón) — efecto de trazo
    ════════════════════════════════════════════════════ */
 .cumf-frase-final {
   position: absolute;
@@ -252,18 +314,8 @@
   text-shadow: 0 0 20px rgba(240, 192, 64, 0.6);
   z-index: 6;
   margin: 0;
-  animation: cumfFraseIn 1.2s ease both;
-}
-
-@keyframes cumfFraseIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 12px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
+  clip-path: inset(0 100% 0 0);
+  animation: cumfTrazo 1.8s ease forwards;
 }
 
 /* ════════════════════════════════════════════════════
