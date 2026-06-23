@@ -8,7 +8,8 @@ const DURACION_DESEO_TOTAL = 10000; // ms que "Pide tu deseo" permanece en panta
 const FADE_TEXTO = 700; // ms de fade out del texto del deseo
 const SPEED_CORAZON = 0.005; // ~10s en armarse
 const ALPHA_SPEED = 0.05; // velocidad de fade in/out de partículas
-const FADE_INICIO = 20; // segundos antes del final donde aparece la frase + fade
+const FADE_INICIO = 30; // segundos antes del final donde aparece la frase + fade
+const DURACION_DEFAULT = 4 * 60 + 40; // 4:40 fallback si el audio no cargó aún
 
 // Pulso del corazón
 const PULSO_AMPLITUD = 0.045;
@@ -383,31 +384,54 @@ export default function CumpleanosFiesta() {
     };
 
     let idx = 0;
-    const tick = () => {
-      setFotos((current) => {
-        if (!current || current.length === 0) return current;
-        const url = current[idx % current.length];
-        idx++;
+    const tick = (fotosActuales) => {
+      if (!fotosActuales || fotosActuales.length === 0) return;
+      const url = fotosActuales[idx % fotosActuales.length];
+      idx++;
 
-        const slotIdx = Math.floor(Math.random() * posiciones.length);
-        const key = `${Date.now()}-${Math.random()}`;
-        const pos = posiciones[slotIdx];
-        const nueva = { url, key, pos };
+      const slotIdx = Math.floor(Math.random() * posiciones.length);
+      const key = `${Date.now()}-${Math.random()}`;
+      const pos = posiciones[slotIdx];
+      const nueva = { url, key, pos };
 
-        // Chispas doradas en el punto donde aparece la foto
-        const { x, y } = calcularPosicionCanvas(pos);
-        lanzarChispasDoradas(x, y);
+      const { x, y } = calcularPosicionCanvas(pos);
+      lanzarChispasDoradas(x, y);
 
-        setFotosVisibles((prev) => {
-          const sinSlot = prev.filter((f) => f.slotIdx !== slotIdx);
-          return [...sinSlot, { ...nueva, slotIdx }].slice(-6);
-        });
-        return current;
+      setFotosVisibles((prev) => {
+        const sinSlot = prev.filter((f) => f.slotIdx !== slotIdx);
+        return [...sinSlot, { ...nueva, slotIdx }].slice(-6);
       });
     };
 
-    tick();
-    carruselRef.current = setInterval(tick, 3200);
+    // ── Calcular intervalo dinámico ──
+    // Duración de la fase fiesta: desde que arranca hasta el fade final (~6s antes del fin)
+    // Usamos la duración del audio si ya está disponible, o el default
+    const audio = audioRef.current;
+    const duracionCancion =
+      audio?.duration && isFinite(audio.duration)
+        ? audio.duration
+        : DURACION_DEFAULT;
+    const duracionFiesta = Math.max(duracionCancion - 6, 30); // segundos de la fase fiesta
+
+    setFotos((current) => {
+      const n = current?.length || 1;
+      // Intervalo para que todas las fotos salgan exactamente una vez en el tiempo disponible
+      // Mínimo 4s para que se vean bien, máximo lo que sea necesario
+      const intervaloMs = Math.max(
+        4000,
+        Math.floor((duracionFiesta * 1000) / n),
+      );
+
+      tick(current);
+      carruselRef.current = setInterval(() => {
+        setFotos((c) => {
+          tick(c);
+          return c;
+        });
+      }, intervaloMs);
+
+      return current;
+    });
   };
 
   // ── Cleanup general ──
@@ -431,7 +455,7 @@ export default function CumpleanosFiesta() {
 
   const handleSigueme = () => {
     limpiarTodo();
-    navigate("/dashboard");
+    navigate("/dashboard/CumpleanosUniverso");
   };
 
   const handleSalir = () => {
@@ -472,9 +496,35 @@ export default function CumpleanosFiesta() {
                 );
               })}
             </div>
+
             <div className="cumf-pastel-cuerpo">
-              <div className="cumf-pastel-capa cumf-pastel-capa--top" />
-              <div className="cumf-pastel-capa cumf-pastel-capa--bottom" />
+              {/* Capa superior — la más pequeña */}
+              <div className="cumf-pastel-capa cumf-pastel-capa--top">
+                <div className="cumf-perlas">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <span key={i} className="cumf-perla" />
+                  ))}
+                </div>
+                <div className="cumf-drip cumf-drip--top" />
+              </div>
+
+              {/* Capa media */}
+              <div className="cumf-pastel-capa cumf-pastel-capa--mid">
+                <div className="cumf-flores">
+                  <span className="cumf-flor cumf-flor--1">🌸</span>
+                  <span className="cumf-flor cumf-flor--2">🌸</span>
+                  <span className="cumf-flor cumf-flor--3">🌸</span>
+                </div>
+                <div className="cumf-drip cumf-drip--mid" />
+              </div>
+
+              {/* Capa base — la más grande */}
+              <div className="cumf-pastel-capa cumf-pastel-capa--base">
+                <div className="cumf-listón" />
+              </div>
+
+              {/* Plato */}
+              <div className="cumf-pastel-plato" />
             </div>
           </div>
 
@@ -496,7 +546,7 @@ export default function CumpleanosFiesta() {
 
       {/* ── "FELIZ CUMPLEAÑOS" — fijo arriba durante la fiesta, efecto de trazo ── */}
       {mostrarFeliz && (fase === "fiesta" || fase === "final") && (
-        <p className="cumf-feliz-texto">Feliz Cumpleaños 🎉</p>
+        <p className="cumf-feliz-texto">Feliz Cumpleaños Mi Amor 🎉</p>
       )}
 
       {/* ── FASE FIESTA: fotos alrededor del corazón ── */}

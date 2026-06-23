@@ -8,6 +8,7 @@ import HomeContent from "./Components/HomeContent";
 import Galeria from "./Components/Galeria/Galeria"
 import CumpleanosCard from "./Components/DiaEspecial/Cumpleaños/Cumpleanoscard";
 import Cummpleanosfiesta from "./Components/DiaEspecial/Cumpleaños/Cumpleanosfiesta";
+import Cumpleanosuniverso from "./Components/DiaEspecial/Cumpleaños/Cumpleanosuniverso";
 import "./App.css";
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
           <Route path="Galeria" element={<Galeria />} />
           <Route path="Cumpleanoscard" element={<CumpleanosCard />} />
           <Route path="Cumpleanosfiesta" element={<Cummpleanosfiesta />} />
+          <Route path="Cumpleanosuniverso" element={<Cumpleanosuniverso />} />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

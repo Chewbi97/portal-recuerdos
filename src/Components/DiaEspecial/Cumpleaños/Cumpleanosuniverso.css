@@ -1,0 +1,154 @@
+/* CumpleanosUniverso.css */
+
+.cumu-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+/* ── Video de fondo en loop ── */
+.cumu-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Velo oscuro para legibilidad del texto ── */
+.cumu-oscuro {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.25) 25%,
+    rgba(0, 0, 0, 0.3) 75%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* ── Salir ── */
+.cumu-salir {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(253, 246, 227, 0.6);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.cumu-salir:hover {
+  background: rgba(126, 217, 87, 0.2);
+  color: #fdf6e3;
+}
+
+/* ── Poema — crawl tipo Star Wars ── */
+.cumu-poema-wrapper {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 5;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 14%,
+    black 86%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 14%,
+    black 86%,
+    transparent 100%
+  );
+}
+
+.cumu-poema-scroll {
+  width: 85%;
+  max-width: 680px;
+  padding-top: 100vh;
+  padding-bottom: 60vh;
+}
+
+.cumu-poema-texto {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.3rem, 3.4vw, 1.85rem);
+  color: rgba(255, 255, 255, 0.93);
+  text-align: center;
+  line-height: 2.3;
+  white-space: pre-line;
+  margin: 0;
+  text-shadow:
+    0 0 18px rgba(126, 217, 87, 0.25),
+    0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+/* ── Cierre ── */
+.cumu-cierre {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  z-index: 10;
+  animation: cumuFadeIn 1.4s ease both;
+}
+
+@keyframes cumuFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cumu-cierre-texto {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2.2rem, 7vw, 3.6rem);
+  color: #f0c040;
+  text-shadow: 0 0 24px rgba(240, 192, 64, 0.6), 0 0 50px rgba(126, 217, 87, 0.25);
+  text-align: center;
+  margin: 0;
+  padding: 0 24px;
+}
+
+.cumu-btn-volver {
+  font-family: "Great Vibes", cursive;
+  font-size: 1.7rem;
+  color: #fdf6e3;
+  background: rgba(45, 90, 39, 0.85);
+  border: 1px solid rgba(126, 217, 87, 0.5);
+  padding: 12px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 22px rgba(126, 217, 87, 0.3);
+}
+
+.cumu-btn-volver:hover {
+  background: rgba(45, 90, 39, 1);
+  transform: scale(1.05);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .cumu-poema-texto {
+    font-size: 1.25rem;
+    line-height: 2.1;
+  }
+}
