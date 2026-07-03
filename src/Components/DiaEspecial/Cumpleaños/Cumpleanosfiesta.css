@@ -352,9 +352,10 @@
     0 6px 24px rgba(126, 217, 87, 0.25),
     0 2px 10px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(126, 217, 87, 0.35);
+  /* --duracion se inyecta desde JS en style inline */
   animation:
     cumfFotoIn 1s ease both,
-    cumfFotoOut 1s ease 2.2s forwards;
+    cumfFotoOut 1s ease calc(var(--duracion, 8s) - 1s) forwards;
 }
 
 .cumf-foto-flotante img {

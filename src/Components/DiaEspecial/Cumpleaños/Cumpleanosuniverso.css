@@ -15,6 +15,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.8s ease;
 }
 
 /* ── Velo oscuro para legibilidad del texto ── */
@@ -82,8 +83,10 @@
 .cumu-poema-scroll {
   width: 85%;
   max-width: 680px;
+  /* El poema empieza fuera de pantalla abajo y sube */
   padding-top: 100vh;
-  padding-bottom: 60vh;
+  padding-bottom: 100vh;
+  will-change: transform;
 }
 
 .cumu-poema-texto {
@@ -113,15 +116,21 @@
 }
 
 @keyframes cumuFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cumu-cierre-texto {
   font-family: "Great Vibes", cursive;
   font-size: clamp(2.2rem, 7vw, 3.6rem);
   color: #f0c040;
-  text-shadow: 0 0 24px rgba(240, 192, 64, 0.6), 0 0 50px rgba(126, 217, 87, 0.25);
+  text-shadow:
+    0 0 24px rgba(240, 192, 64, 0.6),
+    0 0 50px rgba(126, 217, 87, 0.25);
   text-align: center;
   margin: 0;
   padding: 0 24px;

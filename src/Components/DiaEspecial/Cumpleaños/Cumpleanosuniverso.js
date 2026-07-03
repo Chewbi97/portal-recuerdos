@@ -4,8 +4,8 @@ import "./Cumpleanosuniverso.css";
 
 // ── Configuración ──
 const DURACION_DEFAULT = 216.5; // segundos — se ajusta con la duración real del audio
-const SCROLL_MAX = 94;          // % máximo de desplazamiento al terminar el poema
-const VOLUMEN_MUSICA = 0.16;    // Interstellar de fondo, bajo para que la voz se escuche
+const SCROLL_MAX = 94; // % máximo de desplazamiento al terminar el poema
+const VOLUMEN_MUSICA = 0.28; // Interstellar de fondo, bajo para que la voz se escuche
 const VOLUMEN_VOZ = 1;
 
 // ── URLs de Firebase Storage ──
@@ -186,7 +186,9 @@ export default function CumpleanosUniverso() {
   const fadeMusicaRef = useRef(null);
   const duracionRef = useRef(DURACION_DEFAULT);
 
-  const [scroll, setScroll] = useState(0);
+  const scrollRef = useRef(null); // ref al contenedor del scroll
+
+  const [scrollPx, setScrollPx] = useState(0);
   const [finalizado, setFinalizado] = useState(false);
 
   useEffect(() => {
@@ -195,6 +197,21 @@ export default function CumpleanosUniverso() {
     const musica = musicaRef.current;
 
     video?.play().catch(() => {});
+
+    // ── Crossfade suave en el loop del video ──
+    // 1 segundo antes del final hace fade out, al reiniciar hace fade in
+    const handleTimeUpdate = () => {
+      if (!video) return;
+      const restante = video.duration - video.currentTime;
+      if (restante <= 1) {
+        video.style.opacity = Math.max(0, restante); // fade out
+      } else if (video.currentTime < 1) {
+        video.style.opacity = Math.min(1, video.currentTime); // fade in
+      } else {
+        video.style.opacity = 1;
+      }
+    };
+    video?.addEventListener("timeupdate", handleTimeUpdate);
 
     if (musica) {
       musica.volume = VOLUMEN_MUSICA;
@@ -215,9 +232,12 @@ export default function CumpleanosUniverso() {
 
     // ── Loop: sincroniza el scroll del poema con el audio de la voz ──
     const loop = () => {
-      if (voz) {
+      if (voz && scrollRef.current) {
         const prog = Math.min(voz.currentTime / duracionRef.current, 1);
-        setScroll(prog * SCROLL_MAX);
+        // scrollHeight total desplazable = altura del contenido - altura visible
+        const contenedor = scrollRef.current;
+        const scrollable = contenedor.scrollHeight - window.innerHeight;
+        setScrollPx(prog * Math.max(0, scrollable));
       }
       animRef.current = requestAnimationFrame(loop);
     };
@@ -240,6 +260,7 @@ export default function CumpleanosUniverso() {
     return () => {
       cancelAnimationFrame(animRef.current);
       if (fadeMusicaRef.current) clearInterval(fadeMusicaRef.current);
+      video?.removeEventListener("timeupdate", handleTimeUpdate);
       voz?.removeEventListener("loadedmetadata", handleLoadedMeta);
       voz?.removeEventListener("ended", handleEnded);
       voz?.pause();
@@ -280,14 +301,20 @@ export default function CumpleanosUniverso() {
       <audio ref={musicaRef} src={URL_MUSICA} preload="auto" />
 
       {/* Salir — disponible en todo momento */}
-      <button className="cumu-salir" onClick={handleSalir} title="Salir">✕</button>
+      <button className="cumu-salir" onClick={handleSalir} title="Salir">
+        ✕
+      </button>
 
       {/* Poema — crawl tipo Star Wars */}
       {!finalizado && (
         <div className="cumu-poema-wrapper">
           <div
+            ref={scrollRef}
             className="cumu-poema-scroll"
-            style={{ transform: `translateY(-${scroll}%)`, transition: "none" }}
+            style={{
+              transform: `translateY(-${scrollPx}px)`,
+              transition: "none",
+            }}
           >
             <p className="cumu-poema-texto">{POEMA}</p>
           </div>
