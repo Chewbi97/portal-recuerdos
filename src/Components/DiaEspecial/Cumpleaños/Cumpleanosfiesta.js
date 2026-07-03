@@ -5,10 +5,10 @@ import "./Cumpleanosfiesta.css";
 
 const TOTAL_SOPLOS = 15;
 const DURACION_DESEO_TOTAL = 10000; // ms que "Pide tu deseo" permanece en pantalla
-const FADE_TEXTO = 700;             // ms de fade out del texto del deseo
-const SPEED_CORAZON = 0.005;        // ~10s en armarse
-const ALPHA_SPEED = 0.05;           // velocidad de fade in/out de partículas
-const FADE_INICIO = 30;             // segundos antes del final donde aparece la frase + fade
+const FADE_TEXTO = 700; // ms de fade out del texto del deseo
+const SPEED_CORAZON = 0.005; // ~10s en armarse
+const ALPHA_SPEED = 0.05; // velocidad de fade in/out de partículas
+const FADE_INICIO = 30; // segundos antes del final donde aparece la frase + fade
 const DURACION_DEFAULT = 4 * 60 + 40; // 4:40 fallback si el audio no cargó aún
 
 // Pulso del corazón
@@ -78,7 +78,7 @@ export default function CumpleanosFiesta() {
     listAll(ref(storage, "cumpleaños"))
       .then(async (res) => {
         const urls = await Promise.all(
-          res.items.map((item) => getDownloadURL(item))
+          res.items.map((item) => getDownloadURL(item)),
         );
         setFotos(urls);
       })
@@ -107,11 +107,14 @@ export default function CumpleanosFiesta() {
       ctx.fillRect(0, 0, W, H);
 
       const { cx, cy } = centroRef.current;
-      const pulso = 1 + PULSO_AMPLITUD * Math.sin(performance.now() * PULSO_VELOCIDAD);
+      const pulso =
+        1 + PULSO_AMPLITUD * Math.sin(performance.now() * PULSO_VELOCIDAD);
 
       // ── Glow de fondo del corazón ──
       const parts = particlesRef.current;
-      const corazonActivo = parts.some((p) => p.bx !== undefined && p.targetAlpha > 0);
+      const corazonActivo = parts.some(
+        (p) => p.bx !== undefined && p.targetAlpha > 0,
+      );
       if (corazonActivo) {
         const radioGlow = Math.min(W, H) * 0.32 * pulso;
         const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radioGlow);
@@ -137,9 +140,11 @@ export default function CumpleanosFiesta() {
         p.alpha += (p.targetAlpha - p.alpha) * ALPHA_SPEED;
         if (p.alpha < 0.01) continue;
 
-        const twinkle = 0.78 + 0.22 * Math.sin(performance.now() * 0.0025 + p.fase);
-        const brillo = p.z !== undefined ? 0.55 + (p.z + 1) / 2 * 0.45 : 1;
-        const radio = p.r * (p.z !== undefined ? 0.7 + (p.z + 1) / 2 * 0.6 : 1);
+        const twinkle =
+          0.78 + 0.22 * Math.sin(performance.now() * 0.0025 + p.fase);
+        const brillo = p.z !== undefined ? 0.55 + ((p.z + 1) / 2) * 0.45 : 1;
+        const radio =
+          p.r * (p.z !== undefined ? 0.7 + ((p.z + 1) / 2) * 0.6 : 1);
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, radio, 0, Math.PI * 2);
@@ -231,7 +236,9 @@ export default function CumpleanosFiesta() {
 
   // ── Chispas saliendo del corazón ──
   const lanzarChispas = useCallback(() => {
-    const parts = particlesRef.current.filter((p) => p.bx !== undefined && p.targetAlpha > 0);
+    const parts = particlesRef.current.filter(
+      (p) => p.bx !== undefined && p.targetAlpha > 0,
+    );
     if (parts.length === 0) return;
     const { cx, cy } = centroRef.current;
 
@@ -320,7 +327,7 @@ export default function CumpleanosFiesta() {
         audio.addEventListener(
           "loadedmetadata",
           () => arrancar(audio.duration),
-          { once: true }
+          { once: true },
         );
       }
     }
@@ -378,9 +385,14 @@ export default function CumpleanosFiesta() {
     };
 
     let idx = 0;
-    const tick = (fotosActuales) => {
+    const tick = (fotosActuales, totalFotos) => {
+      // Si ya mostramos todas las fotos, paramos el carrusel
+      if (idx >= totalFotos) {
+        clearInterval(carruselRef.current);
+        return;
+      }
       if (!fotosActuales || fotosActuales.length === 0) return;
-      const url = fotosActuales[idx % fotosActuales.length];
+      const url = fotosActuales[idx];
       idx++;
 
       const slotIdx = Math.floor(Math.random() * posiciones.length);
@@ -398,22 +410,26 @@ export default function CumpleanosFiesta() {
     };
 
     // ── Calcular intervalo dinámico ──
-    // Duración de la fase fiesta: desde que arranca hasta el fade final (~6s antes del fin)
-    // Usamos la duración del audio si ya está disponible, o el default
     const audio = audioRef.current;
-    const duracionCancion = (audio?.duration && isFinite(audio.duration))
-      ? audio.duration
-      : DURACION_DEFAULT;
-    const duracionFiesta = Math.max(duracionCancion - 6, 30); // segundos de la fase fiesta
+    const duracionCancion =
+      audio?.duration && isFinite(audio.duration)
+        ? audio.duration
+        : DURACION_DEFAULT;
+    const duracionFiesta = Math.max(duracionCancion - 6, 30);
 
     setFotos((current) => {
       const n = current?.length || 1;
-      const intervaloMs = Math.max(4000, Math.floor((duracionFiesta * 1000) / n));
-      intervaloFotoRef.current = intervaloMs; // guardar para usarlo en el style
+      // Barajamos las fotos para que salgan en orden aleatorio sin repetir
+      const fotosBarajadas = [...current].sort(() => Math.random() - 0.5);
+      const intervaloMs = Math.max(
+        7000,
+        Math.floor((duracionFiesta * 1000) / n),
+      );
+      intervaloFotoRef.current = intervaloMs;
 
-      tick(current);
+      tick(fotosBarajadas, n);
       carruselRef.current = setInterval(() => {
-        setFotos((c) => { tick(c); return c; });
+        tick(fotosBarajadas, n);
       }, intervaloMs);
 
       return current;
@@ -460,7 +476,9 @@ export default function CumpleanosFiesta() {
       />
 
       {/* Botón salir — disponible en todo momento */}
-      <button className="cumf-salir" onClick={handleSalir} title="Salir">✕</button>
+      <button className="cumf-salir" onClick={handleSalir} title="Salir">
+        ✕
+      </button>
 
       {/* ── FASE PASTEL ── */}
       {fase === "pastel" && (
@@ -468,10 +486,13 @@ export default function CumpleanosFiesta() {
           <div className="cumf-pastel">
             <div className="cumf-velas">
               {Array.from({ length: 5 }).map((_, i) => {
-                const apagada = soplos >= Math.ceil(((i + 1) / 5) * TOTAL_SOPLOS);
+                const apagada =
+                  soplos >= Math.ceil(((i + 1) / 5) * TOTAL_SOPLOS);
                 return (
                   <div key={i} className="cumf-vela">
-                    <div className={`cumf-flama ${apagada ? "cumf-flama--apagada" : ""}`} />
+                    <div
+                      className={`cumf-flama ${apagada ? "cumf-flama--apagada" : ""}`}
+                    />
                     <div className="cumf-mecha" />
                   </div>
                 );
@@ -547,9 +568,7 @@ export default function CumpleanosFiesta() {
 
       {/* ── FRASE FINAL (debajo del corazón) — efecto de trazo ── */}
       {fase === "fiesta" && mostrarFrase && (
-        <p className="cumf-frase-final">
-          Te Quiero Mucho Mis Ojitos Bellos 💚
-        </p>
+        <p className="cumf-frase-final">Te Quiero Mucho Mis Ojitos Bellos 💚</p>
       )}
 
       {/* ── MENSAJE DE CIERRE ── */}
