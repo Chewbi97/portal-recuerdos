@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Misojitosyo.css";
+import { enviarNotificacion } from "../../firebase";
 
 // ── Función del corazón ──
 function puntoCorazon(x, A, k) {
@@ -36,6 +37,14 @@ export default function Misojitosyo({ diaEspecial, onClose }) {
 
   // URL viene de Firestore
   const urlCancion = diaEspecial?.audioUrl || "";
+
+  // ── Notificación al abrir la tarjeta ──
+  useEffect(() => {
+    enviarNotificacion(
+      "Mis ojitos, yo... 🎵",
+      "Alguien está escuchando 'Donde Vive la Inmensidad' 💚",
+    );
+  }, []);
 
   // ── Loop de canvas ──
   useEffect(() => {
