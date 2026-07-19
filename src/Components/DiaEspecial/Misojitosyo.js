@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./Misojitosyo.css";
 
-const URL_CANCION =
-  "https://firebasestorage.googleapis.com/v0/b/portal-de-recuerdos.firebasestorage.app/o/diasEspeciales%2Fmusica%2FDonde%20Vive%20la%20Inmensidad.mp3.mpeg?alt=media";
-
-// ── Función del corazón optimizada ──
+// ── Función del corazón ──
 function puntoCorazon(x, A, k) {
   if (Math.abs(x) >= Math.sqrt(6)) return null;
   const raiz = Math.sqrt(6 - x * x);
@@ -13,7 +9,6 @@ function puntoCorazon(x, A, k) {
   return base + A * Math.cos(k * x) * raiz;
 }
 
-// Mapea coordenadas matemáticas a canvas
 function toCanvas(mx, my, cx, cy, escala) {
   return {
     px: cx + mx * escala,
@@ -21,11 +16,9 @@ function toCanvas(mx, my, cx, cy, escala) {
   };
 }
 
-export default function MisOjitosYo() {
-  const navigate = useNavigate();
+// ── Recibe diaEspecial y onClose como props — igual que el resto de tarjetas ──
+export default function Misojitosyo({ diaEspecial, onClose }) {
   const canvasRef = useRef(null);
-
-  // audioSourceRef guardará el nodo vivo BufferSource de Web Audio
   const audioSourceRef = useRef(null);
   const animRef = useRef(null);
   const analyserRef = useRef(null);
@@ -35,11 +28,14 @@ export default function MisOjitosYo() {
 
   const [fase, setFase] = useState("intro");
   const [fraseBrillando, setFraseBrillando] = useState(false);
-  const [cargando, setCargando] = useState(false); // Estado visual por si el fetch tarda en móvil
+  const [cargando, setCargando] = useState(false);
 
   const kRef = useRef(-87.3);
   const amplRef = useRef(0.8);
   const tiempoRef = useRef(0);
+
+  // URL viene de Firestore
+  const urlCancion = diaEspecial?.audioUrl || "";
 
   // ── Loop de canvas ──
   useEffect(() => {
@@ -57,9 +53,8 @@ export default function MisOjitosYo() {
       const W = canvas.width;
       const H = canvas.height;
       const cx = W / 2;
-      const cy = H * 0.53; // Mantiene tu ajuste perfecto para que no tape las letras
+      const cy = H * 0.53;
       const escala = Math.min(W, H) * 0.15;
-
       const PASOS = 600;
       const xMin = -Math.sqrt(6) + 0.001;
       const xMax = Math.sqrt(6) - 0.001;
@@ -86,11 +81,8 @@ export default function MisOjitosYo() {
     };
 
     const loop = () => {
-      const W = canvas.width;
-      const H = canvas.height;
       ctx.fillStyle = "rgba(0,0,0,0.25)";
-      ctx.fillRect(0, 0, W, H);
-
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       tiempoRef.current += 0.012;
 
       let A = amplRef.current;
@@ -108,11 +100,9 @@ export default function MisOjitosYo() {
         analyserRef.current.getByteFrequencyData(dataArrayRef.current);
         const arr = dataArrayRef.current;
         const len = arr.length;
-
         let sum = 0;
         for (let i = 0; i < len; i++) sum += arr[i];
         const vol = sum / len / 255;
-
         let maxVal = 0,
           maxIdx = 0;
         for (let i = 0; i < len; i++) {
@@ -122,7 +112,6 @@ export default function MisOjitosYo() {
           }
         }
         const freqNorm = maxIdx / len;
-
         A = 0.5 + vol * 1.2;
         k = -87.3 - freqNorm * 80 - vol * 40;
         glow = 10 + vol * 30;
@@ -149,101 +138,77 @@ export default function MisOjitosYo() {
     };
   }, []);
 
-  // ── Iniciar canción — Método definitivo por Fetch & Buffer para móviles ──
+  // ── Iniciar canción ──
   const iniciarCancion = async () => {
-    if (cargando || faseRef.current !== "intro") return;
+    if (cargando || faseRef.current !== "intro" || !urlCancion) return;
 
-    // Inicializar AudioContext al instante de recibir el click (Requisito móvil)
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (
         window.AudioContext || window.webkitAudioContext
       )();
     }
-
     if (audioCtxRef.current.state === "suspended") {
       await audioCtxRef.current.resume();
     }
 
     setCargando(true);
-
     try {
-      // Descarga el archivo de Firebase directo a la memoria como binario libre de bloqueos CORS de video/audio tag
-      const respuesta = await fetch(URL_CANCION);
+      const respuesta = await fetch(urlCancion);
       const arrayBuffer = await respuesta.arrayBuffer();
-
-      // Decodifica las frecuencias en el procesador del teléfono
       const audioBuffer =
         await audioCtxRef.current.decodeAudioData(arrayBuffer);
 
-      // Crear Analizador
       const analyser = audioCtxRef.current.createAnalyser();
       analyser.fftSize = 256;
       analyserRef.current = analyser;
       dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
 
-      // Crear Fuente Pura
       const source = audioCtxRef.current.createBufferSource();
       source.buffer = audioBuffer;
-
-      // Conexión directa del flujo
       source.connect(analyser);
       analyser.connect(audioCtxRef.current.destination);
-
       audioSourceRef.current = source;
 
-      // Transición de interfaz
       faseRef.current = "cancion";
       setFase("cancion");
       setCargando(false);
-
-      // Iniciar reproducción
       source.start(0);
 
-      // Evento de fin de canción
       source.onended = () => {
         faseRef.current = "frase";
         setFase("frase");
         setTimeout(() => setFraseBrillando(true), 300);
       };
     } catch (e) {
-      console.error("Fallo de decodificación o descarga en el móvil:", e);
+      console.error("Error cargando audio:", e);
       setCargando(false);
-      faseRef.current = "intro";
-      setFase("intro");
     }
   };
 
   const handleSalir = () => {
     cancelAnimationFrame(animRef.current);
-
-    // Detener el BufferSource puro de manera segura
     try {
       audioSourceRef.current?.stop();
-    } catch (e) {
-      // Evita crasheos si la canción no había empezado
-    }
-
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close();
-    }
-    navigate("/dashboard");
+    } catch (e) {}
+    if (audioCtxRef.current) audioCtxRef.current.close();
+    onClose();
   };
 
   return (
     <div className="moy-overlay">
       <canvas ref={canvasRef} className="moy-canvas" />
 
-      {/* Salir */}
       <button className="moy-salir" onClick={handleSalir}>
         ✕
       </button>
 
-      {/* Nombre de la canción — siempre visible */}
+      {/* Nombre de la canción — desde Firestore o fallback */}
       <div className="moy-nombre-cancion">
-        <p className="moy-nombre-texto">Donde Vive la Inmensidad</p>
+        <p className="moy-nombre-texto">
+          {diaEspecial?.titulo || "Donde Vive la Inmensidad"}
+        </p>
       </div>
 
-      {/* Título — solo en intro */}
       {fase === "intro" && (
         <div className="moy-intro">
           <p className="moy-titulo">Mis ojitos, yo...</p>
@@ -261,7 +226,6 @@ export default function MisOjitosYo() {
         </div>
       )}
 
-      {/* Frase final */}
       {fase === "frase" && (
         <p
           className={`moy-frase-final ${fraseBrillando ? "moy-frase-final--visible" : ""}`}

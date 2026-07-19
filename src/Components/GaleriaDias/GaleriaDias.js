@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  CalendarBlank,
-  MusicNote,
-  SpinnerGap,
-  Cake,
-  Heart,
-} from "@phosphor-icons/react";
+import {  X,  CalendarBlank,  MusicNote,  SpinnerGap,  Cake,  Heart,} from "@phosphor-icons/react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -38,11 +31,6 @@ function GaleriaDias({ onSeleccionar, onClose }) {
   const handleCumpleanos = () => {
     onClose();
     navigate("/dashboard/Cumpleanoscard");
-  };
-
-  const handleCancion = () => {
-    onClose();
-    navigate("/dashboard/Misojitosyo");
   };
 
   return (
@@ -113,25 +101,6 @@ function GaleriaDias({ onSeleccionar, onClose }) {
             </div>
 
             {/* ── Card "Mis ojitos, yo..." ── */}
-            <div
-              className="momento-card momento-card--cancion"
-              onClick={handleCancion}
-            >
-              <div className="momento-emoji">🎵</div>
-              <div className="momento-info">
-                <h2 className="momento-nombre">Mis ojitos, yo...</h2>
-                <p className="momento-fecha">
-                  <CalendarBlank size={14} weight="light" /> Para siempre
-                </p>
-                <p className="momento-desc">
-                  Donde Vive la Inmensidad — una canción para tus ojos 💚
-                </p>
-              </div>
-              <div className="momento-play">
-                <Heart size={22} weight="light" />
-                <span>Escuchar</span>
-              </div>
-            </div>
           </div>
         )}
 
