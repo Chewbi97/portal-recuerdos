@@ -1,0 +1,181 @@
+/* MisOjitosYo.css */
+
+.moy-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.moy-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Botón salir ── */
+.moy-salir {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  background: rgba(77, 255, 145, 0.08);
+  border: 1px solid rgba(77, 255, 145, 0.2);
+  color: rgba(77, 255, 145, 0.5);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.moy-salir:hover {
+  background: rgba(77, 255, 145, 0.18);
+  color: rgba(77, 255, 145, 0.9);
+}
+
+/* ── Nombre canción — arriba centrado, fuera del corazón ── */
+.moy-nombre-cancion {
+  position: fixed;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  text-align: center;
+  animation: moyFadeIn 1.8s ease both;
+  white-space: nowrap;
+}
+
+.moy-nombre-texto {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  color: #f0c040;
+  margin: 0;
+  text-shadow:
+    0 0 16px rgba(240, 192, 64, 0.5),
+    0 0 36px rgba(240, 192, 64, 0.2);
+  letter-spacing: 0.03em;
+}
+
+/* ── Intro — anclado abajo ── */
+.moy-intro {
+  position: fixed;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: moyFadeIn 1.4s ease both;
+}
+
+@keyframes moyFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.moy-titulo {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: rgba(77, 255, 145, 0.9);
+  text-shadow:
+    0 0 20px rgba(77, 255, 145, 0.5),
+    0 0 50px rgba(77, 255, 145, 0.2);
+  margin: 0;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.moy-btn-play {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(77, 255, 145, 0.1);
+  border: 1px solid rgba(77, 255, 145, 0.4);
+  color: rgba(77, 255, 145, 0.9);
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(77, 255, 145, 0.15);
+  padding-left: 4px;
+}
+
+.moy-btn-play:hover {
+  background: rgba(77, 255, 145, 0.2);
+  box-shadow: 0 0 32px rgba(77, 255, 145, 0.35);
+  transform: scale(1.08);
+}
+
+.moy-hint {
+  font-family: "EB Garamond", serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(77, 255, 145, 0.35);
+  margin: 0;
+  letter-spacing: 0.08em;
+}
+
+/* ── Frase final ── */
+.moy-frase-final {
+  position: fixed;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  text-align: center;
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  color: rgba(77, 255, 145, 0);
+  z-index: 10;
+  margin: 0;
+  clip-path: inset(0 100% 0 0);
+}
+
+.moy-frase-final--visible {
+  color: rgba(77, 255, 145, 0.95);
+  text-shadow:
+    0 0 20px rgba(77, 255, 145, 0.7),
+    0 0 50px rgba(77, 255, 145, 0.3);
+  animation: moyTrazo 2.5s ease forwards;
+}
+
+@keyframes moyTrazo {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .moy-titulo {
+    font-size: 1.7rem;
+  }
+  .moy-btn-play {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  .moy-nombre-texto {
+    font-size: 1.2rem;
+  }
+}

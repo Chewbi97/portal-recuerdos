@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { X, CalendarBlank, MusicNote, SpinnerGap } from "@phosphor-icons/react";
+import {
+  X,
+  CalendarBlank,
+  MusicNote,
+  SpinnerGap,
+  Cake,
+  Heart,
+} from "@phosphor-icons/react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import "./GaleriaDias.css";
 
 function GaleriaDias({ onSeleccionar, onClose }) {
+  const navigate = useNavigate();
   const [momentos, setMomentos] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +24,7 @@ function GaleriaDias({ onSeleccionar, onClose }) {
         const docs = snapshot.docs
           .map((doc) => ({ id: doc.id, ...doc.data() }))
           .filter((d) => d.activo && d.visible !== false)
-          .sort((a, b) => a.fecha?.localeCompare(b.fecha)); // ordenados por fecha
+          .sort((a, b) => a.fecha?.localeCompare(b.fecha));
         setMomentos(docs);
       } catch (error) {
         console.error("Error cargando momentos:", error);
@@ -25,6 +34,16 @@ function GaleriaDias({ onSeleccionar, onClose }) {
     };
     cargarMomentos();
   }, []);
+
+  const handleCumpleanos = () => {
+    onClose();
+    navigate("/dashboard/Cumpleanoscard");
+  };
+
+  const handleCancion = () => {
+    onClose();
+    navigate("/dashboard/Misojitosyo");
+  };
 
   return (
     <div className="galeria-overlay" onClick={onClose}>
@@ -44,10 +63,6 @@ function GaleriaDias({ onSeleccionar, onClose }) {
           <div className="galeria-loading">
             <SpinnerGap size={28} weight="light" className="spinner" />
             <p>Cargando momentos...</p>
-          </div>
-        ) : momentos.length === 0 ? (
-          <div className="galeria-empty">
-            <p>Aún no hay momentos especiales guardados 💌</p>
           </div>
         ) : (
           <div className="galeria-grid">
@@ -75,7 +90,55 @@ function GaleriaDias({ onSeleccionar, onClose }) {
                 </div>
               </div>
             ))}
+
+            {/* ── Card de cumpleaños ── */}
+            <div
+              className="momento-card momento-card--cumple"
+              onClick={handleCumpleanos}
+            >
+              <div className="momento-emoji">🎂</div>
+              <div className="momento-info">
+                <h2 className="momento-nombre">Feliz Cumpleaños</h2>
+                <p className="momento-fecha">
+                  <CalendarBlank size={14} weight="light" /> 04 de Julio 2026
+                </p>
+                <p className="momento-desc">
+                  Una tarjeta especial para tu día más especial 💚
+                </p>
+              </div>
+              <div className="momento-play">
+                <Cake size={22} weight="light" />
+                <span>Revivir</span>
+              </div>
+            </div>
+
+            {/* ── Card "Mis ojitos, yo..." ── */}
+            <div
+              className="momento-card momento-card--cancion"
+              onClick={handleCancion}
+            >
+              <div className="momento-emoji">🎵</div>
+              <div className="momento-info">
+                <h2 className="momento-nombre">Mis ojitos, yo...</h2>
+                <p className="momento-fecha">
+                  <CalendarBlank size={14} weight="light" /> Para siempre
+                </p>
+                <p className="momento-desc">
+                  Donde Vive la Inmensidad — una canción para tus ojos 💚
+                </p>
+              </div>
+              <div className="momento-play">
+                <Heart size={22} weight="light" />
+                <span>Escuchar</span>
+              </div>
+            </div>
           </div>
+        )}
+
+        {!loading && momentos.length === 0 && (
+          <p className="galeria-empty-msg">
+            Aún no hay momentos especiales guardados 💌
+          </p>
         )}
       </div>
     </div>
