@@ -4,6 +4,7 @@ import { db } from "../../firebase";
 import { getDoc, doc } from "firebase/firestore";
 import Galeria from "../Galeria/Galeria";
 import CumpleanosTeaser from "../DiaEspecial/Cumpleaños/CumpleanosTeaser";
+import LoQueSembramos from "../DiaEspecial/LoQueSembramos";
 import VideoAnimacion from "../DiaEspecial/VideoAnimacion";
 import GaleriaDias from "../GaleriaDias/GaleriaDias";
 import DiaMujer from "../DiaEspecial/DiaMujer";
@@ -12,6 +13,7 @@ import SuperficieCorazon from "../DiaEspecial/Superficiecorazon";
 import LuciernagasPoema from "../DiaEspecial/GalaxiasFusion";
 import Pluma from "../DiaEspecial/Pluma";
 import Misojitosyo from "../DiaEspecial/Misojitosyo";
+import CorazonFlor from "../DiaEspecial/Corazonflor";
 import { SignOut, Envelope } from "@phosphor-icons/react";
 import "./Dashboard.css";
 import { solicitarPermisoNotificaciones } from "../../firebase";
@@ -19,6 +21,7 @@ import { solicitarPermisoNotificaciones } from "../../firebase";
 
 const FECHAS = {
   "03-08": "diaMujer",
+  "09-19": "amorYAmistad2026",
   // "02-14": "sanValentin",  // futuro
 };
 
@@ -30,6 +33,8 @@ const COMPONENTES_DIAS = {
   luciernagaspoema: LuciernagasPoema,
   pluma: Pluma,
   misojitosyo: Misojitosyo,
+  corazonflor: CorazonFlor,
+  amorYAmistad2026: LoQueSembramos,
   // sanValentin: DiaValentin,  // futuro
 };
 

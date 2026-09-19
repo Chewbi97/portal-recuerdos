@@ -5,11 +5,12 @@ import Dashboard from "./Components/Dashboard/Dashboard";
 import PoemsPortal from "./Components/PortalPoemas/PoemsPortal";
 import TimeLine from "./Components/LineadeTiempo/TimeLine";
 import HomeContent from "./Components/HomeContent";
-import Galeria from "./Components/Galeria/Galeria"
+import Galeria from "./Components/Galeria/Galeria";
 import CumpleanosCard from "./Components/DiaEspecial/Cumpleaños/Cumpleanoscard";
 import Cummpleanosfiesta from "./Components/DiaEspecial/Cumpleaños/Cumpleanosfiesta";
 import Cumpleanosuniverso from "./Components/DiaEspecial/Cumpleaños/Cumpleanosuniverso";
 import Misojitosyo from "./Components/DiaEspecial/Misojitosyo";
+import PreviewDia from "./Components/Dashboard/PreviewDia";
 import "./App.css";
 
 function App() {
@@ -65,6 +66,9 @@ function App() {
           <Route path="Cumpleanosfiesta" element={<Cummpleanosfiesta />} />
           <Route path="Cumpleanosuniverso" element={<Cumpleanosuniverso />} />
           <Route path="Misojitosyo" element={<Misojitosyo />} />
+          {/* Ruta oculta — solo accesible escribiéndola directamente,
+              sin enlace en ningún menú ni botón. Ignora fecha y "activo". */}
+          <Route path="preview/:cardId" element={<PreviewDia />} />
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
